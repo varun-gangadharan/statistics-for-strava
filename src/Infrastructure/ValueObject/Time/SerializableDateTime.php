@@ -13,6 +13,11 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
         parent::__construct($string, $timezone);
     }
 
+    public static function fromDateTimeImmutable(\DateTimeImmutable $date): self
+    {
+        return self::fromString($date->format('Y-m-d H:i:s'), SerializableTimezone::fromString($date->getTimezone()->getName()));
+    }
+
     public static function fromString(string $string, SerializableTimezone $timezone): self
     {
         return new self($string, $timezone);
