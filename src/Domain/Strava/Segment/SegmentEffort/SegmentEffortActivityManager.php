@@ -5,24 +5,19 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Segment\SegmentEffort;
 
 use App\Domain\Strava\Activity\ActivityWasDeleted;
-use App\Domain\Strava\Segment\SegmentEffort\ReadModel\SegmentEffortDetailsRepository;
-use App\Infrastructure\Attribute\AsEventListener;
-use App\Infrastructure\Eventing\EventListener\ConventionBasedEventListener;
-use App\Infrastructure\Eventing\EventListener\EventListenerType;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-#[AsEventListener(type: EventListenerType::PROCESS_MANAGER)]
-final class SegmentEffortActivityManager extends ConventionBasedEventListener
+final readonly class SegmentEffortActivityManager
 {
     public function __construct(
-        private readonly SegmentEffortRepository $segmentEffortRepository,
-        private readonly SegmentEffortDetailsRepository $segmentEffortDetailsRepository,
+        private SegmentEffortRepository $segmentEffortRepository,
     ) {
-        parent::__construct();
     }
 
+    #[AsEventListener]
     public function reactToActivityWasDeleted(ActivityWasDeleted $event): void
     {
-        $segmentEfforts = $this->segmentEffortDetailsRepository->findByActivityId($event->getActivityId());
+        $segmentEfforts = $this->segmentEffortRepository->findByActivityId($event->getActivityId());
         if ($segmentEfforts->isEmpty()) {
             return;
         }

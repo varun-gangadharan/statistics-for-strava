@@ -2,24 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\KeyValue\ReadModel;
+namespace App\Infrastructure\KeyValue;
 
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
-use App\Infrastructure\KeyValue\Key;
-use App\Infrastructure\KeyValue\KeyValue;
-use App\Infrastructure\KeyValue\Value;
+use Doctrine\DBAL\Connection;
 
 final readonly class DbalKeyValueStore implements KeyValueStore
 {
     public function __construct(
-        private ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
+    }
+
+    public function save(KeyValue $keyValue): void
+    {
+        $sql = 'REPLACE INTO KeyValue (`key`, `value`)
+        VALUES (:key, :value)';
+
+        $this->connection->executeStatement($sql, [
+            'key' => $keyValue->getKey()->value,
+            'value' => $keyValue->getValue(),
+        ]);
     }
 
     public function find(Key $key): KeyValue
     {
-        $queryBuilder = $this->connectionFactory->getReadOnly()->createQueryBuilder();
+        $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('*')
             ->from('KeyValue')
             ->andWhere('`key` = :key')

@@ -28,7 +28,7 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
         return self::fromString('now', $timezone)->setTimestamp($unixTimestamp);
     }
 
-    public static function createFromFormat(string $format, string $datetime, $timezone): self
+    public static function createFromFormat(string $format, string $datetime, ?\DateTimeZone $timezone = null): self
     {
         if (!$datetime = parent::createFromFormat($format, $datetime, $timezone)) {
             throw new \InvalidArgumentException(sprintf('Invalid date format %s for %s', $format, $datetime));
@@ -36,7 +36,7 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
 
         return self::fromString(
             $datetime->format('Y-m-d H:i:s'),
-            $timezone
+            SerializableTimezone::fromOptionalString($timezone?->getName()) ?? SerializableTimezone::default(),
         );
     }
 

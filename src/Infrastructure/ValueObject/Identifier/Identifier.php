@@ -10,6 +10,11 @@ abstract readonly class Identifier extends NonEmptyStringLiteral implements \Jso
 {
     abstract public static function getPrefix(): string;
 
+    public function toUnprefixedString(): string
+    {
+        return str_replace($this::getPrefix(), '', (string) $this);
+    }
+
     protected function validate(string $value): void
     {
         parent::validate($value);
