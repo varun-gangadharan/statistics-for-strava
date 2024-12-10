@@ -47,4 +47,62 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
     {
         return $this->setTimezone($timezone);
     }
+
+    public function getHourWithoutLeadingZero(): int
+    {
+        return (int) $this->format('G');
+    }
+
+    public function getMinutesWithoutLeadingZero(): int
+    {
+        return intval($this->format('i'));
+    }
+
+    public function getMonthWithoutLeadingZero(): int
+    {
+        return intval($this->format('n'));
+    }
+
+    public function getYear(): int
+    {
+        return (int) $this->format('Y');
+    }
+
+    public function getWeekNumber(): int
+    {
+        return (int) $this->format('W');
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getYearAndWeekNumber(): array
+    {
+        return [$this->getYear(), $this->getWeekNumber()];
+    }
+
+    public function getYearAndWeekNumberString(): string
+    {
+        return implode('-', $this->getYearAndWeekNumber());
+    }
+
+    public function isAfterOrOn(SerializableDateTime $that): bool
+    {
+        return $this >= $that;
+    }
+
+    public function isBeforeOrOn(SerializableDateTime $that): bool
+    {
+        return $this <= $that;
+    }
+
+    public function isBefore(SerializableDateTime $that): bool
+    {
+        return !$this->isAfterOrOn($that);
+    }
+
+    public function isAfter(SerializableDateTime $that): bool
+    {
+        return !$this->isBeforeOrOn($that);
+    }
 }

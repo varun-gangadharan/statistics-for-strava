@@ -158,13 +158,11 @@ abstract class Collection implements \Countable, \IteratorAggregate, \JsonSerial
 
     public function sum(\Closure $closure): int|float
     {
-        // @phpstan-ignore-next-line
         return array_sum($this->map(fn ($item): int|float => $closure($item)));
     }
 
     public function max(\Closure $closure): mixed
     {
-        // @phpstan-ignore-next-line
         return max($this->map(fn ($item): int|float => $closure($item)));
     }
 
@@ -174,7 +172,6 @@ abstract class Collection implements \Countable, \IteratorAggregate, \JsonSerial
             return static::fromArray(array_filter($this->items));
         }
 
-        // @phpstan-ignore-next-line
         return static::fromArray(array_filter($this->items, fn ($item): mixed => $closure($item)));
     }
 

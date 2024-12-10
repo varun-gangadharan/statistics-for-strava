@@ -6,10 +6,10 @@ namespace App\Domain\Strava\Activity;
 
 use App\Infrastructure\Eventing\DomainEvent;
 
-final readonly class ActivityWasDeleted extends DomainEvent
+final class ActivityWasDeleted extends DomainEvent
 {
     public function __construct(
-        private ActivityId $activityId,
+        private readonly ActivityId $activityId,
     ) {
     }
 

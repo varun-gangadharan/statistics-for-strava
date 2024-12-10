@@ -7,11 +7,9 @@ namespace App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 
-#[AsCommandHandler]
 final readonly class CalculateBestStreamAveragesCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -20,7 +18,7 @@ final readonly class CalculateBestStreamAveragesCommandHandler implements Comman
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof CalculateBestStreamAverages);
         $command->getOutput()->writeln('Calculating best stream averages...');

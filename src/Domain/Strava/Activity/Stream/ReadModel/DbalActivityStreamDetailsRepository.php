@@ -12,6 +12,7 @@ use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Repository\ProvideSqlConvert;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalActivityStreamDetailsRepository implements ActivityStreamDetailsRepository
@@ -134,7 +135,7 @@ final readonly class DbalActivityStreamDetailsRepository implements ActivityStre
             activityId: ActivityId::fromString($result['activityId']),
             streamType: StreamType::from($result['streamType']),
             streamData: Json::decode($result['data']),
-            createdOn: SerializableDateTime::fromString($result['createdOn']),
+            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
             bestAverages: Json::decode($result['bestAverages'] ?: '[]'),
         );
     }

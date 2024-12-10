@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity\BuildYearlyDistanceChart;
 
 use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 
-#[AsCommandHandler]
 final readonly class BuildYearlyDistanceChartCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -23,7 +21,7 @@ final readonly class BuildYearlyDistanceChartCommandHandler implements CommandHa
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof BuildYearlyDistanceChart);
 

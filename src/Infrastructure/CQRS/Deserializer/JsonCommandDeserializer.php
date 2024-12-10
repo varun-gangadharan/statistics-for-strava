@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\CQRS\Deserializer;
 
-use App\Infrastructure\CQRS\Bus\DomainCommand;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\String\NonEmptyStringLiteral;
 

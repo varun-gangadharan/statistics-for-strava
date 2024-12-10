@@ -16,16 +16,14 @@ use App\Domain\Strava\DistanceBreakdown;
 use App\Domain\Strava\Gear\GearStatistics;
 use App\Domain\Strava\Gear\ReadModel\GearDetailsRepository;
 use App\Domain\Strava\MonthlyStatistics;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Years;
 use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
 
-#[AsCommandHandler]
 final readonly class BuildReadMeCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -39,7 +37,7 @@ final readonly class BuildReadMeCommandHandler implements CommandHandler
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof BuildReadMe);
 

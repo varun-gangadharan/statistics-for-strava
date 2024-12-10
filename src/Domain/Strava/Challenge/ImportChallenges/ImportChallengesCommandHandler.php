@@ -7,15 +7,13 @@ use App\Domain\Strava\Challenge\ChallengeId;
 use App\Domain\Strava\Challenge\ReadModel\ChallengeDetailsRepository;
 use App\Domain\Strava\Challenge\WriteModel\ChallengeRepository;
 use App\Domain\Strava\Strava;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Time\Sleep;
 use App\Infrastructure\ValueObject\UuidFactory;
 use League\Flysystem\FilesystemOperator;
 
-#[AsCommandHandler]
 final readonly class ImportChallengesCommandHandler implements CommandHandler
 {
     public const DEFAULT_STRAVA_CHALLENGE_HISTORY = '<!-- OVERRIDE ME WITH HTML COPY/PASTED FROM https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case -->';
@@ -30,7 +28,7 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof ImportChallenges);
         $command->getOutput()->writeln('Importing challenges...');

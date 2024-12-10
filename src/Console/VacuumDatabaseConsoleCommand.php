@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Domain\Strava\StravaYears;
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,8 +15,6 @@ final class VacuumDatabaseConsoleCommand extends Command
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly StravaYears $stravaYears,
-        private readonly FilesystemOperator $filesystemOperator,
     ) {
         parent::__construct();
     }

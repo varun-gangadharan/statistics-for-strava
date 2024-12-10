@@ -10,14 +10,12 @@ use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Time\Sleep;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 
-#[AsCommandHandler]
 final readonly class ImportActivityStreamsCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -30,7 +28,7 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof ImportActivityStreams);
         $command->getOutput()->writeln('Importing activity streams...');

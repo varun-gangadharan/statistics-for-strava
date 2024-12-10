@@ -46,9 +46,8 @@ use App\Domain\Strava\Segment\ReadModel\SegmentDetailsRepository;
 use App\Domain\Strava\Segment\Segment;
 use App\Domain\Strava\Segment\SegmentEffort\ReadModel\SegmentEffortDetailsRepository;
 use App\Domain\Strava\Trivia;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
 use App\Infrastructure\KeyValue\ReadModel\KeyValueStore;
@@ -60,7 +59,6 @@ use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
 
-#[AsCommandHandler]
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -82,7 +80,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof BuildHtmlVersion);
 

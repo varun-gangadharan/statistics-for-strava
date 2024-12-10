@@ -11,7 +11,6 @@ use App\Domain\Strava\Activity\BuildWeeklyDistanceChart\BuildWeeklyDistanceChart
 use App\Domain\Strava\Activity\BuildYearlyDistanceChart\BuildYearlyDistanceChart;
 use App\Domain\Strava\BuildHtmlVersion\BuildHtmlVersion;
 use App\Domain\Strava\BuildReadMe\BuildReadMe;
-use App\Domain\Strava\CopyDataToReadDatabase\CopyDataToReadDatabase;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
@@ -40,7 +39,6 @@ final class BuildStravaActivityFilesConsoleCommand extends Command
         }
         $this->resourceUsage->startTimer();
 
-        $this->commandBus->dispatch(new CopyDataToReadDatabase($output));
         $output->writeln('Building latest activities...');
         $this->commandBus->dispatch(new BuildLatestStravaActivities());
         $output->writeln('Building weekly distance chart...');

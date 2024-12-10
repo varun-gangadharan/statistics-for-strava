@@ -9,17 +9,14 @@ use App\Domain\Strava\Gear\WriteModel\GearRepository;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Time\Sleep;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
-use Lcobucci\Clock\Clock;
 
-#[AsCommandHandler]
 final readonly class ImportGearCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -33,7 +30,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof ImportGear);
         $command->getOutput()->writeln('Importing gear...');

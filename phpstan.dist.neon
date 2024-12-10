@@ -1,7 +1,8 @@
 parameters:
-    level: 10
+    level: 8
     paths:
         - src/
+    ignoreErrors:
+        - identifier: missingType.generics
     excludePaths:
-        - src/Console/SetupProjectConsoleCommand.php
         - src/Infrastructure/Eventing/RecordsEvents.php

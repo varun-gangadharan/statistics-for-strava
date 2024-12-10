@@ -13,9 +13,8 @@ use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;
 use App\Domain\Weather\OpenMeteo\OpenMeteo;
-use App\Infrastructure\Attribute\AsCommandHandler;
-use App\Infrastructure\CQRS\Bus\DomainCommand;
-use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
+use App\Infrastructure\CQRS\Bus\Command;
+use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
 use App\Infrastructure\KeyValue\KeyValue;
@@ -29,7 +28,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use League\Flysystem\FilesystemOperator;
 
-#[AsCommandHandler]
 final readonly class ImportActivitiesCommandHandler implements CommandHandler
 {
     public function __construct(
@@ -46,7 +44,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
     ) {
     }
 
-    public function handle(DomainCommand $command): void
+    public function handle(Command $command): void
     {
         assert($command instanceof ImportActivities);
         $command->getOutput()->writeln('Importing activities...');
