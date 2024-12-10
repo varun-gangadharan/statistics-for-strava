@@ -55,7 +55,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             value: Value::fromString($athlete['id'])
         ));
 
-        $allActivityIds = $this->activityDetailsRepository->findActivityIds();
+        $allActivityIds = $this->activityRepository->findActivityIds();
         $activityIdsDelete = array_combine(
             $allActivityIds->map(fn (ActivityId $activityId) => (string) $activityId),
             $allActivityIds->toArray(),
@@ -70,7 +70,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             }
             $activityId = ActivityId::fromUnprefixed((string) $stravaActivity['id']);
             try {
-                $activity = $this->activityDetailsRepository->find($activityId);
+                $activity = $this->activityRepository->find($activityId);
                 $activity
                     ->updateName($stravaActivity['name'])
                     ->updateDescription($stravaActivity['description'] ?? '')
@@ -176,7 +176,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         }
 
         foreach ($activityIdsDelete as $activityId) {
-            $activity = $this->activityDetailsRepository->find($activityId);
+            $activity = $this->activityRepository->find($activityId);
             $activity->delete();
             $this->activityRepository->delete($activity);
 
