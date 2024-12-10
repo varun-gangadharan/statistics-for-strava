@@ -10,7 +10,6 @@ use App\Domain\Strava\Activity\BuildWeekdayStatsChart\BuildWeekdayStatsChart;
 use App\Domain\Strava\Activity\BuildWeeklyDistanceChart\BuildWeeklyDistanceChart;
 use App\Domain\Strava\Activity\BuildYearlyDistanceChart\BuildYearlyDistanceChart;
 use App\Domain\Strava\BuildHtmlVersion\BuildHtmlVersion;
-use App\Domain\Strava\BuildReadMe\BuildReadMe;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
@@ -53,8 +52,6 @@ final class BuildStravaActivityFilesConsoleCommand extends Command
         $this->commandBus->dispatch(new BuildEddingtonChart());
         $output->writeln('Building yearly distance chart..');
         $this->commandBus->dispatch(new BuildYearlyDistanceChart());
-        $output->writeln('Building README...');
-        $this->commandBus->dispatch(new BuildReadMe());
         $output->writeln('Building HTML...');
         $this->commandBus->dispatch(new BuildHtmlVersion($output));
 

@@ -6,8 +6,8 @@ use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 
 final readonly class BuildWeeklyDistanceChartCommandHandler implements CommandHandler

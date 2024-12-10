@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Segment\SegmentEffort;
 
-use App\Infrastructure\ValueObject\String\Identifier;
+use App\Infrastructure\ValueObject\Identifier\Identifier;
 
 final readonly class SegmentEffortId extends Identifier
 {

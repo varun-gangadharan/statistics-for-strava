@@ -52,10 +52,11 @@ use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
 use App\Infrastructure\KeyValue\ReadModel\KeyValueStore;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\DataTableRow;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use App\Infrastructure\ValueObject\Time\Years;
-use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
 
@@ -84,8 +85,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
     {
         assert($command instanceof BuildHtmlVersion);
 
-        $now = SerializableDateTime::fromDateTimeImmutable($this->clock->now());
-        $athleteBirthday = SerializableDateTime::fromString($this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue());
+        $now = $this->clock->getCurrentDateTimeImmutable();
+        $athleteBirthday = SerializableDateTime::fromString($this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue(), SerializableTimezone::default());
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID)->getValue();
         $allActivities = $this->activityDetailsRepository->findAll();

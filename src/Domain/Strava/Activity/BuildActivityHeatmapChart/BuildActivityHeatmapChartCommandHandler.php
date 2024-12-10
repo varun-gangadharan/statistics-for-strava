@@ -12,8 +12,8 @@ use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
 use App\Infrastructure\KeyValue\ReadModel\KeyValueStore;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use Lcobucci\Clock\Clock;
 use League\Flysystem\FilesystemOperator;
 
 final readonly class BuildActivityHeatmapChartCommandHandler implements CommandHandler

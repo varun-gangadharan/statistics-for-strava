@@ -3,12 +3,12 @@
 namespace App\Domain\Weather\OpenMeteo;
 
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\Geography\Latitude;
 use App\Infrastructure\ValueObject\Geography\Longitude;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Lcobucci\Clock\Clock;
 
 final readonly class LiveOpenMeteo implements OpenMeteo
 {

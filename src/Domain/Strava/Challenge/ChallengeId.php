@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Challenge;
 
-use App\Infrastructure\ValueObject\String\Identifier;
+use App\Infrastructure\ValueObject\Identifier\Identifier;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
 final readonly class ChallengeId extends Identifier
