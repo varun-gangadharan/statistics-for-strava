@@ -6,11 +6,10 @@ use App\Domain\Strava\Activity\ImportActivities\ImportActivities;
 use App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages\CalculateBestStreamAverages;
 use App\Domain\Strava\Activity\Stream\ImportActivityStreams\ImportActivityStreams;
 use App\Domain\Strava\Challenge\ImportChallenges\ImportChallenges;
-use App\Domain\Strava\CopyDataToReadDatabase\CopyDataToReadDatabase;
 use App\Domain\Strava\Gear\ImportGear\ImportGear;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Segment\ImportSegments\ImportSegments;
-use App\Infrastructure\CQRS\CommandBus;
+use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +32,6 @@ final class ImportStravaDataConsoleCommand extends Command
         $this->resourceUsage->startTimer();
         $this->maxResourceUsageHasBeenReached->clear();
         // Copy data to read db to determine if we need to add/update data.
-        $this->commandBus->dispatch(new CopyDataToReadDatabase($output));
         $this->commandBus->dispatch(new ImportActivities($output, $this->resourceUsage));
         if ($this->resourceUsage->maxExecutionTimeReached()) {
             $this->maxResourceUsageHasBeenReached->markAsReached();
@@ -42,7 +40,6 @@ final class ImportStravaDataConsoleCommand extends Command
         }
 
         // Might have imported new activities, copy them to read db so other import processes are aware of them.
-        $this->commandBus->dispatch(new CopyDataToReadDatabase($output));
         $this->commandBus->dispatch(new ImportActivityStreams($output, $this->resourceUsage));
         // @phpstan-ignore-next-line
         if ($this->resourceUsage->maxExecutionTimeReached()) {
@@ -55,7 +52,6 @@ final class ImportStravaDataConsoleCommand extends Command
         $this->commandBus->dispatch(new ImportGear($output));
         $this->commandBus->dispatch(new ImportChallenges($output));
         // Copy data to read db to be able to calculate stream averages.
-        $this->commandBus->dispatch(new CopyDataToReadDatabase($output));
         $this->commandBus->dispatch(new CalculateBestStreamAverages($output));
 
         return Command::SUCCESS;

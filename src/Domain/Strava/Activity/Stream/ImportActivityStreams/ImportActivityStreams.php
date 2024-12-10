@@ -2,7 +2,7 @@
 
 namespace App\Domain\Strava\Activity\Stream\ImportActivityStreams;
 
-use App\Infrastructure\CQRS\DomainCommand;
+use App\Infrastructure\CQRS\Bus\DomainCommand;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
 use Symfony\Component\Console\Output\OutputInterface;
 

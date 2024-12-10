@@ -8,6 +8,7 @@ use App\Domain\Strava\Ftp\Ftp;
 use App\Domain\Strava\Ftp\FtpValue;
 use App\Domain\Strava\Ftp\WriteModel\FtpRepository;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,7 +34,7 @@ final class UpdateFtpConsoleCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $setOn = SerializableDateTime::fromString($input->getArgument('setOn'));
+        $setOn = SerializableDateTime::fromString($input->getArgument('setOn'), SerializableTimezone::default());
         $ftp = FtpValue::fromInt((int) $input->getArgument('ftp'));
 
         $this->ftpRepository->save(Ftp::fromState(

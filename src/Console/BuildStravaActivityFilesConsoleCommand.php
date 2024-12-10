@@ -13,7 +13,7 @@ use App\Domain\Strava\BuildHtmlVersion\BuildHtmlVersion;
 use App\Domain\Strava\BuildReadMe\BuildReadMe;
 use App\Domain\Strava\CopyDataToReadDatabase\CopyDataToReadDatabase;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
-use App\Infrastructure\CQRS\CommandBus;
+use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

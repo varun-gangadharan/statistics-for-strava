@@ -8,8 +8,8 @@ use App\Domain\Strava\Activity\Stream\ReadModel\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
 use App\Infrastructure\Attribute\AsCommandHandler;
+use App\Infrastructure\CQRS\Bus\DomainCommand;
 use App\Infrastructure\CQRS\CommandHandler\CommandHandler;
-use App\Infrastructure\CQRS\DomainCommand;
 
 #[AsCommandHandler]
 final readonly class CalculateBestStreamAveragesCommandHandler implements CommandHandler
