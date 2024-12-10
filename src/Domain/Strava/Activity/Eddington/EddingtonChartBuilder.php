@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Strava\Activity\BuildEddingtonChart;
+namespace App\Domain\Strava\Activity\Eddington;
 
 final class EddingtonChartBuilder
 {

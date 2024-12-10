@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Strava\Activity\BuildDaytimeStatsChart;
+namespace App\Domain\Strava\Activity\DaytimeStats;
 
 final class DaytimeStatsChartsBuilder
 {

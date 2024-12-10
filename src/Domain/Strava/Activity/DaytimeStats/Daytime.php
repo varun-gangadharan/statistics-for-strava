@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\BuildDaytimeStatsChart;
+namespace App\Domain\Strava\Activity\DaytimeStats;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\BuildWeekdayStatsChart;
+namespace App\Domain\Strava\Activity\WeekdayStats;
 
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;

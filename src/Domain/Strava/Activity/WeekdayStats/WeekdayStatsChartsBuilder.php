@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Strava\Activity\BuildWeekdayStatsChart;
+namespace App\Domain\Strava\Activity\WeekdayStats;
 
 final class WeekdayStatsChartsBuilder
 {

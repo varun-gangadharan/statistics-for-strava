@@ -2,19 +2,14 @@
 
 namespace App\Domain\Strava\BuildHtmlVersion;
 
+use App\Domain\Strava\Activity\ActivityHeatmapChartBuilder;
 use App\Domain\Strava\Activity\ActivityHighlights;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
-use App\Domain\Strava\Activity\BuildActivityHeatmapChart\ActivityHeatmapChartBuilder;
-use App\Domain\Strava\Activity\BuildDaytimeStatsChart\DaytimeStats;
-use App\Domain\Strava\Activity\BuildDaytimeStatsChart\DaytimeStatsChartsBuilder;
-use App\Domain\Strava\Activity\BuildEddingtonChart\Eddington;
-use App\Domain\Strava\Activity\BuildEddingtonChart\EddingtonChartBuilder;
-use App\Domain\Strava\Activity\BuildWeekdayStatsChart\WeekdayStats;
-use App\Domain\Strava\Activity\BuildWeekdayStatsChart\WeekdayStatsChartsBuilder;
-use App\Domain\Strava\Activity\BuildWeeklyDistanceChart\WeeklyDistanceChartBuilder;
-use App\Domain\Strava\Activity\BuildYearlyDistanceChart\YearlyDistanceChartBuilder;
-use App\Domain\Strava\Activity\BuildYearlyDistanceChart\YearlyStatistics;
+use App\Domain\Strava\Activity\DaytimeStats\DaytimeStats;
+use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
+use App\Domain\Strava\Activity\Eddington\Eddington;
+use App\Domain\Strava\Activity\Eddington\EddingtonChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\Image;
 use App\Domain\Strava\Activity\Image\ImageRepository;
@@ -26,6 +21,11 @@ use App\Domain\Strava\Activity\Stream\PowerOutputChartBuilder;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\StreamType;
 use App\Domain\Strava\Activity\Stream\StreamTypes;
+use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
+use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChartsBuilder;
+use App\Domain\Strava\Activity\WeeklyDistanceChartBuilder;
+use App\Domain\Strava\Activity\YearlyDistance\YearlyDistanceChartBuilder;
+use App\Domain\Strava\Activity\YearlyDistance\YearlyStatistics;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Domain\Strava\Athlete\ReadModel\AthleteWeightRepository;
 use App\Domain\Strava\Athlete\TimeInHeartRateZoneChartBuilder;

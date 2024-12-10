@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\BuildYearlyDistanceChart;
+namespace App\Domain\Strava\Activity\YearlyDistance;
 
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;

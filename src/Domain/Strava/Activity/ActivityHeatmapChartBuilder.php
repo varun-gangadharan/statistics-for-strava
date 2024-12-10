@@ -1,9 +1,7 @@
 <?php
 
-namespace App\Domain\Strava\Activity\BuildActivityHeatmapChart;
+namespace App\Domain\Strava\Activity;
 
-use App\Domain\Strava\Activity\Activities;
-use App\Domain\Strava\Activity\Activity;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
 final class ActivityHeatmapChartBuilder

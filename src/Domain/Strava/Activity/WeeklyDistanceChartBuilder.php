@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Domain\Strava\Activity\BuildWeeklyDistanceChart;
+namespace App\Domain\Strava\Activity;
 
-use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Calendar\Week;
 use App\Domain\Strava\Calendar\Weeks;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
@@ -215,7 +214,7 @@ final class WeeklyDistanceChartBuilder
             $timePerWeek[$week->getId()] = 0;
         }
 
-        /** @var \App\Domain\Strava\Activity\Activity $activity */
+        /** @var Activity $activity */
         foreach ($this->activities as $activity) {
             $week = $activity->getStartDate()->getYearAndWeekNumberString();
             if (!array_key_exists($week, $distancePerWeek)) {
