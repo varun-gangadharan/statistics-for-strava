@@ -1,0 +1,7 @@
+parameters:
+    level: 10
+    paths:
+        - src/
+    excludePaths:
+        - src/Console/SetupProjectConsoleCommand.php
+        - src/Infrastructure/Eventing/RecordsEvents.php

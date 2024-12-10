@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS `app`;
+CREATE DATABASE IF NOT EXISTS `app_test`;
+
+GRANT ALL ON *.* TO 'root'@'%';
