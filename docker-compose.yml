@@ -7,20 +7,6 @@ services:
         working_dir: /var/www
         profiles:
             - on-demand
-        depends_on:
-            - mysql
-        networks:
-            - app_network
-    mysql:
-        container_name: '${DOCKER_CONTAINER_BASE_NAME}-mysql'
-        image: 'mysql:8.4'
-        command: '--sort_buffer_size=512K'
-        volumes:
-            - './docker/mysql/mysql.init.sql:/docker-entrypoint-initdb.d/01-databases.sql'
-        ports:
-            - '${DOCKER_MYSQL_PORT}:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: root
         networks:
             - app_network
     php-fpm:
@@ -41,7 +27,6 @@ services:
             - '${DOCKER_NGINX_PORT}:80'
         depends_on:
             - php-fpm
-            - mysql
         working_dir: /var/www
         networks:
             - app_network
