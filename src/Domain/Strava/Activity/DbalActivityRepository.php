@@ -1,12 +1,8 @@
 <?php
 
-namespace App\Domain\Strava\Activity\WriteModel;
+namespace App\Domain\Strava\Activity;
 
 use App\Domain\Nominatim\Location;
-use App\Domain\Strava\Activity\Activities;
-use App\Domain\Strava\Activity\Activity;
-use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\ActivityIds;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\Eventing\EventBus;

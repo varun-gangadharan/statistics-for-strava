@@ -1,13 +1,9 @@
 <?php
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
-use App\Domain\Strava\Activity\Stream\ActivityStream;
-use App\Domain\Strava\Activity\Stream\PowerOutput;
-use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\StreamTypes;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Infrastructure\Exception\EntityNotFound;
 use Carbon\CarbonInterval;
 
@@ -17,8 +13,8 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
     private static array $cachedPowerOutputs = [];
 
     public function __construct(
-        private readonly ActivityDetailsRepository $activityDetailsRepository,
-        private readonly ActivityStreamDetailsRepository $activityStreamDetailsRepository,
+        private readonly ActivityRepository $activityRepository,
+        private readonly ActivityStreamRepository $activityStreamRepository,
     ) {
     }
 
@@ -31,8 +27,8 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
             return StreamBasedActivityPowerRepository::$cachedPowerOutputs[(string) $activityId];
         }
 
-        $activities = $this->activityDetailsRepository->findAll();
-        $powerStreams = $this->activityStreamDetailsRepository->findByStreamType(StreamType::WATTS);
+        $activities = $this->activityRepository->findAll();
+        $powerStreams = $this->activityStreamRepository->findByStreamType(StreamType::WATTS);
 
         /** @var \App\Domain\Strava\Activity\Activity $activity */
         foreach ($activities as $activity) {
@@ -69,14 +65,14 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
      */
     public function findTimeInSecondsPerWattageForActivity(ActivityId $activityId): array
     {
-        if (!$this->activityStreamDetailsRepository->hasOneForActivityAndStreamType(
+        if (!$this->activityStreamRepository->hasOneForActivityAndStreamType(
             activityId: $activityId,
             streamType: StreamType::WATTS
         )) {
             return [];
         }
 
-        $streams = $this->activityStreamDetailsRepository->findByActivityAndStreamTypes(
+        $streams = $this->activityStreamRepository->findByActivityAndStreamTypes(
             activityId: $activityId,
             streamTypes: StreamTypes::fromArray([StreamType::WATTS])
         );
@@ -98,7 +94,7 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
 
         foreach (self::TIME_INTERVAL_IN_SECONDS_OVERALL as $timeIntervalInSeconds) {
             try {
-                $stream = $this->activityStreamDetailsRepository->findWithBestAverageFor(
+                $stream = $this->activityStreamRepository->findWithBestAverageFor(
                     intervalInSeconds: $timeIntervalInSeconds,
                     streamType: StreamType::WATTS
                 );
@@ -106,7 +102,7 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
                 continue;
             }
 
-            $activity = $this->activityDetailsRepository->find($stream->getActivityId());
+            $activity = $this->activityRepository->find($stream->getActivityId());
             $interval = CarbonInterval::seconds($timeIntervalInSeconds);
             $bestAverageForTimeInterval = $stream->getBestAverages()[$timeIntervalInSeconds];
 

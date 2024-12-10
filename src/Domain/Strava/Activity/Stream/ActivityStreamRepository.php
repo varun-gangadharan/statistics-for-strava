@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\Stream\ActivityStream;
-use App\Domain\Strava\Activity\Stream\ActivityStreams;
-use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\StreamTypes;
 
-interface ActivityStreamDetailsRepository
+interface ActivityStreamRepository
 {
+    public function add(ActivityStream $stream): void;
+
+    public function update(ActivityStream $stream): void;
+
+    public function delete(ActivityStream $stream): void;
+
     public function isImportedForActivity(ActivityId $activityId): bool;
 
     public function hasOneForActivityAndStreamType(ActivityId $activityId, StreamType $streamType): bool;

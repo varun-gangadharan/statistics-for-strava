@@ -6,7 +6,6 @@ namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityWasDeleted;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
-use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
 use App\Infrastructure\Attribute\AsEventListener;
 use App\Infrastructure\Eventing\EventListener\ConventionBasedEventListener;
 use App\Infrastructure\Eventing\EventListener\EventListenerType;

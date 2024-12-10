@@ -1,30 +1,60 @@
 <?php
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\Stream\ActivityStream;
-use App\Domain\Strava\Activity\Stream\ActivityStreams;
-use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\StreamTypes;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
-use App\Infrastructure\Repository\ProvideSqlConvert;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\SerializableTimezone;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalActivityStreamDetailsRepository implements ActivityStreamDetailsRepository
+final readonly class DbalActivityStreamRepository implements ActivityStreamRepository
 {
-    use ProvideSqlConvert;
-
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function add(ActivityStream $stream): void
+    {
+        $sql = 'INSERT INTO ActivityStream (activityId, streamType, data, createdOn, bestAverages)
+        VALUES (:activityId, :streamType, :data, :createdOn, :bestAverages)';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $stream->getActivityId(),
+            'streamType' => $stream->getStreamType()->value,
+            'data' => Json::encode($stream->getData()),
+            'createdOn' => $stream->getCreatedOn(),
+            'bestAverages' => !empty($stream->getBestAverages()) ? Json::encode($stream->getBestAverages()) : null,
+        ]);
+    }
+
+    public function update(ActivityStream $stream): void
+    {
+        $sql = 'UPDATE ActivityStream 
+        SET bestAverages = :bestAverages
+        WHERE activityId = :activityId
+        AND streamType = :streamType';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $stream->getActivityId(),
+            'streamType' => $stream->getStreamType()->value,
+            'bestAverages' => Json::encode($stream->getBestAverages()),
+        ]);
+    }
+
+    public function delete(ActivityStream $stream): void
+    {
+        $sql = 'DELETE FROM ActivityStream
+        WHERE activityId = :activityId
+        AND streamType = :streamType';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $stream->getActivityId(),
+            'streamType' => $stream->getStreamType()->value,
+        ]);
     }
 
     public function isImportedForActivity(ActivityId $activityId): bool
@@ -72,7 +102,11 @@ final readonly class DbalActivityStreamDetailsRepository implements ActivityStre
             ->from('ActivityStream')
             ->andWhere('activityId = :activityId')
             ->setParameter('activityId', $activityId)
-            ->andWhere('streamType IN ('.$this->toWhereInValueForCollection($streamTypes).')');
+            ->andWhere('streamType IN (:streamTypes)')
+            ->setParameter('streamTypes', array_map(
+                fn (StreamType $streamType) => $streamType->value,
+                $streamTypes->toArray()
+            ), ArrayParameterType::STRING);
 
         return ActivityStreams::fromArray(array_map(
             fn (array $result) => $this->buildFromResult($result),

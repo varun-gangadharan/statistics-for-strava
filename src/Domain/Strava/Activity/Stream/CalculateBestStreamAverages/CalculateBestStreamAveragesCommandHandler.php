@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages;
 
-use App\Domain\Strava\Activity\Stream\ReadModel\ActivityPowerRepository;
+use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
+use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
-use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
 

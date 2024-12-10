@@ -2,14 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
-use App\Domain\Strava\Activity\Stream\ActivityStream;
-use App\Domain\Strava\Activity\Stream\HeartRate;
-use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\StreamTypes;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
@@ -23,8 +19,8 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
     private static array $cachedHeartRateZonesPerActivity = [];
 
     public function __construct(
-        private readonly ActivityDetailsRepository $activityDetailsRepository,
-        private readonly ActivityStreamDetailsRepository $activityStreamDetailsRepository,
+        private readonly ActivityRepository $activityRepository,
+        private readonly ActivityStreamRepository $activityStreamRepository,
         private readonly KeyValueStore $keyValueStore,
     ) {
     }
@@ -46,7 +42,7 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
 
         foreach (self::TIME_INTERVAL_IN_SECONDS as $timeIntervalInSeconds) {
             try {
-                $stream = $this->activityStreamDetailsRepository->findWithBestAverageFor(
+                $stream = $this->activityStreamRepository->findWithBestAverageFor(
                     intervalInSeconds: $timeIntervalInSeconds,
                     streamType: StreamType::HEART_RATE
                 );
@@ -54,7 +50,7 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
                 continue;
             }
 
-            $activity = $this->activityDetailsRepository->find($stream->getActivityId());
+            $activity = $this->activityRepository->find($stream->getActivityId());
             $interval = CarbonInterval::seconds($timeIntervalInSeconds);
 
             $best[$timeIntervalInSeconds] = HeartRate::fromState(
@@ -72,14 +68,14 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
      */
     public function findTimeInSecondsPerHeartRateForActivity(ActivityId $activityId): array
     {
-        if (!$this->activityStreamDetailsRepository->hasOneForActivityAndStreamType(
+        if (!$this->activityStreamRepository->hasOneForActivityAndStreamType(
             activityId: $activityId,
             streamType: StreamType::HEART_RATE
         )) {
             return [];
         }
 
-        $streams = $this->activityStreamDetailsRepository->findByActivityAndStreamTypes(
+        $streams = $this->activityStreamRepository->findByActivityAndStreamTypes(
             activityId: $activityId,
             streamTypes: StreamTypes::fromArray([StreamType::HEART_RATE])
         );
@@ -100,8 +96,8 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
             return StreamBasedActivityHeartRateRepository::$cachedHeartRateZonesPerActivity;
         }
 
-        $activities = $this->activityDetailsRepository->findAll();
-        $heartRateStreams = $this->activityStreamDetailsRepository->findByStreamType(StreamType::HEART_RATE);
+        $activities = $this->activityRepository->findAll();
+        $heartRateStreams = $this->activityStreamRepository->findByStreamType(StreamType::HEART_RATE);
         $athleteBirthday = SerializableDateTime::fromString((string) $this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue());
 
         /** @var \App\Domain\Strava\Activity\Activity $activity */

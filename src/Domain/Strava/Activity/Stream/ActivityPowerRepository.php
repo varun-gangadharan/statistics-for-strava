@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\Stream\PowerOutput;
 
 interface ActivityPowerRepository
 {

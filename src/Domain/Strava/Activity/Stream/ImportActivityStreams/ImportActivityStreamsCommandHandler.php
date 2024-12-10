@@ -2,11 +2,11 @@
 
 namespace App\Domain\Strava\Activity\Stream\ImportActivityStreams;
 
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\Stream\ActivityStream;
+use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;
@@ -20,7 +20,7 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
 {
     public function __construct(
         private Strava $strava,
-        private ActivityDetailsRepository $activityDetailsRepository,
+        private ActivityRepository $activityRepository,
         private ActivityStreamRepository $activityStreamRepository,
         private ActivityStreamDetailsRepository $activityStreamDetailsRepository,
         private MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
@@ -33,7 +33,7 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
         assert($command instanceof ImportActivityStreams);
         $command->getOutput()->writeln('Importing activity streams...');
 
-        foreach ($this->activityDetailsRepository->findActivityIds() as $activityId) {
+        foreach ($this->activityRepository->findActivityIds() as $activityId) {
             if ($command->getResourceUsage()->maxExecutionTimeReached()) {
                 return;
             }
@@ -81,7 +81,7 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
                 ];
             }
 
-            $activity = $this->activityDetailsRepository->find($activityId);
+            $activity = $this->activityRepository->find($activityId);
             foreach ($stravaStreams as $stravaStream) {
                 if (!$streamType = StreamType::tryFrom($stravaStream['type'])) {
                     continue;

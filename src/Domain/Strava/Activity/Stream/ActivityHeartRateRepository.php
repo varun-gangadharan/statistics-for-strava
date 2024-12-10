@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\Stream\ReadModel;
+namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Activity\Stream\HeartRate;
 use App\Domain\Strava\Athlete\HeartRateZone;
 
 interface ActivityHeartRateRepository
