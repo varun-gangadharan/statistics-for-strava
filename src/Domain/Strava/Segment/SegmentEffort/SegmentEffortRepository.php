@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Segment\SegmentEffort\ReadModel;
+namespace App\Domain\Strava\Segment\SegmentEffort;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEffort;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortId;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEfforts;
 use App\Domain\Strava\Segment\SegmentId;
 
-interface SegmentEffortDetailsRepository
+interface SegmentEffortRepository
 {
+    public function add(SegmentEffort $segmentEffort): void;
+
+    public function update(SegmentEffort $segmentEffort): void;
+
+    public function delete(SegmentEffort $segmentEffort): void;
+
     public function find(SegmentEffortId $segmentEffortId): SegmentEffort;
 
     public function findBySegmentId(SegmentId $segmentId, ?int $limit = null): SegmentEfforts;

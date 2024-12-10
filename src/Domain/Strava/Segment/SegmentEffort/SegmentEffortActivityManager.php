@@ -6,7 +6,6 @@ namespace App\Domain\Strava\Segment\SegmentEffort;
 
 use App\Domain\Strava\Activity\ActivityWasDeleted;
 use App\Domain\Strava\Segment\SegmentEffort\ReadModel\SegmentEffortDetailsRepository;
-use App\Domain\Strava\Segment\SegmentEffort\WriteModel\SegmentEffortRepository;
 use App\Infrastructure\Attribute\AsEventListener;
 use App\Infrastructure\Eventing\EventListener\ConventionBasedEventListener;
 use App\Infrastructure\Eventing\EventListener\EventListenerType;

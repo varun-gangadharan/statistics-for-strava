@@ -1,24 +1,30 @@
 <?php
 
-namespace App\Domain\Strava\Challenge\ReadModel;
+namespace App\Domain\Strava\Challenge;
 
-use App\Domain\Strava\Challenge\Challenge;
-use App\Domain\Strava\Challenge\ChallengeId;
-use App\Domain\Strava\Challenge\Challenges;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalChallengeDetailsRepository implements ChallengeDetailsRepository
+final readonly class DbalChallengeRepository implements ChallengeRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function add(Challenge $challenge): void
+    {
+        $sql = 'INSERT INTO Challenge (challengeId, createdOn, data)
+        VALUES (:challengeId, :createdOn, :data)';
+
+        $this->connection->executeStatement($sql, [
+            'challengeId' => (string) $challenge->getId(),
+            'createdOn' => $challenge->getCreatedOn(),
+            'data' => Json::encode($challenge->getData()),
+        ]);
     }
 
     public function findAll(): Challenges
@@ -56,7 +62,7 @@ final readonly class DbalChallengeDetailsRepository implements ChallengeDetailsR
     {
         return Challenge::fromState(
             challengeId: ChallengeId::fromString($result['challengeId']),
-            createdOn: SerializableDateTime::fromString($result['createdOn']),
+            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
             data: Json::decode($result['data']),
         );
     }

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Domain\Strava\Ftp\ReadModel;
+namespace App\Domain\Strava\Ftp;
 
-use App\Domain\Strava\Ftp\Ftp;
-use App\Domain\Strava\Ftp\Ftps;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-interface FtpDetailsRepository
+interface FtpRepository
 {
+    public function save(Ftp $ftp): void;
+
     public function findAll(): Ftps;
 
     public function find(SerializableDateTime $dateTime): Ftp;

@@ -2,25 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Segment\ReadModel;
+namespace App\Domain\Strava\Segment;
 
-use App\Domain\Strava\Segment\Segment;
-use App\Domain\Strava\Segment\SegmentId;
-use App\Domain\Strava\Segment\Segments;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\String\Name;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalSegmentDetailsRepository implements SegmentDetailsRepository
+final readonly class DbalSegmentRepository implements SegmentRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function add(Segment $segment): void
+    {
+        $sql = 'INSERT INTO Segment (segmentId, name, data)
+        VALUES (:segmentId, :name, :data)';
+
+        $this->connection->executeStatement($sql, [
+            'segmentId' => $segment->getId(),
+            'name' => $segment->getName(),
+            'data' => Json::encode($segment->getData()),
+        ]);
     }
 
     public function find(SegmentId $segmentId): Segment

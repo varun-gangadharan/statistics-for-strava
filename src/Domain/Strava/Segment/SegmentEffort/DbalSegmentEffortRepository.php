@@ -2,27 +2,67 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Segment\SegmentEffort\ReadModel;
+namespace App\Domain\Strava\Segment\SegmentEffort;
 
 use App\Domain\Strava\Activity\ActivityId;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEffort;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortId;
-use App\Domain\Strava\Segment\SegmentEffort\SegmentEfforts;
 use App\Domain\Strava\Segment\SegmentId;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalSegmentEffortDetailsRepository implements SegmentEffortDetailsRepository
+final readonly class DbalSegmentEffortRepository implements SegmentEffortRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function add(SegmentEffort $segmentEffort): void
+    {
+        $sql = 'INSERT INTO SegmentEffort (segmentEffortId, segmentId, activityId, startDateTime, data)
+        VALUES (:segmentEffortId, :segmentId, :activityId, :startDateTime, :data)';
+
+        $data = $segmentEffort->getData();
+        if (isset($data['segment'])) {
+            unset($data['segment']);
+        }
+
+        $this->connection->executeStatement($sql, [
+            'segmentEffortId' => $segmentEffort->getId(),
+            'segmentId' => $segmentEffort->getSegmentId(),
+            'activityId' => $segmentEffort->getActivityId(),
+            'startDateTime' => $segmentEffort->getStartDateTime(),
+            'data' => Json::encode($data),
+        ]);
+    }
+
+    public function update(SegmentEffort $segmentEffort): void
+    {
+        $sql = 'UPDATE SegmentEffort 
+        SET data = :data
+        WHERE segmentEffortId = :segmentEffortId';
+
+        $data = $segmentEffort->getData();
+        if (isset($data['segment'])) {
+            unset($data['segment']);
+        }
+
+        $this->connection->executeStatement($sql, [
+            'segmentEffortId' => $segmentEffort->getId(),
+            'data' => Json::encode($data),
+        ]);
+    }
+
+    public function delete(SegmentEffort $segmentEffort): void
+    {
+        $sql = 'DELETE FROM SegmentEffort 
+        WHERE segmentEffortId = :segmentEffortId';
+
+        $this->connection->executeStatement($sql, [
+            'segmentEffortId' => $segmentEffort->getId(),
+        ]);
     }
 
     public function find(SegmentEffortId $segmentEffortId): SegmentEffort
@@ -93,7 +133,7 @@ final readonly class DbalSegmentEffortDetailsRepository implements SegmentEffort
             segmentEffortId: SegmentEffortId::fromString($result['segmentEffortId']),
             segmentId: SegmentId::fromString($result['segmentId']),
             activityId: ActivityId::fromString($result['activityId']),
-            startDateTime: SerializableDateTime::fromString($result['startDateTime']),
+            startDateTime: SerializableDateTime::fromString($result['startDateTime'], SerializableTimezone::default()),
             data: Json::decode($result['data']),
         );
     }

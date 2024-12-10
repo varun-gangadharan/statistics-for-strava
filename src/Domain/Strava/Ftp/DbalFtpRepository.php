@@ -1,23 +1,28 @@
 <?php
 
-namespace App\Domain\Strava\Ftp\ReadModel;
+namespace App\Domain\Strava\Ftp;
 
-use App\Domain\Strava\Ftp\Ftp;
-use App\Domain\Strava\Ftp\Ftps;
-use App\Domain\Strava\Ftp\FtpValue;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalFtpDetailsRepository implements FtpDetailsRepository
+final readonly class DbalFtpRepository implements FtpRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function save(Ftp $ftp): void
+    {
+        $sql = 'REPLACE INTO Ftp (setOn, ftp)
+        VALUES (:setOn, :ftp)';
+
+        $this->connection->executeStatement($sql, [
+            'setOn' => $ftp->getSetOn(),
+            'ftp' => $ftp->getFtp(),
+        ]);
     }
 
     public function findAll(): Ftps
@@ -35,7 +40,7 @@ final readonly class DbalFtpDetailsRepository implements FtpDetailsRepository
 
     public function find(SerializableDateTime $dateTime): Ftp
     {
-        $dateTime = SerializableDateTime::fromString($dateTime->format('Y-m-d'));
+        $dateTime = SerializableDateTime::fromString($dateTime->format('Y-m-d'), SerializableTimezone::default());
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('*')
             ->from('Ftp')
@@ -57,7 +62,7 @@ final readonly class DbalFtpDetailsRepository implements FtpDetailsRepository
     private function buildFromResult(array $result): Ftp
     {
         return Ftp::fromState(
-            setOn: SerializableDateTime::fromString($result['setOn']),
+            setOn: SerializableDateTime::fromString($result['setOn'], SerializableTimezone::default()),
             ftp: FtpValue::fromInt((int) $result['ftp'])
         );
     }

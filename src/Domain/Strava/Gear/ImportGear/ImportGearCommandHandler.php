@@ -4,8 +4,8 @@ namespace App\Domain\Strava\Gear\ImportGear;
 
 use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
 use App\Domain\Strava\Gear\Gear;
+use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Gear\ReadModel\GearDetailsRepository;
-use App\Domain\Strava\Gear\WriteModel\GearRepository;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;

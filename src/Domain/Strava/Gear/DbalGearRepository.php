@@ -1,24 +1,45 @@
 <?php
 
-namespace App\Domain\Strava\Gear\ReadModel;
+namespace App\Domain\Strava\Gear;
 
-use App\Domain\Strava\Gear\Gear;
-use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\Gears;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
-final readonly class DbalGearDetailsRepository implements GearDetailsRepository
+final readonly class DbalGearRepository implements GearRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
+    }
+
+    public function add(Gear $gear): void
+    {
+        $sql = 'INSERT INTO Gear (gearId, createdOn, data, distanceInMeter)
+        VALUES (:gearId, :createdOn, :data, :distanceInMeter)';
+
+        $this->connection->executeStatement($sql, [
+            'gearId' => $gear->getId(),
+            'createdOn' => $gear->getCreatedOn(),
+            'data' => Json::encode($gear->getData()),
+            'distanceInMeter' => $gear->getDistanceInMeter(),
+        ]);
+    }
+
+    public function update(Gear $gear): void
+    {
+        $sql = 'UPDATE Gear 
+        SET distanceInMeter = :distanceInMeter,
+        data = :data
+        WHERE gearId = :gearId';
+
+        $this->connection->executeStatement($sql, [
+            'gearId' => $gear->getId(),
+            'distanceInMeter' => $gear->getDistanceInMeter(),
+            'data' => Json::encode($gear->getData()),
+        ]);
     }
 
     public function findAll(): Gears
@@ -58,7 +79,7 @@ final readonly class DbalGearDetailsRepository implements GearDetailsRepository
             gearId: GearId::fromString($result['gearId']),
             data: Json::decode($result['data']),
             distanceInMeter: $result['distanceInMeter'],
-            createdOn: SerializableDateTime::fromString($result['createdOn']),
+            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
         );
     }
 }

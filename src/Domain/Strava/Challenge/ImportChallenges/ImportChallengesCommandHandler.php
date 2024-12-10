@@ -4,8 +4,8 @@ namespace App\Domain\Strava\Challenge\ImportChallenges;
 
 use App\Domain\Strava\Challenge\Challenge;
 use App\Domain\Strava\Challenge\ChallengeId;
+use App\Domain\Strava\Challenge\ChallengeRepository;
 use App\Domain\Strava\Challenge\ReadModel\ChallengeDetailsRepository;
-use App\Domain\Strava\Challenge\WriteModel\ChallengeRepository;
 use App\Domain\Strava\Strava;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
