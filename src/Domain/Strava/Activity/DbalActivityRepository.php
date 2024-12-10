@@ -9,7 +9,6 @@ use App\Infrastructure\Eventing\EventBus;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final class DbalActivityRepository implements ActivityRepository
@@ -61,7 +60,7 @@ final class DbalActivityRepository implements ActivityRepository
             'activityId' => $activity->getId(),
         ]);
 
-        $this->eventBus->publishEvents(...$activity->getRecordedEvents());
+        $this->eventBus->publishEvents($activity->getRecordedEvents());
     }
 
     /**
@@ -176,7 +175,7 @@ final class DbalActivityRepository implements ActivityRepository
 
         return Activity::fromState(
             activityId: ActivityId::fromString($result['activityId']),
-            startDateTime: SerializableDateTime::fromString($result['startDateTime'], SerializableTimezone::default()),
+            startDateTime: SerializableDateTime::fromString($result['startDateTime']),
             data: Json::decode($result['data']),
             location: $location ? Location::fromState($location) : null,
             weather: Json::decode($result['weather'] ?? '[]'),

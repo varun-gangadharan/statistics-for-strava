@@ -31,15 +31,13 @@ final class ImportStravaDataConsoleCommand extends Command
     {
         $this->resourceUsage->startTimer();
         $this->maxResourceUsageHasBeenReached->clear();
-        // Copy data to read db to determine if we need to add/update data.
+
         $this->commandBus->dispatch(new ImportActivities($output, $this->resourceUsage));
         if ($this->resourceUsage->maxExecutionTimeReached()) {
             $this->maxResourceUsageHasBeenReached->markAsReached();
 
             return Command::SUCCESS;
         }
-
-        // Might have imported new activities, copy them to read db so other import processes are aware of them.
         $this->commandBus->dispatch(new ImportActivityStreams($output, $this->resourceUsage));
         // @phpstan-ignore-next-line
         if ($this->resourceUsage->maxExecutionTimeReached()) {
@@ -51,7 +49,6 @@ final class ImportStravaDataConsoleCommand extends Command
         $this->commandBus->dispatch(new ImportSegments($output));
         $this->commandBus->dispatch(new ImportGear($output));
         $this->commandBus->dispatch(new ImportChallenges($output));
-        // Copy data to read db to be able to calculate stream averages.
         $this->commandBus->dispatch(new CalculateBestStreamAverages($output));
 
         return Command::SUCCESS;

@@ -51,6 +51,7 @@ final class EddingtonChartBuilder
     public function build(): array
     {
         $longestDistanceInADay = $this->eddington->getLongestDistanceInADay();
+        /** @var non-empty-array<mixed> $timesCompletedData */
         $timesCompletedData = $this->eddington->getTimesCompletedData();
         $eddingtonNumber = $this->eddington->getNumber();
 

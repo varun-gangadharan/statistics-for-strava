@@ -31,6 +31,10 @@ final class Activities extends Collection
             $startDate = $activity->getStartDate();
         }
 
+        if (!$startDate) {
+            throw new \RuntimeException('No activities found');
+        }
+
         return $startDate;
     }
 

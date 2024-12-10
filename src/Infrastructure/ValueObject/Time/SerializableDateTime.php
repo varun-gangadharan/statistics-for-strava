@@ -8,24 +8,23 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
 {
     private function __construct(
         string $string,
-        SerializableTimezone $timezone,
     ) {
-        parent::__construct($string, $timezone);
+        parent::__construct($string);
     }
 
     public static function fromDateTimeImmutable(\DateTimeImmutable $date): self
     {
-        return self::fromString($date->format('Y-m-d H:i:s'), SerializableTimezone::fromString($date->getTimezone()->getName()));
+        return self::fromString($date->format('Y-m-d H:i:s'));
     }
 
-    public static function fromString(string $string, SerializableTimezone $timezone): self
+    public static function fromString(string $string): self
     {
-        return new self($string, $timezone);
+        return new self($string);
     }
 
-    public static function fromTimestamp(int $unixTimestamp, SerializableTimezone $timezone): self
+    public static function fromTimestamp(int $unixTimestamp): self
     {
-        return self::fromString('now', $timezone)->setTimestamp($unixTimestamp);
+        return self::fromString('now')->setTimestamp($unixTimestamp);
     }
 
     public static function createFromFormat(string $format, string $datetime, ?\DateTimeZone $timezone = null): self
@@ -36,7 +35,6 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
 
         return self::fromString(
             $datetime->format('Y-m-d H:i:s'),
-            SerializableTimezone::fromOptionalString($timezone?->getName()) ?? SerializableTimezone::default(),
         );
     }
 

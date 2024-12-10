@@ -48,7 +48,7 @@ final class Eddington
     }
 
     /**
-     * @return array<mixed>
+     * @return array<int<1, max>, int<0, max>>
      */
     public function getTimesCompletedData(): array
     {

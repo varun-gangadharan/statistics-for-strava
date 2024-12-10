@@ -32,6 +32,7 @@ final readonly class PowerDistributionChartBuilder
     public function build(): array
     {
         // Calculate all data related things.
+        /** @var non-empty-array<int, int> $powerData */
         $powerData = $this->powerData;
         $powers = array_keys($powerData);
         $minPower = 0;
@@ -56,6 +57,7 @@ final readonly class PowerDistributionChartBuilder
         foreach ($xAxisValues as $axisValue) {
             $data[] = array_sum(array_splice($powerData, 0, $step)) / $totalTimeInSeconds * 100;
         }
+        /** @var non-empty-array<int, int> $yAxisMax */
         $yAxisMax = max($data) * 1.2;
         $xAxisValueAveragePower = array_search(floor($this->averagePower / $step) * $step, $xAxisValues);
 

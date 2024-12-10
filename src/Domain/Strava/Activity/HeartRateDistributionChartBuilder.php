@@ -36,6 +36,7 @@ final readonly class HeartRateDistributionChartBuilder
     {
         // Calculate all data related things.
         $heartRateData = $this->heartRateData;
+        /** @var non-empty-array<int, int> $heartRateData */
         $heartRates = array_keys($heartRateData);
         $minHeartRate = (int) min(60, floor(min($heartRates) / 10) * 10);
         $maxHeartRate = (int) max(200, ceil(max($heartRates) / 10) * 10);
@@ -49,6 +50,7 @@ final readonly class HeartRateDistributionChartBuilder
         ksort($heartRateData);
 
         $step = (int) floor(($maxHeartRate - $minHeartRate) / 24) ?: 1;
+        /** @var non-empty-array<int, int> $xAxisValues */
         $xAxisValues = range($minHeartRate, $maxHeartRate, $step);
         if (end($xAxisValues) < $maxHeartRate) {
             $xAxisValues[] = $maxHeartRate;

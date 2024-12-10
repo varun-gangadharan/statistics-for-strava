@@ -23,7 +23,7 @@ final class Activity
     use TimeFormatter;
     use RecordsEvents;
 
-    public const DATE_TIME_FORMAT = 'Y-m-d\TH:i:s\Z';
+    public const string DATE_TIME_FORMAT = 'Y-m-d\TH:i:s\Z';
     private ?string $gearName = null;
     /** @var array<mixed> */
     private array $bestPowerOutputs = [];
@@ -249,7 +249,7 @@ final class Activity
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return trim($this->data['description'] ?? '');
     }
