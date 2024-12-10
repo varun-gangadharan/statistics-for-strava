@@ -5,7 +5,6 @@ namespace App\Domain\Strava\Challenge;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalChallengeRepository implements ChallengeRepository
@@ -62,7 +61,7 @@ final readonly class DbalChallengeRepository implements ChallengeRepository
     {
         return Challenge::fromState(
             challengeId: ChallengeId::fromString($result['challengeId']),
-            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
+            createdOn: SerializableDateTime::fromString($result['createdOn']),
             data: Json::decode($result['data']),
         );
     }

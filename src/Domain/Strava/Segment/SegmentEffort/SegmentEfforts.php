@@ -16,7 +16,7 @@ final class SegmentEfforts extends Collection
         return SegmentEffort::class;
     }
 
-    public function getBestEffort(): ?SegmentEffort
+    public function getBestEffort(): SegmentEffort
     {
         /** @var SegmentEffort $bestEffort */
         $bestEffort = $this->getFirst();

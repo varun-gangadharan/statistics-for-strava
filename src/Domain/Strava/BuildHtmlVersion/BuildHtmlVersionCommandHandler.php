@@ -4,6 +4,7 @@ namespace App\Domain\Strava\BuildHtmlVersion;
 
 use App\Domain\Strava\Activity\ActivityHeatmapChartBuilder;
 use App\Domain\Strava\Activity\ActivityHighlights;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStats;
@@ -14,11 +15,10 @@ use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\Image;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
+use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\PowerOutputChartBuilder;
-use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\StreamType;
 use App\Domain\Strava\Activity\Stream\StreamTypes;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
@@ -33,29 +33,28 @@ use App\Domain\Strava\Calendar\Calendar;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\Challenge\ChallengeConsistency;
-use App\Domain\Strava\Challenge\ReadModel\ChallengeDetailsRepository;
+use App\Domain\Strava\Challenge\ChallengeRepository;
 use App\Domain\Strava\DistanceBreakdown;
 use App\Domain\Strava\Ftp\FtpHistoryChartBuilder;
-use App\Domain\Strava\Ftp\ReadModel\FtpDetailsRepository;
+use App\Domain\Strava\Ftp\FtpRepository;
 use App\Domain\Strava\Gear\DistanceOverTimePerGearChartBuilder;
 use App\Domain\Strava\Gear\DistancePerMonthPerGearChartBuilder;
+use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Gear\GearStatistics;
-use App\Domain\Strava\Gear\ReadModel\GearDetailsRepository;
 use App\Domain\Strava\MonthlyStatistics;
-use App\Domain\Strava\Segment\ReadModel\SegmentDetailsRepository;
 use App\Domain\Strava\Segment\Segment;
-use App\Domain\Strava\Segment\SegmentEffort\ReadModel\SegmentEffortDetailsRepository;
+use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
+use App\Domain\Strava\Segment\SegmentRepository;
 use App\Domain\Strava\Trivia;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
-use App\Infrastructure\KeyValue\ReadModel\KeyValueStore;
+use App\Infrastructure\KeyValue\KeyValueStore;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\DataTableRow;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use App\Infrastructure\ValueObject\Time\Years;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
@@ -63,17 +62,17 @@ use Twig\Environment;
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
     public function __construct(
-        private ActivityDetailsRepository $activityDetailsRepository,
-        private ChallengeDetailsRepository $challengeDetailsRepository,
-        private GearDetailsRepository $gearDetailsRepository,
+        private ActivityRepository $activityRepository,
+        private ChallengeRepository $challengeRepository,
+        private GearRepository $gearRepository,
         private ImageRepository $imageRepository,
         private ActivityPowerRepository $activityPowerRepository,
-        private ActivityStreamDetailsRepository $activityStreamDetailsRepository,
+        private ActivityStreamRepository $activityStreamRepository,
         private ActivityHeartRateRepository $activityHeartRateRepository,
         private AthleteWeightRepository $athleteWeightRepository,
-        private SegmentDetailsRepository $segmentDetailsRepository,
-        private SegmentEffortDetailsRepository $segmentEffortDetailsRepository,
-        private FtpDetailsRepository $ftpDetailsRepository,
+        private SegmentRepository $segmentRepository,
+        private SegmentEffortRepository $segmentEffortRepository,
+        private FtpRepository $ftpRepository,
         private KeyValueStore $keyValueStore,
         private Environment $twig,
         private FilesystemOperator $filesystem,
@@ -86,15 +85,15 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         assert($command instanceof BuildHtmlVersion);
 
         $now = $this->clock->getCurrentDateTimeImmutable();
-        $athleteBirthday = SerializableDateTime::fromString($this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue(), SerializableTimezone::default());
+        $athleteBirthday = SerializableDateTime::fromString($this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue());
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID)->getValue();
-        $allActivities = $this->activityDetailsRepository->findAll();
-        $allChallenges = $this->challengeDetailsRepository->findAll();
-        $allBikes = $this->gearDetailsRepository->findAll();
+        $allActivities = $this->activityRepository->findAll();
+        $allChallenges = $this->challengeRepository->findAll();
+        $allBikes = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
-        $allFtps = $this->ftpDetailsRepository->findAll();
-        $allSegments = $this->segmentDetailsRepository->findAll();
+        $allFtps = $this->ftpRepository->findAll();
+        $allSegments = $this->segmentRepository->findAll();
         $alpeDuZwiftSegment = $allSegments->getAlpeDuZwiftSegment();
 
         $command->getOutput()->writeln('  => Calculating Eddington');
@@ -134,17 +133,18 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 $this->activityPowerRepository->findBestForActivity($activity->getId())
             );
 
-            $streams = $this->activityStreamDetailsRepository->findByActivityAndStreamTypes(
+            $streams = $this->activityStreamRepository->findByActivityAndStreamTypes(
                 activityId: $activity->getId(),
                 streamTypes: StreamTypes::fromArray([StreamType::CADENCE])
             );
 
             if ($cadenceStream = $streams->getByStreamType(StreamType::CADENCE)) {
+                // @phpstan-ignore-next-line
                 $activity->enrichWithMaxCadence(max($cadenceStream->getData()));
             }
 
             try {
-                $ftp = $this->ftpDetailsRepository->find($activity->getStartDate());
+                $ftp = $this->ftpRepository->find($activity->getStartDate());
                 $activity->enrichWithFtp($ftp->getFtp());
             } catch (EntityNotFound) {
             }
@@ -152,7 +152,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
             if ($activity->getGearId()) {
                 $activity->enrichWithGearName(
-                    $this->gearDetailsRepository->find($activity->getGearId())->getName()
+                    $this->gearRepository->find($activity->getGearId())->getName()
                 );
             }
         }
@@ -315,12 +315,9 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $dataDatableRows = [];
         /** @var Segment $segment */
         foreach ($allSegments as $segment) {
-            $segmentEfforts = $this->segmentEffortDetailsRepository->findBySegmentId($segment->getId(), 10);
-            $segment->enrichWithNumberOfTimesRidden($this->segmentEffortDetailsRepository->countBySegmentId($segment->getId()));
-
-            if ($bestSegmentEffort = $segmentEfforts->getBestEffort()) {
-                $segment->enrichWithBestEffort($bestSegmentEffort);
-            }
+            $segmentEfforts = $this->segmentEffortRepository->findBySegmentId($segment->getId(), 10);
+            $segment->enrichWithNumberOfTimesRidden($this->segmentEffortRepository->countBySegmentId($segment->getId()));
+            $segment->enrichWithBestEffort($segmentEfforts->getBestEffort());
 
             /** @var \App\Domain\Strava\Segment\SegmentEffort\SegmentEffort $segmentEffort */
             foreach ($segmentEfforts as $segmentEffort) {
@@ -413,7 +410,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $routesPerCountry = [];
         $routesInMostRiddenState = [];
-        $mostRiddenState = $this->activityDetailsRepository->findMostRiddenState();
+        $mostRiddenState = $this->activityRepository->findMostRiddenState();
         foreach ($allActivities as $activity) {
             if (ActivityType::RIDE !== $activity->getType()) {
                 continue;
@@ -442,7 +439,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         if ($alpeDuZwiftSegment) {
             $command->getOutput()->writeln('  => Building alpe-du-zwift.html');
 
-            $segmentEfforts = $this->segmentEffortDetailsRepository->findBySegmentId($alpeDuZwiftSegment->getId());
+            $segmentEfforts = $this->segmentEffortRepository->findBySegmentId($alpeDuZwiftSegment->getId());
             foreach ($segmentEfforts as $segmentEffort) {
                 $activity = $allActivities->getByActivityId($segmentEffort->getActivityId());
                 $segmentEffort->enrichWithActivity($activity);
@@ -474,17 +471,20 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     'heartRateDistributionChart' => $heartRateData ? Json::encode(
                         HeartRateDistributionChartBuilder::fromHeartRateData(
                             heartRateData: $heartRateData,
+                            // @phpstan-ignore-next-line
                             averageHeartRate: $activity->getAverageHeartRate(),
+                            // @phpstan-ignore-next-line
                             athleteMaxHeartRate: $activity->getAthleteMaxHeartRate()
                         )->build(),
                     ) : null,
                     'powerDistributionChart' => $powerData ? Json::encode(
                         PowerDistributionChartBuilder::fromPowerData(
                             powerData: $powerData,
+                            // @phpstan-ignore-next-line
                             averagePower: $activity->getAveragePower(),
                         )->build(),
                     ) : null,
-                    'segmentEfforts' => $this->segmentEffortDetailsRepository->findByActivityId($activity->getId()),
+                    'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                 ]),
             );
 
@@ -495,6 +495,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     'activityHighlights' => $activityHighlights,
                 ]),
                 searchables: $activity->getSearchables(),
+                // @phpstan-ignore-next-line
                 sortValues: [
                     'start-date' => $activity->getStartDate()->getTimestamp(),
                     'distance' => $activity->getDistanceInKilometer(),

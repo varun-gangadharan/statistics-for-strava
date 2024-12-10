@@ -9,7 +9,7 @@ use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\KeyValue\Key;
-use App\Infrastructure\KeyValue\ReadModel\KeyValueStore;
+use App\Infrastructure\KeyValue\KeyValueStore;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Carbon\CarbonInterval;
 

@@ -9,7 +9,6 @@ use App\Domain\Strava\Segment\SegmentId;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalSegmentEffortRepository implements SegmentEffortRepository
@@ -133,7 +132,7 @@ final readonly class DbalSegmentEffortRepository implements SegmentEffortReposit
             segmentEffortId: SegmentEffortId::fromString($result['segmentEffortId']),
             segmentId: SegmentId::fromString($result['segmentId']),
             activityId: ActivityId::fromString($result['activityId']),
-            startDateTime: SerializableDateTime::fromString($result['startDateTime'], SerializableTimezone::default()),
+            startDateTime: SerializableDateTime::fromString($result['startDateTime']),
             data: Json::decode($result['data']),
         );
     }

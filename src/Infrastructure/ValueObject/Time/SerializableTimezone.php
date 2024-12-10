@@ -39,9 +39,4 @@ class SerializableTimezone extends \DateTimeZone implements \JsonSerializable, \
     {
         return $this->getName();
     }
-
-    public function getOffsetFromUtcInHours(): int
-    {
-        return (int) round(SerializableDateTime::fromString('2024-01-01 00:00:00', $this)->getOffset() / 3600);
-    }
 }

@@ -25,6 +25,7 @@ final readonly class Trivia
 
     public function getMostKudotedActivity(): Activity
     {
+        /** @var Activity $mostKudotedActivity */
         $mostKudotedActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getKudoCount() < $mostKudotedActivity->getKudoCount()) {
@@ -38,6 +39,7 @@ final readonly class Trivia
 
     public function getFirstActivity(): Activity
     {
+        /** @var Activity $fistActivity */
         $fistActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getStartDate() > $fistActivity->getStartDate()) {
@@ -51,6 +53,7 @@ final readonly class Trivia
 
     public function getEarliestActivity(): Activity
     {
+        /** @var Activity $earliestActivity */
         $earliestActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getStartDate()->getMinutesSinceStartOfDay() > $earliestActivity->getStartDate()->getMinutesSinceStartOfDay()) {
@@ -64,6 +67,7 @@ final readonly class Trivia
 
     public function getLatestActivity(): Activity
     {
+        /** @var Activity $latestActivity */
         $latestActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getStartDate()->getMinutesSinceStartOfDay() < $latestActivity->getStartDate()->getMinutesSinceStartOfDay()) {
@@ -77,6 +81,7 @@ final readonly class Trivia
 
     public function getLongestActivity(): Activity
     {
+        /** @var Activity $longestActivity */
         $longestActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getDistanceInKilometer() < $longestActivity->getDistanceInKilometer()) {
@@ -90,6 +95,7 @@ final readonly class Trivia
 
     public function getActivityWithHighestElevation(): Activity
     {
+        /** @var Activity $mostElevationActivity */
         $mostElevationActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getElevationInMeter() < $mostElevationActivity->getElevationInMeter()) {
@@ -103,6 +109,7 @@ final readonly class Trivia
 
     public function getFastestActivity(): Activity
     {
+        /** @var Activity $fastestActivity */
         $fastestActivity = $this->activities->getFirst();
         foreach ($this->activities as $activity) {
             if ($activity->getAverageSpeedInKmPerH() < $fastestActivity->getAverageSpeedInKmPerH()) {

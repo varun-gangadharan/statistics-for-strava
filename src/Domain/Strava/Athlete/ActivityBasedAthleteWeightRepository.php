@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Athlete;
 
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
@@ -13,15 +12,12 @@ use Doctrine\DBAL\Connection;
 
 final readonly class ActivityBasedAthleteWeightRepository implements AthleteWeightRepository
 {
-    private Connection $connection;
-
     public function __construct(
-        ConnectionFactory $connectionFactory,
+        private Connection $connection,
     ) {
-        $this->connection = $connectionFactory->getReadOnly();
     }
 
-    public function find(SerializableDateTime $dateTime): ?Weight
+    public function find(SerializableDateTime $dateTime): Weight
     {
         $dateTime = SerializableDateTime::fromString($dateTime->format('Y-m-d'));
         $queryBuilder = $this->connection->createQueryBuilder();

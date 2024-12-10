@@ -4,7 +4,6 @@ namespace App\Domain\Strava\Ftp;
 
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalFtpRepository implements FtpRepository
@@ -40,7 +39,7 @@ final readonly class DbalFtpRepository implements FtpRepository
 
     public function find(SerializableDateTime $dateTime): Ftp
     {
-        $dateTime = SerializableDateTime::fromString($dateTime->format('Y-m-d'), SerializableTimezone::default());
+        $dateTime = SerializableDateTime::fromString($dateTime->format('Y-m-d'));
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('*')
             ->from('Ftp')
@@ -62,7 +61,7 @@ final readonly class DbalFtpRepository implements FtpRepository
     private function buildFromResult(array $result): Ftp
     {
         return Ftp::fromState(
-            setOn: SerializableDateTime::fromString($result['setOn'], SerializableTimezone::default()),
+            setOn: SerializableDateTime::fromString($result['setOn']),
             ftp: FtpValue::fromInt((int) $result['ftp'])
         );
     }

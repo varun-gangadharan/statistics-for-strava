@@ -14,9 +14,6 @@ final class Dates implements \Countable
     {
         $this->datesIndexedByDate = [];
         foreach ($dates as $date) {
-            if (!$date instanceof SerializableDateTime) {
-                throw new \InvalidArgumentException('Invalid SerializableDateTime');
-            }
             $this->datesIndexedByDate[$date->format('Y-m-d')] = $date;
         }
         \ksort($this->datesIndexedByDate);
@@ -37,11 +34,13 @@ final class Dates implements \Countable
 
     public function getLatestDate(): SerializableDateTime
     {
+        // @phpstan-ignore-next-line
         return \max($this->datesIndexedByDate);
     }
 
     public function getEarliestDate(): SerializableDateTime
     {
+        // @phpstan-ignore-next-line
         return \min($this->datesIndexedByDate);
     }
 

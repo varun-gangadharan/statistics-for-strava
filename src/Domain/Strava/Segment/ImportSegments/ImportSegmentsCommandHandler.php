@@ -6,10 +6,7 @@ namespace App\Domain\Strava\Segment\ImportSegments;
 
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityRepository;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
-use App\Domain\Strava\Segment\ReadModel\SegmentDetailsRepository;
 use App\Domain\Strava\Segment\Segment;
-use App\Domain\Strava\Segment\SegmentEffort\ReadModel\SegmentEffortDetailsRepository;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffort;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortId;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
@@ -24,12 +21,9 @@ use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 final readonly class ImportSegmentsCommandHandler implements CommandHandler
 {
     public function __construct(
-        private ActivityDetailsRepository $activityDetailsRepository,
         private ActivityRepository $activityRepository,
         private SegmentRepository $segmentRepository,
-        private SegmentDetailsRepository $segmentDetailsRepository,
         private SegmentEffortRepository $segmentEffortRepository,
-        private SegmentEffortDetailsRepository $segmentEffortDetailsRepository,
     ) {
     }
 
@@ -41,7 +35,7 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
         $segmentsAddedInCurrentRun = [];
 
         /** @var Activity $activity */
-        foreach ($this->activityDetailsRepository->findAll() as $activity) {
+        foreach ($this->activityRepository->findAll() as $activity) {
             if (!$segmentEfforts = $activity->getSegmentEfforts()) {
                 // No segments or we already imported and deleted them from the activity.
                 continue;
@@ -61,7 +55,7 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
                 if (!isset($segmentsAddedInCurrentRun[(string) $segmentId])) {
                     // Check if the segment is imported in a previous run.
                     try {
-                        $segment = $this->segmentDetailsRepository->find($segment->getId());
+                        $segment = $this->segmentRepository->find($segment->getId());
                     } catch (EntityNotFound) {
                         $this->segmentRepository->add($segment);
                         $segmentsAddedInCurrentRun[(string) $segmentId] = $segmentId;
@@ -71,7 +65,7 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
 
                 $segmentEffortId = SegmentEffortId::fromUnprefixed((string) $activitySegmentEffort['id']);
                 try {
-                    $segmentEffort = $this->segmentEffortDetailsRepository->find($segmentEffortId);
+                    $segmentEffort = $this->segmentEffortRepository->find($segmentEffortId);
                     $this->segmentEffortRepository->update($segmentEffort);
                 } catch (EntityNotFound) {
                     $this->segmentEffortRepository->add(SegmentEffort::create(

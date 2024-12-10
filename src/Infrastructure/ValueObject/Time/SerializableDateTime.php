@@ -6,12 +6,6 @@ namespace App\Infrastructure\ValueObject\Time;
 
 class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializable, \Stringable
 {
-    private function __construct(
-        string $string,
-    ) {
-        parent::__construct($string);
-    }
-
     public static function fromDateTimeImmutable(\DateTimeImmutable $date): self
     {
         return self::fromString($date->format('Y-m-d H:i:s'));
@@ -25,6 +19,15 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
     public static function fromTimestamp(int $unixTimestamp): self
     {
         return self::fromString('now')->setTimestamp($unixTimestamp);
+    }
+
+    public static function fromYearAndWeekNumber(int $year, int $weekNumber): self
+    {
+        $datetime = (new self())->setISODate($year, $weekNumber);
+
+        return self::fromString(
+            $datetime->format('Y-m-d H:i:s')
+        );
     }
 
     public static function createFromFormat(string $format, string $datetime, ?\DateTimeZone $timezone = null): self
@@ -99,6 +102,11 @@ class SerializableDateTime extends \DateTimeImmutable implements \JsonSerializab
     public function getYearAndWeekNumberString(): string
     {
         return implode('-', $this->getYearAndWeekNumber());
+    }
+
+    public function getMinutesSinceStartOfDay(): int
+    {
+        return ($this->getHourWithoutLeadingZero() * 60) + $this->getMinutesWithoutLeadingZero();
     }
 
     public function isAfterOrOn(SerializableDateTime $that): bool

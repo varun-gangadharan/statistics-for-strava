@@ -2,18 +2,17 @@
 
 namespace App\Domain\Strava\Gear\ImportGear;
 
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Gear\Gear;
 use App\Domain\Strava\Gear\GearRepository;
-use App\Domain\Strava\Gear\ReadModel\GearDetailsRepository;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaErrorStatusCode;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
+use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\Time\Sleep;
-use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 
@@ -21,9 +20,8 @@ final readonly class ImportGearCommandHandler implements CommandHandler
 {
     public function __construct(
         private Strava $strava,
-        private ActivityDetailsRepository $activityDetailsRepository,
+        private ActivityRepository $activityRepository,
         private GearRepository $gearRepository,
-        private GearDetailsRepository $gearDetailsRepository,
         private MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
         private Clock $clock,
         private Sleep $sleep,
@@ -35,7 +33,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
         assert($command instanceof ImportGear);
         $command->getOutput()->writeln('Importing gear...');
 
-        $gearIds = $this->activityDetailsRepository->findUniqueGearIds();
+        $gearIds = $this->activityRepository->findUniqueGearIds();
 
         foreach ($gearIds as $gearId) {
             try {
@@ -56,7 +54,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
             }
 
             try {
-                $gear = $this->gearDetailsRepository->find($gearId);
+                $gear = $this->gearRepository->find($gearId);
                 $gear
                     ->updateDistance($stravaGear['distance'], $stravaGear['converted_distance'])
                 ->updateIsRetired($stravaGear['retired'] ?? false);
@@ -66,7 +64,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
                     gearId: $gearId,
                     data: $stravaGear,
                     distanceInMeter: $stravaGear['distance'],
-                    createdOn: SerializableDateTime::fromDateTimeImmutable($this->clock->now()),
+                    createdOn: $this->clock->getCurrentDateTimeImmutable(),
                 );
                 $this->gearRepository->add($gear);
             }

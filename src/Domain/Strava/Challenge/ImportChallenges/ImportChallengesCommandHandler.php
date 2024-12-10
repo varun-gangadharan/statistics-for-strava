@@ -5,13 +5,12 @@ namespace App\Domain\Strava\Challenge\ImportChallenges;
 use App\Domain\Strava\Challenge\Challenge;
 use App\Domain\Strava\Challenge\ChallengeId;
 use App\Domain\Strava\Challenge\ChallengeRepository;
-use App\Domain\Strava\Challenge\ReadModel\ChallengeDetailsRepository;
 use App\Domain\Strava\Strava;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Time\Sleep;
-use App\Infrastructure\ValueObject\UuidFactory;
+use App\Infrastructure\ValueObject\Identifier\UuidFactory;
 use League\Flysystem\FilesystemOperator;
 
 final readonly class ImportChallengesCommandHandler implements CommandHandler
@@ -21,7 +20,6 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
     public function __construct(
         private Strava $strava,
         private ChallengeRepository $challengeRepository,
-        private ChallengeDetailsRepository $challengeDetailsRepository,
         private FilesystemOperator $filesystem,
         private UuidFactory $uuidFactory,
         private Sleep $sleep,
@@ -72,7 +70,7 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
             }
 
             try {
-                $this->challengeDetailsRepository->find($challengeId);
+                $this->challengeRepository->find($challengeId);
             } catch (EntityNotFound) {
                 $challenge = Challenge::create(
                     challengeId: $challengeId,

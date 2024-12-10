@@ -5,24 +5,19 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityWasDeleted;
-use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
-use App\Infrastructure\Attribute\AsEventListener;
-use App\Infrastructure\Eventing\EventListener\ConventionBasedEventListener;
-use App\Infrastructure\Eventing\EventListener\EventListenerType;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-#[AsEventListener(type: EventListenerType::PROCESS_MANAGER)]
-final class StreamActivityManager extends ConventionBasedEventListener
+final readonly class StreamActivityManager
 {
     public function __construct(
-        private readonly ActivityStreamRepository $activityStreamRepository,
-        private readonly ActivityStreamDetailsRepository $activityStreamDetailsRepository,
+        private ActivityStreamRepository $activityStreamRepository,
     ) {
-        parent::__construct();
     }
 
+    #[AsEventListener]
     public function reactToActivityWasDeleted(ActivityWasDeleted $event): void
     {
-        $segmentEfforts = $this->activityStreamDetailsRepository->findByActivityId($event->getActivityId());
+        $segmentEfforts = $this->activityStreamRepository->findByActivityId($event->getActivityId());
         if ($segmentEfforts->isEmpty()) {
             return;
         }

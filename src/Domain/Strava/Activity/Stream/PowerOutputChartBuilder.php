@@ -46,10 +46,12 @@ final class PowerOutputChartBuilder
     public function build(): array
     {
         $powerOutputs = array_values(array_map(fn (PowerOutput $powerOutput) => $powerOutput->getPower(), $this->bestPowerOutputs));
+        // @phpstan-ignore-next-line
         $yAxisOneMaxValue = ceil(max($powerOutputs) / 100) * 100;
         $yAxisOneInterval = $yAxisOneMaxValue / 5;
 
         $relativePowerOutputs = array_values(array_map(fn (PowerOutput $powerOutput) => $powerOutput->getRelativePower(), $this->bestPowerOutputs));
+        // @phpstan-ignore-next-line
         $yAxisTwoMaxValue = ceil(max($relativePowerOutputs) / 5) * 5;
         $yAxisTwoInterval = $yAxisTwoMaxValue / 5;
 

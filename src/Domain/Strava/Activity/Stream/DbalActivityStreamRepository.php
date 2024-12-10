@@ -6,7 +6,6 @@ use App\Domain\Strava\Activity\ActivityId;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -169,7 +168,7 @@ final readonly class DbalActivityStreamRepository implements ActivityStreamRepos
             activityId: ActivityId::fromString($result['activityId']),
             streamType: StreamType::from($result['streamType']),
             streamData: Json::decode($result['data']),
-            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
+            createdOn: SerializableDateTime::fromString($result['createdOn']),
             bestAverages: Json::decode($result['bestAverages'] ?: '[]'),
         );
     }

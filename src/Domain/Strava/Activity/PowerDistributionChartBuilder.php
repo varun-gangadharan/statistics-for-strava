@@ -57,7 +57,7 @@ final readonly class PowerDistributionChartBuilder
         foreach ($xAxisValues as $axisValue) {
             $data[] = array_sum(array_splice($powerData, 0, $step)) / $totalTimeInSeconds * 100;
         }
-        /** @var non-empty-array<int, int> $yAxisMax */
+        // @phpstan-ignore-next-line
         $yAxisMax = max($data) * 1.2;
         $xAxisValueAveragePower = array_search(floor($this->averagePower / $step) * $step, $xAxisValues);
 

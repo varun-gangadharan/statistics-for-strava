@@ -55,6 +55,7 @@ final readonly class YearlyStatistics
             $statistics[$year]['totalCalories'] += $activity->getCalories();
         }
 
+        // @phpstan-ignore-next-line
         $statistics = array_values($statistics);
         foreach ($statistics as $key => &$statistic) {
             $statistic['movingTime'] = CarbonInterval::seconds($statistic['movingTimeInSeconds'])->cascade()->forHumans(['short' => true, 'minimumUnit' => 'minute']);

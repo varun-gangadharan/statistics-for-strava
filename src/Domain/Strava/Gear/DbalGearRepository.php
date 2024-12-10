@@ -5,7 +5,6 @@ namespace App\Domain\Strava\Gear;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalGearRepository implements GearRepository
@@ -79,7 +78,7 @@ final readonly class DbalGearRepository implements GearRepository
             gearId: GearId::fromString($result['gearId']),
             data: Json::decode($result['data']),
             distanceInMeter: $result['distanceInMeter'],
-            createdOn: SerializableDateTime::fromString($result['createdOn'], SerializableTimezone::default()),
+            createdOn: SerializableDateTime::fromString($result['createdOn']),
         );
     }
 }

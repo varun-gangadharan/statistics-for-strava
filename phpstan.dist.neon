@@ -4,5 +4,3 @@ parameters:
         - src/
     ignoreErrors:
         - identifier: missingType.generics
-    excludePaths:
-        - src/Infrastructure/Eventing/RecordsEvents.php

@@ -4,7 +4,6 @@ namespace App\Tests\Infrastructure\ValueObject\Time;
 
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableTimezone;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SerializableTimezoneTest extends TestCase
@@ -45,26 +44,5 @@ class SerializableTimezoneTest extends TestCase
             Json::encode($timezone),
             Json::encode((string) $timezone)
         );
-    }
-
-    #[DataProvider(methodName: 'provideOffsetInHoursData')]
-    public function testGetOffsetInHours(SerializableTimezone $timezone, int $expectedOffset): void
-    {
-        $this->assertEquals(
-            $expectedOffset,
-            $timezone->getOffsetFromUtcInHours()
-        );
-    }
-
-    public static function provideOffsetInHoursData(): array
-    {
-        return [
-            [SerializableTimezone::UTC(), 0],
-            [SerializableTimezone::default(), 1],
-            [SerializableTimezone::fromString('America/New_York'), -5],
-            [SerializableTimezone::fromString('Europe/Zagreb'), 1],
-            [SerializableTimezone::fromString('Europe/Dublin'), 0],
-            [SerializableTimezone::fromString('Australia/Melbourne'), 11],
-        ];
     }
 }
