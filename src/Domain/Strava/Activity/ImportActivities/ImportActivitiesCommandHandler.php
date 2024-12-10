@@ -22,8 +22,9 @@ use App\Infrastructure\KeyValue\Value;
 use App\Infrastructure\KeyValue\WriteModel\KeyValueStore;
 use App\Infrastructure\Time\Sleep;
 use App\Infrastructure\ValueObject\Geography\Coordinate;
+use App\Infrastructure\ValueObject\Identifier\UuidFactory;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\UuidFactory;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use League\Flysystem\FilesystemOperator;
@@ -96,8 +97,9 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             } catch (EntityNotFound) {
                 try {
                     $startDate = SerializableDateTime::createFromFormat(
-                        Activity::DATE_TIME_FORMAT,
-                        $stravaActivity['start_date_local']
+                        format: Activity::DATE_TIME_FORMAT,
+                        datetime: $stravaActivity['start_date_local'],
+                        timezone: SerializableTimezone::default(),
                     );
                     $activity = Activity::create(
                         activityId: $activityId,

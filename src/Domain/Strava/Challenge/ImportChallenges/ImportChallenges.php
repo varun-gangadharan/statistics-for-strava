@@ -2,6 +2,7 @@
 
 namespace App\Domain\Strava\Challenge\ImportChallenges;
 
+use App\Infrastructure\CQRS\Bus\DomainCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ImportChallenges extends DomainCommand

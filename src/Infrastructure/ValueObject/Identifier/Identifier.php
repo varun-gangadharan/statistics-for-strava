@@ -19,6 +19,20 @@ abstract readonly class Identifier extends NonEmptyStringLiteral implements \Jso
         }
     }
 
+    public static function fromUnprefixed(string $unprefixed): static
+    {
+        return static::fromString(static::getPrefix().$unprefixed);
+    }
+
+    public static function fromOptionalUnprefixed(?string $unprefixed): ?static
+    {
+        if (is_null($unprefixed)) {
+            return null;
+        }
+
+        return static::fromUnprefixed($unprefixed);
+    }
+
     public static function random(): static
     {
         return static::fromString(static::getPrefix().UuidFactory::random());
