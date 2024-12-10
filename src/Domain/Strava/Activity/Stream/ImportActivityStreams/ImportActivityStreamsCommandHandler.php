@@ -5,7 +5,6 @@ namespace App\Domain\Strava\Activity\Stream\ImportActivityStreams;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\Stream\ActivityStream;
 use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
-use App\Domain\Strava\Activity\Stream\ReadModel\ActivityStreamDetailsRepository;
 use App\Domain\Strava\Activity\Stream\StreamType;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Strava;
@@ -22,7 +21,6 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
         private Strava $strava,
         private ActivityRepository $activityRepository,
         private ActivityStreamRepository $activityStreamRepository,
-        private ActivityStreamDetailsRepository $activityStreamDetailsRepository,
         private MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
         private Sleep $sleep,
     ) {
@@ -37,7 +35,7 @@ final readonly class ImportActivityStreamsCommandHandler implements CommandHandl
             if ($command->getResourceUsage()->maxExecutionTimeReached()) {
                 return;
             }
-            if ($this->activityStreamDetailsRepository->isImportedForActivity($activityId)) {
+            if ($this->activityStreamRepository->isImportedForActivity($activityId)) {
                 // Streams for this activity have been imported already, skip.
                 continue;
             }
