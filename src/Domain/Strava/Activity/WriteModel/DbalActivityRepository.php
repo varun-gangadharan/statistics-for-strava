@@ -2,17 +2,28 @@
 
 namespace App\Domain\Strava\Activity\WriteModel;
 
+use App\Domain\Nominatim\Location;
+use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
-use App\Infrastructure\Doctrine\Connection\ConnectionFactory;
+use App\Domain\Strava\Activity\ActivityId;
+use App\Domain\Strava\Activity\ActivityIds;
+use App\Domain\Strava\Gear\GearId;
+use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\Eventing\EventBus;
+use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
-use App\Infrastructure\ValueObject\Time\Year;
+use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\SerializableTimezone;
+use Doctrine\DBAL\Connection;
 
-final readonly class DbalActivityRepository implements ActivityRepository
+final class DbalActivityRepository implements ActivityRepository
 {
+    /** @var array<int|string, Activities> */
+    public static array $cachedActivities = [];
+
     public function __construct(
-        private ConnectionFactory $connectionFactory,
-        private EventBus $eventBus,
+        private readonly Connection $connection,
+        private readonly EventBus $eventBus,
     ) {
     }
 
@@ -21,7 +32,7 @@ final readonly class DbalActivityRepository implements ActivityRepository
         $sql = 'INSERT INTO Activity (activityId, startDateTime, data, weather, gearId, location)
         VALUES (:activityId, :startDateTime, :data, :weather, :gearId, :location)';
 
-        $this->connectionFactory->getForYear(Year::fromDate($activity->getStartDate()))->executeStatement($sql, [
+        $this->connection->executeStatement($sql, [
             'activityId' => $activity->getId(),
             'startDateTime' => $activity->getStartDate(),
             'data' => Json::encode($this->cleanData($activity->getData())),
@@ -37,7 +48,7 @@ final readonly class DbalActivityRepository implements ActivityRepository
         SET data = :data, gearId = :gearId, location = :location
         WHERE activityId = :activityId';
 
-        $this->connectionFactory->getForYear(Year::fromDate($activity->getStartDate()))->executeStatement($sql, [
+        $this->connection->executeStatement($sql, [
             'activityId' => $activity->getId(),
             'data' => Json::encode($this->cleanData($activity->getData())),
             'gearId' => $activity->getGearId(),
@@ -50,11 +61,11 @@ final readonly class DbalActivityRepository implements ActivityRepository
         $sql = 'DELETE FROM Activity 
         WHERE activityId = :activityId';
 
-        $this->connectionFactory->getForYear(Year::fromDate($activity->getStartDate()))->executeStatement($sql, [
+        $this->connection->executeStatement($sql, [
             'activityId' => $activity->getId(),
         ]);
 
-        $this->eventBus->publish(...$activity->getRecordedEvents());
+        $this->eventBus->publishEvents(...$activity->getRecordedEvents());
     }
 
     /**
@@ -81,5 +92,99 @@ final readonly class DbalActivityRepository implements ActivityRepository
         }
 
         return $data;
+    }
+
+    public function find(ActivityId $activityId): Activity
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*')
+            ->from('Activity')
+            ->andWhere('activityId = :activityId')
+            ->setParameter('activityId', $activityId);
+
+        if (!$result = $queryBuilder->executeQuery()->fetchAssociative()) {
+            throw new EntityNotFound(sprintf('Activity "%s" not found', $activityId));
+        }
+
+        return $this->buildFromResult($result);
+    }
+
+    public function findAll(?int $limit = null): Activities
+    {
+        $cacheKey = $limit ?? 'all';
+        if (array_key_exists($cacheKey, DbalActivityRepository::$cachedActivities)) {
+            return DbalActivityRepository::$cachedActivities[$cacheKey];
+        }
+
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*')
+            ->from('Activity')
+            ->orderBy('startDateTime', 'DESC')
+            ->setMaxResults($limit);
+
+        $activities = array_map(
+            fn (array $result) => $this->buildFromResult($result),
+            $queryBuilder->executeQuery()->fetchAllAssociative()
+        );
+        DbalActivityRepository::$cachedActivities[$cacheKey] = Activities::fromArray($activities);
+
+        return DbalActivityRepository::$cachedActivities[$cacheKey];
+    }
+
+    public function findActivityIds(): ActivityIds
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('activityId')
+            ->from('Activity')
+            ->orderBy('startDateTime', 'DESC');
+
+        return ActivityIds::fromArray(array_map(
+            fn (string $id) => ActivityId::fromString($id),
+            $queryBuilder->executeQuery()->fetchFirstColumn(),
+        ));
+    }
+
+    public function findUniqueGearIds(): GearIds
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('gearId')
+            ->distinct()
+            ->from('Activity')
+            ->andWhere('gearId IS NOT NULL')
+            ->orderBy('startDateTime', 'DESC');
+
+        return GearIds::fromArray(array_map(
+            fn (string $id) => GearId::fromString($id),
+            $queryBuilder->executeQuery()->fetchFirstColumn(),
+        ));
+    }
+
+    public function findMostRiddenState(): ?string
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select("JSON_EXTRACT(location, '$.state') as state")
+            ->from('Activity')
+            ->andWhere('state IS NOT NULL')
+            ->groupBy("JSON_EXTRACT(location, '$.state')")
+            ->orderBy('COUNT(*)', 'DESC');
+
+        return $queryBuilder->executeQuery()->fetchOne();
+    }
+
+    /**
+     * @param array<mixed> $result
+     */
+    private function buildFromResult(array $result): Activity
+    {
+        $location = Json::decode($result['location'] ?? '[]');
+
+        return Activity::fromState(
+            activityId: ActivityId::fromString($result['activityId']),
+            startDateTime: SerializableDateTime::fromString($result['startDateTime'], SerializableTimezone::default()),
+            data: Json::decode($result['data']),
+            location: $location ? Location::fromState($location) : null,
+            weather: Json::decode($result['weather'] ?? '[]'),
+            gearId: GearId::fromOptionalString($result['gearId']),
+        );
     }
 }

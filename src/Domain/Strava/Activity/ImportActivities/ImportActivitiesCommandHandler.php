@@ -6,7 +6,6 @@ use App\Domain\Nominatim\Nominatim;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityType;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
 use App\Domain\Strava\Activity\WriteModel\ActivityRepository;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
@@ -36,7 +35,6 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private OpenMeteo $openMeteo,
         private Nominatim $nominatim,
         private ActivityRepository $activityRepository,
-        private ActivityDetailsRepository $activityDetailsRepository,
         private KeyValueStore $keyValueStore,
         private FilesystemOperator $filesystem,
         private MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
