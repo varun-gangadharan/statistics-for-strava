@@ -1,1 +1,8 @@
-[]
+{
+    "App\\Domain\\Strava\\Activity\\Stream\\StreamActivityManager": [
+        "reactToActivityWasDeleted"
+    ],
+    "App\\Domain\\Strava\\Segment\\SegmentEffort\\SegmentEffortActivityManager": [
+        "reactToActivityWasDeleted"
+    ]
+}
