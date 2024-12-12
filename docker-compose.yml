@@ -9,25 +9,13 @@ services:
             - on-demand
         networks:
             - app_network
-    php-fpm:
-        build: docker/php-fpm
-        container_name: '${DOCKER_CONTAINER_BASE_NAME}-php-fpm'
-        volumes:
-            - './:/var/www/'
-        working_dir: /var/www
-        networks:
-            - app_network
-    nginx:
-        image: 'nginx:stable-alpine'
-        container_name: '${DOCKER_CONTAINER_BASE_NAME}-nginx'
-        volumes:
-            - './public/:/var/www/public/'
-            - './docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
+    app:
+        build:
+            context: ./
+            dockerfile: docker/app/Dockerfile
+        container_name: '${DOCKER_CONTAINER_BASE_NAME}-app'
         ports:
-            - '${DOCKER_NGINX_PORT}:80'
-        depends_on:
-            - php-fpm
-        working_dir: /var/www
+            - '8081:8080'
         networks:
             - app_network
 networks:

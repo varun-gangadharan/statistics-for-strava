@@ -1,2 +1,0 @@
-30 18 * * * /var/www/bin/update-activities.sh
-# empty line needed for cron to work
