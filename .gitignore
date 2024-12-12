@@ -8,12 +8,7 @@
 /src/Entity
 /src/Repository
 /database/*.db
-/public/build/*
-!/public/build/README.md
 
-.phpunit.cache
-.php-cs-fixer.cache
-.phpunit.result.cache
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
@@ -21,8 +16,14 @@
 
 ###> phpunit/phpunit ###
 /phpunit.xml
+.phpunit.cache
+.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+###> app-build ###
+/buildx
+###> app-build ###

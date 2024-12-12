@@ -53,6 +53,9 @@ USER nobody
 
 # Add application
 COPY --chown=nobody . /var/www/
+COPY --chown=nobody public/app-index.php /var/www/build/index.php
+COPY --chown=nobody public/assets /var/www/build
+RUN rm -Rf docker
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
