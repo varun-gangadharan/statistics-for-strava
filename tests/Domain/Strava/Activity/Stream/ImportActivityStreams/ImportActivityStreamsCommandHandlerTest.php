@@ -3,12 +3,12 @@
 namespace App\Tests\Domain\Strava\Activity\Stream\ImportActivityStreams;
 
 use App\Domain\Strava\Activity\ActivityId;
+use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\ImportActivityStreams\ImportActivityStreams;
-use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
-use App\Domain\Strava\Activity\WriteModel\ActivityRepository;
 use App\Domain\Strava\Strava;
-use App\Infrastructure\CQRS\CommandBus;
-use App\Tests\DatabaseTestCase;
+use App\Infrastructure\CQRS\Bus\CommandBus;
+use App\Tests\ContainerTestCase;
 use App\Tests\Domain\Strava\Activity\ActivityBuilder;
 use App\Tests\Domain\Strava\Activity\Stream\ActivityStreamBuilder;
 use App\Tests\Domain\Strava\SpyStrava;
@@ -17,7 +17,7 @@ use App\Tests\SpyOutput;
 use League\Flysystem\FilesystemOperator;
 use Spatie\Snapshots\MatchesSnapshots;
 
-class ImportActivityStreamsCommandHandlerTest extends DatabaseTestCase
+class ImportActivityStreamsCommandHandlerTest extends ContainerTestCase
 {
     use MatchesSnapshots;
 

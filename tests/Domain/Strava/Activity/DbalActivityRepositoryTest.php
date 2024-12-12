@@ -1,26 +1,93 @@
 <?php
 
-namespace App\Tests\Domain\Strava\Activity\ReadModel;
+namespace App\Tests\Domain\Strava\Activity;
 
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityIds;
-use App\Domain\Strava\Activity\ReadModel\ActivityDetailsRepository;
-use App\Domain\Strava\Activity\ReadModel\DbalActivityDetailsRepository;
-use App\Domain\Strava\Activity\WriteModel\ActivityRepository;
-use App\Domain\Strava\Activity\WriteModel\DbalActivityRepository;
+use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\DbalActivityRepository;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\Eventing\EventBus;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Tests\DatabaseTestCase;
-use App\Tests\Domain\Strava\Activity\ActivityBuilder;
+use App\Tests\ContainerTestCase;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use PHPUnit\Framework\MockObject\MockObject;
+use Spatie\Snapshots\MatchesSnapshots;
 
-class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
+class DbalActivityRepositoryTest extends ContainerTestCase
 {
-    private ActivityDetailsRepository $activityDetailsRepository;
+    use MatchesSnapshots;
+
     private ActivityRepository $activityRepository;
+    private MockObject $eventBus;
+
+    public function testItShouldSaveAndFind(): void
+    {
+        $activity = ActivityBuilder::fromDefaults()->build();
+
+        $this->activityRepository->add($activity);
+
+        $this->assertMatchesJsonSnapshot(
+            $this->getConnection()
+                ->executeQuery('SELECT * FROM Activity')->fetchAllAssociative()
+        );
+    }
+
+    public function testItShouldThrowOnDuplicateActivity(): void
+    {
+        $activity = ActivityBuilder::fromDefaults()->build();
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->activityRepository->add($activity);
+        $this->activityRepository->add($activity);
+    }
+
+    public function testUpdate(): void
+    {
+        $activity = ActivityBuilder::fromDefaults()
+            ->withActivityId(ActivityId::fromUnprefixed(1))
+            ->withStartDateTime(SerializableDateTime::fromString('2023-10-10 14:00:34'))
+            ->withGearId(GearId::fromUnprefixed('1'))
+            ->build();
+        $this->activityRepository->add($activity);
+
+        $this->assertEquals(
+            1,
+            $activity->getKudoCount()
+        );
+
+        $activity->updateKudoCount(3);
+        $activity->updateGearId(GearId::fromUnprefixed('10'));
+        $this->activityRepository->update($activity);
+
+        $this->assertMatchesJsonSnapshot(
+            $this->getConnection()
+                ->executeQuery('SELECT * FROM Activity')->fetchAllAssociative()
+        );
+    }
+
+    public function testDelete(): void
+    {
+        $activity = ActivityBuilder::fromDefaults()->build();
+        $this->activityRepository->add($activity);
+
+        $this->assertEquals(
+            1,
+            $this->getConnection()
+                ->executeQuery('SELECT COUNT(*) FROM Activity')->fetchOne()
+        );
+
+        $this->activityRepository->delete($activity);
+        $this->assertEquals(
+            0,
+            $this->getConnection()
+                ->executeQuery('SELECT COUNT(*) FROM Activity')->fetchOne()
+        );
+    }
 
     public function testFind(): void
     {
@@ -29,14 +96,14 @@ class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
 
         $this->assertEquals(
             $activity,
-            $this->activityDetailsRepository->find($activity->getId())
+            $this->activityRepository->find($activity->getId())
         );
     }
 
     public function testItShouldThrowWhenNotFound(): void
     {
         $this->expectException(EntityNotFound::class);
-        $this->activityDetailsRepository->find(ActivityId::fromUnprefixed(1));
+        $this->activityRepository->find(ActivityId::fromUnprefixed(1));
     }
 
     public function testFindAll(): void
@@ -59,7 +126,7 @@ class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
 
         $this->assertEquals(
             Activities::fromArray([$activityOne, $activityTwo, $activityThree]),
-            $this->activityDetailsRepository->findAll()
+            $this->activityRepository->findAll()
         );
     }
 
@@ -87,7 +154,7 @@ class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
                 ActivityId::fromUnprefixed(2),
                 ActivityId::fromUnprefixed(3),
             ]),
-            $this->activityDetailsRepository->findActivityIds()
+            $this->activityRepository->findActivityIds()
         );
     }
 
@@ -119,7 +186,7 @@ class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
 
         $this->assertEquals(
             GearIds::fromArray([GearId::fromUnprefixed(1), GearId::fromUnprefixed(2)]),
-            $this->activityDetailsRepository->findUniqueGearIds()
+            $this->activityRepository->findUniqueGearIds()
         );
     }
 
@@ -127,12 +194,11 @@ class DbalActivityDetailsRepositoryTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->activityDetailsRepository = new DbalActivityDetailsRepository(
-            $this->getConnectionFactory()
-        );
+        $this->eventBus = $this->createMock(EventBus::class);
+
         $this->activityRepository = new DbalActivityRepository(
-            $this->getConnectionFactory(),
-            $this->getContainer()->get(EventBus::class),
+            $this->getConnection(),
+            $this->eventBus
         );
     }
 }

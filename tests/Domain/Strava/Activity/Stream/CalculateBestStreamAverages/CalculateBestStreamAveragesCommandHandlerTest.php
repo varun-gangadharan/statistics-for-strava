@@ -3,18 +3,17 @@
 namespace App\Tests\Domain\Strava\Activity\Stream\CalculateBestStreamAverages;
 
 use App\Domain\Strava\Activity\ActivityId;
+use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages\CalculateBestStreamAverages;
 use App\Domain\Strava\Activity\Stream\StreamType;
-use App\Domain\Strava\Activity\Stream\WriteModel\ActivityStreamRepository;
-use App\Infrastructure\CQRS\CommandBus;
+use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Serialization\Json;
-use App\Infrastructure\ValueObject\Time\Year;
-use App\Tests\DatabaseTestCase;
+use App\Tests\ContainerTestCase;
 use App\Tests\Domain\Strava\Activity\Stream\ActivityStreamBuilder;
 use App\Tests\SpyOutput;
 use Spatie\Snapshots\MatchesSnapshots;
 
-class CalculateBestStreamAveragesCommandHandlerTest extends DatabaseTestCase
+class CalculateBestStreamAveragesCommandHandlerTest extends ContainerTestCase
 {
     use MatchesSnapshots;
 
@@ -41,8 +40,7 @@ class CalculateBestStreamAveragesCommandHandlerTest extends DatabaseTestCase
 
         $this->assertMatchesTextSnapshot($output);
         $this->assertMatchesJsonSnapshot(
-            Json::encode($this->getConnectionFactory()
-                ->getForYear(Year::fromDate($stream->getCreatedOn()))
+            Json::encode($this->getConnection()
                 ->executeQuery('SELECT bestAverages FROM ActivityStream')->fetchFirstColumn())
         );
     }
