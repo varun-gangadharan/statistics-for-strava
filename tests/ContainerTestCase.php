@@ -10,11 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 abstract class ContainerTestCase extends KernelTestCase
 {
-    private static bool $testDatabaseCreated = false;
     protected static ?Connection $connection = null;
 
     /**
-     * @throws ToolsException|\Doctrine\DBAL\Exception
+     * @throws ToolsException
      */
     protected function setUp(): void
     {
@@ -25,12 +24,7 @@ abstract class ContainerTestCase extends KernelTestCase
             self::$connection = self::getContainer()->get(Connection::class);
         }
 
-        if (!self::$testDatabaseCreated) {
-            $this->createTestDatabase();
-            self::$testDatabaseCreated = true;
-        }
-
-        $this->truncateDatabaseTables();
+        $this->createTestDatabase();
     }
 
     /**
@@ -45,22 +39,6 @@ abstract class ContainerTestCase extends KernelTestCase
         $classes = $entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->dropDatabase();
         $schemaTool->createSchema($classes);
-    }
-
-    /**
-     * @throws \Doctrine\DBAL\Exception
-     */
-    private function truncateDatabaseTables(): void
-    {
-        $this->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=0');
-
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        foreach ($entityManager->getConnection()->createSchemaManager()->listTableNames() as $tableName) {
-            $this->getConnection()->executeStatement('TRUNCATE TABLE '.$tableName);
-        }
-
-        $this->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     protected function getConnection(): Connection

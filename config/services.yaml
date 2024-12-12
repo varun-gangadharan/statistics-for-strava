@@ -46,3 +46,18 @@ services:
         arguments: ['%env(resolve:APP_ENV)%']
 
     League\Flysystem\FilesystemOperator: '@default.storage'
+
+    GuzzleHttp\Client:
+        class: GuzzleHttp\Client
+
+    App\Domain\Strava\StravaClientId:
+        factory: [ App\Domain\Strava\StravaClientId, 'fromString' ]
+        arguments: ['%env(resolve:STRAVA_CLIENT_ID)%']
+
+    App\Domain\Strava\StravaClientSecret:
+        factory: [ App\Domain\Strava\StravaClientSecret, 'fromString' ]
+        arguments: ['%env(resolve:STRAVA_CLIENT_SECRET)%']
+
+    App\Domain\Strava\StravaRefreshToken:
+        factory: [ App\Domain\Strava\StravaRefreshToken, 'fromString' ]
+        arguments: ['%env(resolve:STRAVA_REFRESH_TOKEN)%']

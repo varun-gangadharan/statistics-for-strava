@@ -42,7 +42,7 @@ class BuildStravaActivityFilesConsoleCommandTest extends ConsoleCommandTestCase
         $this->assertMatchesTextSnapshot($commandTester->getDisplay());
     }
 
-    public function testExecuteWhenStravaLimitsHaveBeenReahced(): void
+    public function testExecuteWhenStravaLimitsHaveBeenReached(): void
     {
         $this->reachedStravaApiRateLimits
             ->expects($this->once())
