@@ -1,8 +1,6 @@
 {
-    "commandName": "App.Domain.Strava.Activity.Stream.ImportActivityStreams.ImportActivityStreams",
+    "commandName": "App\\Domain\\Strava\\Gear\\ImportGear\\ImportGear",
     "payload": {
-        "output": {},
-        "resourceUsage": {},
-        "metadata": []
+        "output": {}
     }
 }
