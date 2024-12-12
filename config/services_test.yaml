@@ -1,0 +1,38 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        public: true      # Automatically injects dependencies in your services.
+        autowire: true
+        autoconfigure: true
+
+    App\Domain\Strava\Strava:
+        class: App\Tests\Domain\Strava\SpyStrava
+        arguments:
+            - '%kernel.project_dir%'
+
+    App\Infrastructure\Time\Clock\Clock:
+        factory: [ 'App\Tests\Infrastructure\Time\Clock\PausedClock', 'fromString' ]
+        arguments: [ '2023-10-17 16:15:04' ]
+
+    App\Infrastructure\Time\Sleep:
+        class: App\Tests\Infrastructure\Time\Sleep\NullSleep
+
+    App\Infrastructure\ValueObject\Identifier\UuidFactory:
+        class: App\Tests\Infrastructure\ValueObject\Identifier\FakeUuidFactory
+
+    App\Domain\Weather\OpenMeteo\OpenMeteo:
+        class: App\Tests\Domain\Weather\OpenMeteo\SpyOpenMeteo
+
+    App\Infrastructure\ValueObject\Geography\Coordinate\LiveNominatim:
+        class: App\Tests\Domain\Nominatim\SpyNominatim
+
+    App\Infrastructure\Time\ResourceUsage\ResourceUsage:
+        class: App\Tests\Infrastructure\Time\ResourceUsage\FixedResourceUsage
+
+    League\Flysystem\FilesystemOperator:
+        class: App\Tests\SpyFileSystem

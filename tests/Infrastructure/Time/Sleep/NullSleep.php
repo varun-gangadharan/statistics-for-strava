@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Infrastructure\Time\Sleep;
 
 use App\Infrastructure\Time\Sleep;
 

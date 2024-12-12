@@ -11,10 +11,9 @@ use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaClientId;
 use App\Domain\Strava\StravaClientSecret;
 use App\Domain\Strava\StravaRefreshToken;
-use App\Infrastructure\Environment\Settings;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Tests\NullSleep;
+use App\Tests\Infrastructure\Time\Sleep\NullSleep;
 use App\Tests\SpyFileSystem;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -28,8 +27,9 @@ class SpyStrava extends Strava
     private readonly array $activities;
     private bool $triggerExceptionOnNextCall = false;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly string $kernelProjectDir,
+    ) {
         parent::__construct(
             client: new Client(),
             stravaClientId: StravaClientId::fromString('clientId'),
@@ -161,7 +161,7 @@ class SpyStrava extends Strava
             [
                 'name' => 'Challenge 1',
                 'teaser' => 'Craziest challenge ever',
-                'logo_url' => Settings::getAppRoot().'/tests/cat.webp',
+                'logo_url' => $this->kernelProjectDir.'/tests/cat.webp',
                 'url' => 'https://www.strava.com',
                 'challenge_id' => '123456',
                 'completedOn' => SerializableDateTime::fromString('2023-10-01'),
@@ -169,7 +169,7 @@ class SpyStrava extends Strava
             [
                 'name' => 'Challenge 1',
                 'teaser' => 'Craziest challenge ever',
-                'logo_url' => Settings::getAppRoot().'/tests/cat.webp',
+                'logo_url' => $this->kernelProjectDir.'/tests/cat.webp',
                 'url' => 'https://www.strava.com',
                 'challenge_id' => '123456',
                 'completedOn' => SerializableDateTime::fromString('2023-10-01'),
@@ -177,7 +177,7 @@ class SpyStrava extends Strava
             [
                 'name' => 'Challenge 2',
                 'teaser' => 'Craziest challenge ever',
-                'logo_url' => Settings::getAppRoot().'/tests/cat.webp',
+                'logo_url' => $this->kernelProjectDir.'/tests/cat.webp',
                 'url' => 'https://www.strava.com',
                 'challenge_id' => '654321',
                 'completedOn' => SerializableDateTime::fromString('2023-10-01'),

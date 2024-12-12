@@ -19,6 +19,11 @@ class PausedClock implements Clock
         return new self($on);
     }
 
+    public static function fromString(string $dateTime): PausedClock
+    {
+        return new self(SerializableDateTime::fromString($dateTime));
+    }
+
     public function getCurrentDateTimeImmutable(): SerializableDateTime
     {
         return $this->pausedOn;

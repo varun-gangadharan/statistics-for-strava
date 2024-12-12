@@ -42,7 +42,7 @@ class ImportActivitiesCommandHandlerTest extends ContainerTestCase
 
         $this->commandBus->dispatch(new ImportActivities($output, new FixedResourceUsage()));
 
-        $this->assertMatchesTextSnapshot($output);
+        $this->assertMatchesTextSnapshot((string) $output);
 
         /** @var \App\Tests\SpyFileSystem $fileSystem */
         $fileSystem = $this->getContainer()->get(FilesystemOperator::class);

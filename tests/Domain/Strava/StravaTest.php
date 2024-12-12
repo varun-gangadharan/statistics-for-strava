@@ -10,7 +10,7 @@ use App\Domain\Strava\StravaClientId;
 use App\Domain\Strava\StravaClientSecret;
 use App\Domain\Strava\StravaRefreshToken;
 use App\Infrastructure\Serialization\Json;
-use App\Tests\NullSleep;
+use App\Tests\Infrastructure\Time\Sleep\NullSleep;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use League\Flysystem\FilesystemOperator;
