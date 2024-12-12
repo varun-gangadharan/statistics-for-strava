@@ -9,6 +9,7 @@
 /vendor/
 /src/Entity
 /src/Repository
+/database
 ###< symfony/framework-bundle ###
 
 .phpunit.cache
@@ -32,8 +33,3 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
-bin/chrome-linux
-.cache
-.config
-.local
-.pki

@@ -41,6 +41,10 @@ services:
         class: App\Infrastructure\CQRS\Bus\InMemoryCommandBus
         arguments: [!tagged_iterator app.command_handler]
 
+    App\Infrastructure\ValueObject\String\KernelProjectDir:
+        factory: [ App\Infrastructure\ValueObject\String\KernelProjectDir, 'fromString' ]
+        arguments: ['%kernel.project_dir%']
+
     App\Infrastructure\ValueObject\String\PlatformEnvironment:
         factory: [ App\Infrastructure\ValueObject\String\PlatformEnvironment, 'from' ]
         arguments: ['%env(resolve:APP_ENV)%']

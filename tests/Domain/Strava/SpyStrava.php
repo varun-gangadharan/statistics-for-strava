@@ -12,6 +12,7 @@ use App\Domain\Strava\StravaClientId;
 use App\Domain\Strava\StravaClientSecret;
 use App\Domain\Strava\StravaRefreshToken;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\ValueObject\String\KernelProjectDir;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\Infrastructure\Time\Sleep\NullSleep;
 use App\Tests\SpyFileSystem;
@@ -28,7 +29,7 @@ class SpyStrava extends Strava
     private bool $triggerExceptionOnNextCall = false;
 
     public function __construct(
-        private readonly string $kernelProjectDir,
+        private readonly KernelProjectDir $kernelProjectDir,
     ) {
         parent::__construct(
             client: new Client(),
