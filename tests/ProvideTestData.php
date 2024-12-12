@@ -11,6 +11,7 @@ use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Strava\Activity\Stream\StreamType;
 use App\Domain\Strava\Challenge\ChallengeId;
 use App\Domain\Strava\Challenge\ChallengeRepository;
+use App\Domain\Strava\Ftp\FtpRepository;
 use App\Domain\Strava\Ftp\FtpValue;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearRepository;

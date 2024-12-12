@@ -219,7 +219,7 @@ final class Activity
     public function getRemoteImagePaths(): array
     {
         return array_map(
-            fn (string $path) => 'https://raw.githubusercontent.com/'.$_ENV['REPOSITORY_NAME'].'/master/'.$path,
+            fn (string $path) => 'https://raw.githubusercontent.com/robiningelbrecht/strava-activities/master/'.$path,
             $this->getLocalImagePaths()
         );
     }

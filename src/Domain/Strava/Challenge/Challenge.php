@@ -77,7 +77,7 @@ final class Challenge
             return null;
         }
 
-        return 'https://raw.githubusercontent.com/'.$_ENV['REPOSITORY_NAME'].'/master/'.$this->getLocalLogoUrl();
+        return 'https://raw.githubusercontent.com/robiningelbrecht/strava-activities/master/'.$this->getLocalLogoUrl();
     }
 
     public function getUrl(): string
