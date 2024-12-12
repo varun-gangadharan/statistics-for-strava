@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 abstract class ContainerTestCase extends KernelTestCase
 {
-    protected static ?Connection $connection = null;
+    protected static ?Connection $ourDbalConnection = null;
 
     /**
      * @throws ToolsException
@@ -19,9 +19,9 @@ abstract class ContainerTestCase extends KernelTestCase
     {
         parent::setUp();
 
-        if (!self::$connection) {
+        if (!self::$ourDbalConnection) {
             self::bootKernel();
-            self::$connection = self::getContainer()->get(Connection::class);
+            self::$ourDbalConnection = self::getContainer()->get(Connection::class);
         }
 
         $this->createTestDatabase();
@@ -43,6 +43,6 @@ abstract class ContainerTestCase extends KernelTestCase
 
     protected function getConnection(): Connection
     {
-        return self::$connection;
+        return self::$ourDbalConnection;
     }
 }
