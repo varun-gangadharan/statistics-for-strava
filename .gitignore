@@ -9,7 +9,7 @@
 /vendor/
 /src/Entity
 /src/Repository
-/database
+/database/*.db
 ###< symfony/framework-bundle ###
 
 .phpunit.cache
