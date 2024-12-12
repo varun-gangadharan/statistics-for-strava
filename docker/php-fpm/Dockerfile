@@ -5,27 +5,20 @@ COPY php.ini "${PHP_INI_DIR}/conf.d/docker-php-config.ini"
 RUN apt-get update && apt-get install -y \
     gnupg \
     g++ \
+    libzip-dev \
+    libonig-dev \
     procps \
-    openssl \
     curl \
     git \
     unzip \
-    zlib1g-dev \
-    libzip-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libicu-dev  \
-    libonig-dev \
-    libxslt1-dev \
-    acl
+    acl \
+    cron
 
-RUN docker-php-ext-configure gd --with-jpeg --with-freetype 
+RUN docker-php-ext-install pdo zip opcache exif mbstring bcmath
 
-RUN docker-php-ext-install pdo pdo_mysql zip xsl gd intl opcache exif mbstring sockets
-RUN docker-php-ext-install bcmath
+COPY cron /etc/cron.d/cron
+RUN chmod 0644 /etc/cron.d/cron
+RUN crontab /etc/cron.d/cron
+RUN touch /var/log/cron.log
 
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
-
-COPY ./xdebug.ini "${PHP_INI_DIR}/conf.d"
+CMD bash -c "cron -f && php-fpm"
