@@ -56,11 +56,7 @@ USER nobody
 COPY --chown=nobody . /var/www/
 COPY --chown=nobody ./public/app.php /var/www/build/index.php
 COPY --chown=nobody ./public/assets /var/www/build/assets
-RUN rm -Rf docker""
-
-# Run database migrations
-RUN mkdir -p "storage/database"
-RUN bin/console doctrine:migrations:migrate --no-interaction
+RUN rm -Rf docker
 
 # Expose the port nginx is reachable on
 EXPOSE 8080

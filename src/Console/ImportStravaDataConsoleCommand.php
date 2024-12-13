@@ -15,6 +15,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 #[AsCommand(name: 'app:strava:import-data', description: 'Import Strava data')]
 final class ImportStravaDataConsoleCommand extends Command
@@ -31,6 +32,13 @@ final class ImportStravaDataConsoleCommand extends Command
     {
         $this->resourceUsage->startTimer();
         $this->maxResourceUsageHasBeenReached->clear();
+
+        $process = new Process(['bin/console', 'doctrine:migrations:migrate', '--no-interaction']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new \RuntimeException($process->getErrorOutput());
+        }
 
         $this->commandBus->dispatch(new ImportActivities($output, $this->resourceUsage));
         if ($this->resourceUsage->maxExecutionTimeReached()) {

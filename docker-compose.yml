@@ -14,6 +14,8 @@ services:
             context: ./
             dockerfile: docker/app/Dockerfile
         container_name: 'strava-statistics-app'
+        volumes:
+            - ./storage/database:/var/www/storage/database
         ports:
             - '8081:8080'
         networks:
