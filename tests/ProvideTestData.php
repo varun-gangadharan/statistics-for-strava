@@ -338,11 +338,6 @@ trait ProvideTestData
         /** @var DbalKeyValueStore $keyValueStore */
         $keyValueStore = $this->getContainer()->get(DbalKeyValueStore::class);
         $keyValue = KeyValue::fromState(
-            key: Key::ATHLETE_BIRTHDAY,
-            value: Value::fromString('1989-08-14'),
-        );
-        $keyValueStore->save($keyValue);
-        $keyValue = KeyValue::fromState(
             key: Key::ATHLETE_ID,
             value: Value::fromString('100'),
         );

@@ -25,5 +25,5 @@ phpstan.neon
 ###< phpstan/phpstan ###
 
 ###> app-build ###
-/buildx
+/build
 ###> app-build ###

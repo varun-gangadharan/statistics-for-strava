@@ -6,11 +6,9 @@ namespace App\Domain\Strava\Activity\Stream;
 
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Athlete\AthleteBirthday;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Infrastructure\Exception\EntityNotFound;
-use App\Infrastructure\KeyValue\Key;
-use App\Infrastructure\KeyValue\KeyValueStore;
-use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Carbon\CarbonInterval;
 
 final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateRepository
@@ -21,7 +19,7 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
     public function __construct(
         private readonly ActivityRepository $activityRepository,
         private readonly ActivityStreamRepository $activityStreamRepository,
-        private readonly KeyValueStore $keyValueStore,
+        private readonly AthleteBirthday $athleteBirthday,
     ) {
     }
 
@@ -98,7 +96,7 @@ final class StreamBasedActivityHeartRateRepository implements ActivityHeartRateR
 
         $activities = $this->activityRepository->findAll();
         $heartRateStreams = $this->activityStreamRepository->findByStreamType(StreamType::HEART_RATE);
-        $athleteBirthday = SerializableDateTime::fromString((string) $this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue());
+        $athleteBirthday = $this->athleteBirthday;
 
         /** @var \App\Domain\Strava\Activity\Activity $activity */
         foreach ($activities as $activity) {

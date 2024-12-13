@@ -22,6 +22,7 @@ RUN apk add --no-cache \
   php83-opcache \
   php83-openssl \
   php83-pdo \
+  php83-pdo_sqlite \
   php83-phar \
   php83-session \
   php83-simplexml \
@@ -53,9 +54,13 @@ USER nobody
 
 # Add application
 COPY --chown=nobody . /var/www/
-COPY --chown=nobody public/app-index.php /var/www/build/index.php
-COPY --chown=nobody public/assets /var/www/build
+COPY --chown=nobody ./public/app.php /var/www/build/index.php
+COPY --chown=nobody ./public/assets /var/www/build/assets
 RUN rm -Rf docker
+
+# Run database migrations
+RUN mkdir -p "database"
+RUN bin/console doctrine:migrations:migrate --no-interaction
 
 # Expose the port nginx is reachable on
 EXPOSE 8080

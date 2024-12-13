@@ -65,3 +65,11 @@ services:
     App\Domain\Strava\StravaRefreshToken:
         factory: [ App\Domain\Strava\StravaRefreshToken, 'fromString' ]
         arguments: ['%env(resolve:STRAVA_REFRESH_TOKEN)%']
+
+    App\Domain\Strava\Athlete\AthleteId:
+        factory: [ App\Domain\Strava\Athlete\AthleteId, 'fromString' ]
+        arguments: ['%env(resolve:ATHLETE_ID)%']
+
+    App\Domain\Strava\Athlete\AthleteBirthday:
+        factory: [ App\Domain\Strava\Athlete\AthleteBirthday, 'fromString' ]
+        arguments: ['%env(resolve:ATHLETE_BIRTHDAY)%']

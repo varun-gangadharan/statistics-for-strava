@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 // This is the index that will be used to bootstrap the actual app in /build.
-if (file_exists(__DIR__.'/index.html')) {
-    file_get_contents(__DIR__.'/index.html');
+if (file_exists(__DIR__.'/html/index.html')) {
+    echo file_get_contents(__DIR__.'/html/index.html');
 
     exit(0);
 }

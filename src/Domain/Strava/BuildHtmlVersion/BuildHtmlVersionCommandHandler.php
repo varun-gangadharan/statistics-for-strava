@@ -26,6 +26,7 @@ use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChartsBuilder;
 use App\Domain\Strava\Activity\WeeklyDistanceChartBuilder;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyDistanceChartBuilder;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyStatistics;
+use App\Domain\Strava\Athlete\AthleteBirthday;
 use App\Domain\Strava\Athlete\AthleteWeightRepository;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Domain\Strava\Athlete\TimeInHeartRateZoneChartBuilder;
@@ -54,7 +55,6 @@ use App\Infrastructure\KeyValue\KeyValueStore;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\Time\Clock\Clock;
 use App\Infrastructure\ValueObject\DataTableRow;
-use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Years;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
@@ -74,6 +74,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         private SegmentEffortRepository $segmentEffortRepository,
         private FtpRepository $ftpRepository,
         private KeyValueStore $keyValueStore,
+        private AthleteBirthday $athleteBirthday,
         private Environment $twig,
         private FilesystemOperator $filesystem,
         private Clock $clock,
@@ -85,7 +86,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         assert($command instanceof BuildHtmlVersion);
 
         $now = $this->clock->getCurrentDateTimeImmutable();
-        $athleteBirthday = SerializableDateTime::fromString($this->keyValueStore->find(Key::ATHLETE_BIRTHDAY)->getValue());
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID)->getValue();
         $allActivities = $this->activityRepository->findAll();
@@ -148,7 +148,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 $activity->enrichWithFtp($ftp->getFtp());
             } catch (EntityNotFound) {
             }
-            $activity->enrichWithAthleteBirthday($athleteBirthday);
+            $activity->enrichWithAthleteBirthday($this->athleteBirthday);
 
             if ($activity->getGearId()) {
                 $activity->enrichWithGearName(
