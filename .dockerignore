@@ -2,7 +2,6 @@
 .github
 .idea
 build
-database
 tests
 var
 .DS_Store
