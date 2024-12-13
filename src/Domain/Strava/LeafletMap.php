@@ -40,7 +40,7 @@ enum LeafletMap: string
             return null;
         }
 
-        return 'https://raw.githubusercontent.com/robiningelbrecht/strava-activities-template/master/files/maps/'.$this->value.'.jpg';
+        return 'assets/images/maps/'.$this->value.'.jpg';
     }
 
     /**

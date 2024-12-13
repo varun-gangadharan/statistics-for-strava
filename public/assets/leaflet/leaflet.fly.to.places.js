@@ -7,7 +7,7 @@ L.Control.FlyToPlaces = L.Control.extend({
         const container = L.DomUtil.create('ul', 'leaflet-control bg-gray-50');
         this.options.places.forEach((place) => {
             const item = L.DomUtil.create('li', 'p-1 cursor-pointer', container);
-            item.innerHTML = '<img src="https://raw.githubusercontent.com/robiningelbrecht/strava-activities-template/master/files/flags/'+place.name.toLowerCase()+'.svg" width="20" title="'+place.name+'" />'
+            item.innerHTML = '<img src="assets/images/flags/'+place.name.toLowerCase()+'.svg" width="20" title="'+place.name+'" />'
             // Prevent click events propagation to map.
             L.DomEvent.disableClickPropagation(item);
             L.DomEvent.on(item, 'click', function () {
