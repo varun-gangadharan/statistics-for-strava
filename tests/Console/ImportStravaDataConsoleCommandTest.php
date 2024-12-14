@@ -3,7 +3,7 @@
 namespace App\Tests\Console;
 
 use App\Console\ImportStravaDataConsoleCommand;
-use App\Domain\Strava\MaxResourceUsageHasBeenReached;
+use App\Domain\Strava\MaxStravaUsageHasBeenReached;
 use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\CQRS\Bus\DomainCommand;
 use App\Infrastructure\Doctrine\MigrationRunner;
@@ -19,12 +19,12 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
 
     private ImportStravaDataConsoleCommand $importStravaDataConsoleCommand;
     private MockObject $commandBus;
-    private MockObject $maxResourceUsageHasBeenReached;
+    private MockObject $maxStravaUsageHasBeenReached;
     private MockObject $migrationRunner;
 
     public function testExecute(): void
     {
-        $this->maxResourceUsageHasBeenReached
+        $this->maxStravaUsageHasBeenReached
             ->expects($this->once())
             ->method('clear');
 
@@ -32,7 +32,7 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
             ->expects($this->once())
             ->method('run');
 
-        $this->maxResourceUsageHasBeenReached
+        $this->maxStravaUsageHasBeenReached
             ->expects($this->never())
             ->method('hasReached');
 
@@ -54,7 +54,7 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
 
         $this->importStravaDataConsoleCommand = new ImportStravaDataConsoleCommand(
             $this->commandBus = $this->createMock(CommandBus::class),
-            $this->maxResourceUsageHasBeenReached = $this->createMock(MaxResourceUsageHasBeenReached::class),
+            $this->maxStravaUsageHasBeenReached = $this->createMock(MaxStravaUsageHasBeenReached::class),
             $this->migrationRunner = $this->createMock(MigrationRunner::class)
         );
     }

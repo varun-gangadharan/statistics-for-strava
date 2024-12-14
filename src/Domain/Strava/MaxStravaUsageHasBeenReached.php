@@ -6,9 +6,9 @@ namespace App\Domain\Strava;
 
 use League\Flysystem\FilesystemOperator;
 
-class MaxResourceUsageHasBeenReached
+class MaxStravaUsageHasBeenReached
 {
-    private const string FILE_NAME = 'MAX_RESOURCE_USAGE_REACHED';
+    private const string FILE_NAME = 'MAX_STRAVA_USAGE_REACHED';
 
     public function __construct(
         private readonly FilesystemOperator $filesystem,

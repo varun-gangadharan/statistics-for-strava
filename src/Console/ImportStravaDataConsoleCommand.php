@@ -7,7 +7,7 @@ use App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages\CalculateBestS
 use App\Domain\Strava\Activity\Stream\ImportActivityStreams\ImportActivityStreams;
 use App\Domain\Strava\Challenge\ImportChallenges\ImportChallenges;
 use App\Domain\Strava\Gear\ImportGear\ImportGear;
-use App\Domain\Strava\MaxResourceUsageHasBeenReached;
+use App\Domain\Strava\MaxStravaUsageHasBeenReached;
 use App\Domain\Strava\Segment\ImportSegments\ImportSegments;
 use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Doctrine\MigrationRunner;
@@ -21,7 +21,7 @@ final class ImportStravaDataConsoleCommand extends Command
 {
     public function __construct(
         private readonly CommandBus $commandBus,
-        private readonly MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
+        private readonly MaxStravaUsageHasBeenReached $maxStravaUsageHasBeenReached,
         private readonly MigrationRunner $migrationRunner,
     ) {
         parent::__construct();
@@ -29,7 +29,7 @@ final class ImportStravaDataConsoleCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->maxResourceUsageHasBeenReached->clear();
+        $this->maxStravaUsageHasBeenReached->clear();
         $this->migrationRunner->run();
 
         $this->commandBus->dispatch(new ImportActivities($output));

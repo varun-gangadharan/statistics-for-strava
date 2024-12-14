@@ -2,14 +2,14 @@
 
 namespace App\Tests\Domain\Strava;
 
-use App\Domain\Strava\MaxResourceUsageHasBeenReached;
+use App\Domain\Strava\MaxStravaUsageHasBeenReached;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class MaxResourceUsageHasBeenReachedTest extends TestCase
+class MaxStravaUsageHasBeenReachedTest extends TestCase
 {
-    private MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached;
+    private MaxStravaUsageHasBeenReached $maxStravaUsageHasBeenReached;
     private MockObject $filesystem;
 
     public function testClear(): void
@@ -17,9 +17,9 @@ class MaxResourceUsageHasBeenReachedTest extends TestCase
         $this->filesystem
             ->expects($this->once())
             ->method('delete')
-            ->with('MAX_RESOURCE_USAGE_REACHED');
+            ->with('MAX_STRAVA_USAGE_REACHED');
 
-        $this->maxResourceUsageHasBeenReached->clear();
+        $this->maxStravaUsageHasBeenReached->clear();
     }
 
     public function testMarkAsReached(): void
@@ -27,9 +27,9 @@ class MaxResourceUsageHasBeenReachedTest extends TestCase
         $this->filesystem
             ->expects($this->once())
             ->method('write')
-            ->with('MAX_RESOURCE_USAGE_REACHED', '');
+            ->with('MAX_STRAVA_USAGE_REACHED', '');
 
-        $this->maxResourceUsageHasBeenReached->markAsReached();
+        $this->maxStravaUsageHasBeenReached->markAsReached();
     }
 
     public function testHasReached(): void
@@ -39,16 +39,15 @@ class MaxResourceUsageHasBeenReachedTest extends TestCase
             ->method('has')
             ->willReturn(true);
 
-        $this->maxResourceUsageHasBeenReached->hasReached();
+        $this->maxStravaUsageHasBeenReached->hasReached();
     }
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->filesystem = $this->createMock(FilesystemOperator::class);
-        $this->maxResourceUsageHasBeenReached = new MaxResourceUsageHasBeenReached(
-            $this->filesystem
+        $this->maxStravaUsageHasBeenReached = new MaxStravaUsageHasBeenReached(
+            $this->filesystem = $this->createMock(FilesystemOperator::class)
         );
     }
 }
