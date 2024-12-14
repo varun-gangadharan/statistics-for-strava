@@ -32,5 +32,8 @@ services:
     App\Infrastructure\Time\ResourceUsage\ResourceUsage:
         class: App\Tests\Infrastructure\Time\ResourceUsage\FixedResourceUsage
 
+    App\Infrastructure\Doctrine\MigrationRunner:
+        class: App\Tests\Infrastructure\Doctrine\VoidMigrationRunner
+
     League\Flysystem\FilesystemOperator:
         class: App\Tests\SpyFileSystem

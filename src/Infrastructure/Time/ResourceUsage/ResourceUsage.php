@@ -10,7 +10,5 @@ interface ResourceUsage
 
     public function stopTimer(): void;
 
-    public function maxExecutionTimeReached(): bool;
-
     public function format(): string;
 }

@@ -10,12 +10,11 @@ use App\Domain\Strava\Gear\ImportGear\ImportGear;
 use App\Domain\Strava\MaxResourceUsageHasBeenReached;
 use App\Domain\Strava\Segment\ImportSegments\ImportSegments;
 use App\Infrastructure\CQRS\Bus\CommandBus;
-use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
+use App\Infrastructure\Doctrine\MigrationRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
 
 #[AsCommand(name: 'app:strava:import-data', description: 'Import Strava data')]
 final class ImportStravaDataConsoleCommand extends Command
@@ -23,37 +22,18 @@ final class ImportStravaDataConsoleCommand extends Command
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly MaxResourceUsageHasBeenReached $maxResourceUsageHasBeenReached,
-        private readonly ResourceUsage $resourceUsage,
+        private readonly MigrationRunner $migrationRunner,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->resourceUsage->startTimer();
         $this->maxResourceUsageHasBeenReached->clear();
+        $this->migrationRunner->run();
 
-        $process = new Process(['bin/console', 'doctrine:migrations:migrate', '--no-interaction']);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new \RuntimeException($process->getErrorOutput());
-        }
-
-        $this->commandBus->dispatch(new ImportActivities($output, $this->resourceUsage));
-        if ($this->resourceUsage->maxExecutionTimeReached()) {
-            $this->maxResourceUsageHasBeenReached->markAsReached();
-
-            return Command::SUCCESS;
-        }
-        $this->commandBus->dispatch(new ImportActivityStreams($output, $this->resourceUsage));
-        // @phpstan-ignore-next-line
-        if ($this->resourceUsage->maxExecutionTimeReached()) {
-            $this->maxResourceUsageHasBeenReached->markAsReached();
-
-            return Command::SUCCESS;
-        }
-
+        $this->commandBus->dispatch(new ImportActivities($output));
+        $this->commandBus->dispatch(new ImportActivityStreams($output));
         $this->commandBus->dispatch(new ImportSegments($output));
         $this->commandBus->dispatch(new ImportGear($output));
         $this->commandBus->dispatch(new ImportChallenges($output));
