@@ -31,9 +31,9 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
         assert($command instanceof ImportChallenges);
         $command->getOutput()->writeln('Importing challenges...');
 
-        if (!$this->filesystem->fileExists('files/strava-challenge-history.html')) {
+        if (!$this->filesystem->fileExists('storage/files/strava-challenge-history.html')) {
             $this->filesystem->write(
-                location: 'files/strava-challenge-history.html',
+                location: 'storage/files/strava-challenge-history.html',
                 contents: self::DEFAULT_STRAVA_CHALLENGE_HISTORY
             );
         }
@@ -78,7 +78,7 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
                     data: $stravaChallenge,
                 );
                 if ($url = $challenge->getLogoUrl()) {
-                    $imagePath = sprintf('files/challenges/%s.png', $this->uuidFactory->random());
+                    $imagePath = sprintf('storage/files/challenges/%s.png', $this->uuidFactory->random());
                     try {
                         $this->filesystem->write(
                             $imagePath,

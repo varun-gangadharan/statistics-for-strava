@@ -5,6 +5,7 @@ build
 tests
 var
 .DS_Store
+.env
 .env.dev
 .env.github-actions
 .env.local

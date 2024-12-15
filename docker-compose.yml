@@ -15,12 +15,9 @@ services:
             dockerfile: docker/app/Dockerfile
         container_name: 'strava-statistics-app'
         volumes:
-            - ./storage:/var/www/storage
-        environment:
-            ATHLETE_BIRTHDAY: ${ATHLETE_BIRTHDAY}
-            STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID}
-            STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET}
-            STRAVA_REFRESH_TOKEN: ${STRAVA_REFRESH_TOKEN}
+            - ./storage/database:/var/www/storage/database
+            - ./storage/files:/var/www/storage/files
+        env_file: ".env.local"
         ports:
             - '8081:8080'
         networks:

@@ -56,7 +56,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         ));
 
         $allActivityIds = $this->activityRepository->findActivityIds();
-        $activityIdsDelete = array_combine(
+        $activityIdsToDelete = array_combine(
             $allActivityIds->map(fn (ActivityId $activityId) => (string) $activityId),
             $allActivityIds->toArray(),
         );
@@ -87,7 +87,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                 }
 
                 $this->activityRepository->update($activity);
-                unset($activityIdsDelete[(string) $activity->getId()]);
+                unset($activityIdsToDelete[(string) $activity->getId()]);
                 $command->getOutput()->writeln(sprintf('  => Updated activity "%s"', $activity->getName()));
             } catch (EntityNotFound) {
                 try {
@@ -118,7 +118,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                             /** @var string $urlPath */
                             $urlPath = parse_url($photo['urls'][5000], PHP_URL_PATH);
                             $extension = pathinfo($urlPath, PATHINFO_EXTENSION);
-                            $imagePath = sprintf('files/activities/%s.%s', $this->uuidFactory->random(), $extension);
+                            $imagePath = sprintf('storage/files/activities/%s.%s', $this->uuidFactory->random(), $extension);
                             $this->filesystem->write(
                                 $imagePath,
                                 $this->strava->downloadImage($photo['urls'][5000])
@@ -147,7 +147,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     }
 
                     $this->activityRepository->add($activity);
-                    unset($activityIdsDelete[(string) $activity->getId()]);
+                    unset($activityIdsToDelete[(string) $activity->getId()]);
                     $command->getOutput()->writeln(sprintf('  => Imported activity "%s"', $activity->getName()));
                     // Try to avoid Strava rate limits.
                     $this->sleep->sweetDreams(10);
@@ -168,11 +168,11 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             }
         }
 
-        if (empty($activityIdsDelete)) {
+        if (empty($activityIdsToDelete)) {
             return;
         }
 
-        foreach ($activityIdsDelete as $activityId) {
+        foreach ($activityIdsToDelete as $activityId) {
             $activity = $this->activityRepository->find($activityId);
             $activity->delete();
             $this->activityRepository->delete($activity);
