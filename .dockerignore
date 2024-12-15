@@ -5,6 +5,7 @@ build
 tests
 var
 storage
+node_modules
 .DS_Store
 .env
 .env.dev
@@ -19,5 +20,7 @@ docker-compose.yml
 Makefile
 phpstan.dist.neon
 phpunit.xml.dist
+package-lock.json
+package.json
 README.md
 symfony.lock

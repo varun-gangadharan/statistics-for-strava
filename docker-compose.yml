@@ -15,6 +15,7 @@ services:
             dockerfile: docker/app/Dockerfile
         container_name: 'strava-statistics-app'
         volumes:
+            - ./build:/var/www/build
             - ./storage/database:/var/www/storage/database
             - ./storage/files:/var/www/storage/files
         env_file: ".env.local"
