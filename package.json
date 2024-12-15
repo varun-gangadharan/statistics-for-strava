@@ -4,7 +4,7 @@
     "tailwindcss": "^3.3.3"
   },
   "scripts": {
-    "flowbite:build": "npx tailwindcss -i build/html/flowbite/tailwind.css -o build/html/flowbite/tailwind.min.css --minify"
+    "flowbite:build": "npx tailwindcss -i public/assets/flowbite/tailwind.css -o public/assets/flowbite/tailwind.min.css --minify"
   },
   "dependencies": {
     "echarts": "^5.4.3",
