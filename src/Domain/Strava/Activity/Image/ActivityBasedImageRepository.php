@@ -18,6 +18,7 @@ final readonly class ActivityBasedImageRepository implements ImageRepository
     {
         $images = [];
         $activities = $this->activityRepository->findAll();
+        /** @var \App\Domain\Strava\Activity\Activity $activity */
         foreach ($activities as $activity) {
             if (0 === $activity->getTotalImageCount()) {
                 continue;
@@ -29,7 +30,7 @@ final readonly class ActivityBasedImageRepository implements ImageRepository
                         gitHubImageLocation: $path,
                         activity: $activity
                     ),
-                    $activity->getRemoteImagePaths()
+                    $activity->getLocalImagePaths()
                 ),
             ];
         }

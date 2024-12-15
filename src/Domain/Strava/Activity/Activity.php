@@ -213,17 +213,6 @@ final class Activity
         return $this->data['localImagePaths'] ?? [];
     }
 
-    /**
-     * @return array<string>
-     */
-    public function getRemoteImagePaths(): array
-    {
-        return array_map(
-            fn (string $path) => 'https://raw.githubusercontent.com/robiningelbrecht/strava-activities/master/'.$path,
-            $this->getLocalImagePaths()
-        );
-    }
-
     public function getTotalImageCount(): int
     {
         return $this->data['total_photo_count'] ?? 0;

@@ -71,15 +71,6 @@ final class Challenge
         return $this->data['localLogo'] ?? null;
     }
 
-    public function getRemoteImagePath(): ?string
-    {
-        if (!$this->getLocalLogoUrl()) {
-            return null;
-        }
-
-        return 'https://raw.githubusercontent.com/robiningelbrecht/strava-activities/master/'.$this->getLocalLogoUrl();
-    }
-
     public function getUrl(): string
     {
         return 'https://www.strava.com/challenges/'.$this->data['url'];
