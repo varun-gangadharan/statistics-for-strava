@@ -1,7 +1,7 @@
 
 ## Docker compose
 
-Install trough docker compose
+`docker-compose.yml`:
 
 ```yml
 services:
@@ -15,6 +15,8 @@ services:
     ports:
       - 8080:8080
 ```
+
+`.env`:
 
 ```bash
 # Leave this unchanged.
