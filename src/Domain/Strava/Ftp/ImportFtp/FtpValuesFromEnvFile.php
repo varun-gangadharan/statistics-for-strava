@@ -14,6 +14,9 @@ final readonly class FtpValuesFromEnvFile
 {
     private Ftps $ftps;
 
+    /**
+     * @param array<string, int> $ftps
+     */
     private function __construct(
         array $ftps,
     ) {
