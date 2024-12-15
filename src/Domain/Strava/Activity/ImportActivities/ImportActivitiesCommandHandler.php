@@ -118,9 +118,9 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                             /** @var string $urlPath */
                             $urlPath = parse_url($photo['urls'][5000], PHP_URL_PATH);
                             $extension = pathinfo($urlPath, PATHINFO_EXTENSION);
-                            $imagePath = sprintf('storage/files/activities/%s.%s', $this->uuidFactory->random(), $extension);
+                            $imagePath = sprintf('files/activities/%s.%s', $this->uuidFactory->random(), $extension);
                             $this->filesystem->write(
-                                $imagePath,
+                                'storage/'.$imagePath,
                                 $this->strava->downloadImage($photo['urls'][5000])
                             );
                             $localImagePaths[] = $imagePath;

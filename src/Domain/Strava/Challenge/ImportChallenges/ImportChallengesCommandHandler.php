@@ -15,7 +15,7 @@ use League\Flysystem\FilesystemOperator;
 
 final readonly class ImportChallengesCommandHandler implements CommandHandler
 {
-    public const DEFAULT_STRAVA_CHALLENGE_HISTORY = '<!-- OVERRIDE ME WITH HTML COPY/PASTED FROM https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case -->';
+    public const string DEFAULT_STRAVA_CHALLENGE_HISTORY = '<!-- OVERRIDE ME WITH HTML COPY/PASTED FROM https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case -->';
 
     public function __construct(
         private Strava $strava,
@@ -78,10 +78,10 @@ final readonly class ImportChallengesCommandHandler implements CommandHandler
                     data: $stravaChallenge,
                 );
                 if ($url = $challenge->getLogoUrl()) {
-                    $imagePath = sprintf('storage/files/challenges/%s.png', $this->uuidFactory->random());
+                    $imagePath = sprintf('files/challenges/%s.png', $this->uuidFactory->random());
                     try {
                         $this->filesystem->write(
-                            $imagePath,
+                            'storage/'.$imagePath,
                             $this->strava->downloadImage($url)
                         );
                     } catch (\Throwable $e) {
