@@ -38,3 +38,10 @@ composer:
 
 csfix:
 	@make dcr cmd="vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php"
+
+
+app-import-data:
+	docker compose exec app bin/console app:strava:import-data
+
+app-build-files:
+	docker compose exec app bin/console app:strava:build-files

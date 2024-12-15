@@ -6,6 +6,7 @@ use App\Domain\Strava\Activity\ImportActivities\ImportActivities;
 use App\Domain\Strava\Activity\Stream\CalculateBestStreamAverages\CalculateBestStreamAverages;
 use App\Domain\Strava\Activity\Stream\ImportActivityStreams\ImportActivityStreams;
 use App\Domain\Strava\Challenge\ImportChallenges\ImportChallenges;
+use App\Domain\Strava\Ftp\ImportFtp\ImportFtp;
 use App\Domain\Strava\Gear\ImportGear\ImportGear;
 use App\Domain\Strava\MaxStravaUsageHasBeenReached;
 use App\Domain\Strava\Segment\ImportSegments\ImportSegments;
@@ -37,6 +38,7 @@ final class ImportStravaDataConsoleCommand extends Command
         $this->commandBus->dispatch(new ImportSegments($output));
         $this->commandBus->dispatch(new ImportGear($output));
         $this->commandBus->dispatch(new ImportChallenges($output));
+        $this->commandBus->dispatch(new ImportFtp($output));
         $this->commandBus->dispatch(new CalculateBestStreamAverages($output));
 
         return Command::SUCCESS;
