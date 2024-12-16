@@ -8,6 +8,7 @@ module.exports = {
         "./build/html/fetch-json/segment-data-table.json",
         "./build/html/**/activity-8837881433.html",
         "./build/html/month/*.html",
+        "./public/app.php",
         "./node_modules/flowbite/**/*.js"
     ],
     theme: {

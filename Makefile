@@ -12,6 +12,9 @@ stop:
 up:
 	@make dc cmd="up -d"
 
+build-flowbite:
+	npm run flowbite:build
+
 build-containers:
 	@make dc cmd="up -d --build"
 
