@@ -8,6 +8,18 @@
 Use this Docker image to set up your own Strava statistics pages. 
 Only bike rides are taken into account.
 
+## Prerequisites
+
+You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
+
+* Next, navigate to your [Strava API settings page](https://www.strava.com/settings/api).
+  Copy the `client ID` and `client secret`
+* Now you need to obtain a `Strava API refresh token`. 
+    * Navigate to https://developers.strava.com/docs/getting-started/#d-how-to-authenticate
+      and scroll down to "_For demonstration purposes only, here is how to reproduce the graph above with cURL:_"
+    * Follow the 11 steps explained there
+    * Make sure you set the `scope` in step 2 to `activity:read_all` to make sure your refresh token has access to all activities
+
 ## Docker compose
 
 `docker-compose.yml`
