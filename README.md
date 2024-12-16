@@ -62,3 +62,7 @@ You can configure a crontab on your host system:
 0 18 * * * docker compose exec app bin/console app:strava:import-data && 
 docker compose exec app bin/console app:strava:build-files
 ```
+
+## Screenshots
+
+<img src="public/assets/images/readme-screenshot.jpeg" alt="Example">
