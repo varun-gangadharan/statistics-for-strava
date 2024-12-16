@@ -1,7 +1,16 @@
+<p align="center">
+    <img src="public/assets/images/strava.png"
+         alt="Strava">
+</p>
+
+---
+
+Use this Docker image to set up your own Strava statistics pages. 
+Only bike rides are taken into account.
 
 ## Docker compose
 
-`docker-compose.yml`:
+`docker-compose.yml`
 
 ```yml
 services:
@@ -16,7 +25,7 @@ services:
       - 8080:8080
 ```
 
-`.env`:
+`.env`
 
 ```bash
 # Leave this unchanged.
@@ -47,4 +56,9 @@ docker compose exec app bin/console app:strava:build-files
 
 ## Periodic imports
 
-TODO
+You can configure a crontab on your host system:
+
+```bash
+0 18 * * * docker compose exec app bin/console app:strava:import-data && 
+docker compose exec app bin/console app:strava:build-files
+```
