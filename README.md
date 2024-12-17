@@ -67,7 +67,7 @@ Strava does not allow to fetch all your completed challenges and trophies, but t
 * Navigate to https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case
 * Open the page's source code and copy everything
   ![Trophy case source code](public/assets/images/readme/trophy-case-source-code.png)
-* Make sure you save the source code to the file `./storage/strava-challenge-history.html`
+* Make sure you save the source code to the file `./storage/files/strava-challenge-history.html`
 * On the next import, all your challenges will be imported
 
 ## ⚡️Import and build statistics
