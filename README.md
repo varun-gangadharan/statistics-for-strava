@@ -64,11 +64,11 @@ FTP_VALUES='{
 ### Import all challenges and trophies
 
 Strava does not allow to fetch all your completed challenges and trophies, but there's a little workaround if you'd like to import those:
-    * Navigate to https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case
-    * Open the page's source code and copy everything
-      ![Trophy case source code](public/assets/images/readme/trophy-case-source-code.png)
-    * Make sure the source code is saved to the file `./storage/strava-challenge-history.html`
-    * On the next run import, all your challenges will be imported
+* Navigate to https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case
+* Open the page's source code and copy everything
+  ![Trophy case source code](public/assets/images/readme/trophy-case-source-code.png)
+* Make sure the source code is saved to the file `./storage/strava-challenge-history.html`
+* On the next run import, all your challenges will be imported
 
 ## ⚡️Import and build statistics
 
