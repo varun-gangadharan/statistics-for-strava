@@ -5,8 +5,8 @@
 
 ---
 
-Use this Docker image to set up your own Strava statistics pages. 
-Only bike rides are taken into account.
+Use this Docker image to set up your own Strava statistics pages.
+Currently only bike rides are taken into account .
 
 ## 🪄 Prerequisites
 
