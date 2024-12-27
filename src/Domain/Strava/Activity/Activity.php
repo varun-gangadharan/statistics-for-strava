@@ -42,6 +42,8 @@ final class Activity
         private readonly ActivityId $activityId,
         #[ORM\Column(type: 'datetime_immutable')]
         private readonly SerializableDateTime $startDateTime,
+        #[ORM\Column(type: 'string', nullable: true)]
+        private readonly ActivityType $activityType,
         #[ORM\Column(type: 'json')]
         private array $data,
         #[ORM\Column(type: 'json', nullable: true)]
@@ -59,12 +61,14 @@ final class Activity
     public static function create(
         ActivityId $activityId,
         SerializableDateTime $startDateTime,
+        ActivityType $activityType,
         array $data,
         ?GearId $gearId = null,
     ): self {
         return new self(
             activityId: $activityId,
             startDateTime: $startDateTime,
+            activityType: $activityType,
             data: $data,
             gearId: $gearId
         );
@@ -77,6 +81,7 @@ final class Activity
     public static function fromState(
         ActivityId $activityId,
         SerializableDateTime $startDateTime,
+        ActivityType $activityType,
         array $data,
         ?Location $location = null,
         array $weather = [],
@@ -85,6 +90,7 @@ final class Activity
         return new self(
             activityId: $activityId,
             startDateTime: $startDateTime,
+            activityType: $activityType,
             data: $data,
             location: $location,
             weather: $weather,
@@ -104,7 +110,7 @@ final class Activity
 
     public function getType(): ActivityType
     {
-        return ActivityType::from($this->data['type']);
+        return $this->activityType;
     }
 
     public function getLatitude(): ?Latitude

@@ -7,6 +7,7 @@ namespace App\Tests\Domain\Strava\Activity;
 use App\Domain\Nominatim\Location;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
+use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Gear\GearId;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
@@ -14,6 +15,7 @@ final class ActivityBuilder
 {
     private ActivityId $activityId;
     private SerializableDateTime $startDateTime;
+    private ActivityType $activityType;
     private array $data;
     private array $weather;
     private ?GearId $gearId;
@@ -23,6 +25,7 @@ final class ActivityBuilder
     {
         $this->activityId = ActivityId::fromUnprefixed('903645');
         $this->startDateTime = SerializableDateTime::fromString('2023-10-10');
+        $this->activityType = ActivityType::RIDE;
         $this->data = [
             'kudos_count' => 1,
             'name' => 'Test activity',
@@ -42,6 +45,7 @@ final class ActivityBuilder
         return Activity::fromState(
             activityId: $this->activityId,
             startDateTime: $this->startDateTime,
+            activityType: $this->activityType,
             data: $this->data,
             location: $this->location,
             weather: $this->weather,
@@ -94,6 +98,13 @@ final class ActivityBuilder
     public function withAddress(Location $address): self
     {
         $this->location = $address;
+
+        return $this;
+    }
+
+    public function withActivityType(ActivityType $activityType): self
+    {
+        $this->activityType = $activityType;
 
         return $this;
     }

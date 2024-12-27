@@ -24,12 +24,13 @@ final class DbalActivityRepository implements ActivityRepository
 
     public function add(Activity $activity): void
     {
-        $sql = 'INSERT INTO Activity (activityId, startDateTime, data, weather, gearId, location)
-        VALUES (:activityId, :startDateTime, :data, :weather, :gearId, :location)';
+        $sql = 'INSERT INTO Activity (activityId, startDateTime, activityType, data, weather, gearId, location)
+        VALUES (:activityId, :startDateTime, :activityType, :data, :weather, :gearId, :location)';
 
         $this->connection->executeStatement($sql, [
             'activityId' => $activity->getId(),
             'startDateTime' => $activity->getStartDate(),
+            'activityType' => $activity->getType()->value,
             'data' => Json::encode($this->cleanData($activity->getData())),
             'weather' => Json::encode($activity->getAllWeatherData()),
             'gearId' => $activity->getGearId(),
@@ -176,6 +177,7 @@ final class DbalActivityRepository implements ActivityRepository
         return Activity::fromState(
             activityId: ActivityId::fromString($result['activityId']),
             startDateTime: SerializableDateTime::fromString($result['startDateTime']),
+            activityType: ActivityType::from($result['activityType']),
             data: Json::decode($result['data']),
             location: $location ? Location::fromState($location) : null,
             weather: Json::decode($result['weather'] ?? '[]'),
