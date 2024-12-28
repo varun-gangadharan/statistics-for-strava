@@ -14,16 +14,28 @@
 
 ---
 
-Use this Docker image to set up your own Strava statistics pages.
-Currently only bike rides are taken into account .
+Strava Statistics is a self-hosted web app designed to provide you with better stats
+
+## 📸 Screenshots
+
+<img src="public/assets/images/readme/screenshot-dashboard.jpeg" alt="Dashboard">
+<img src="public/assets/images/readme/screenshot-gear-stats.jpg" alt="Gear Stats">
+<img src="public/assets/images/readme/screenshot-eddington.jpg" alt="Eddington">
+<img src="public/assets/images/readme/screenshot-challenges.jpg" alt="Challenges">
+
+## ⚠️ Disclaimer
+
+* 🛠️ Under active development: Expect frequent updates, bugs, and breaking changes.
+* 📦 Backup before updates: Always backup your Docker volumes before upgrading.
+* 🔄 Stay up-to-date: Make sure you're running the latest version for the best experience.
 
 ## 🪄 Prerequisites
 
 You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
 
-* Next, navigate to your [Strava API settings page](https://www.strava.com/settings/api).
+* Navigate to your [Strava API settings page](https://www.strava.com/settings/api).
   Copy the `client ID` and `client secret`
-* Now you need to obtain a `Strava API refresh token`. 
+* Next you need to obtain a `Strava API refresh token`. 
     * Navigate to https://developers.strava.com/docs/getting-started/#d-how-to-authenticate
       and scroll down to "_For demonstration purposes only, here is how to reproduce the graph above with cURL:_"
     * Follow the 11 steps explained there
@@ -63,6 +75,8 @@ STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
 
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
+# Activity types to import. Allowed options: "Ride", "VirtualRide" and "Run"
+ACTIVITY_TYPES_TO_IMPORT='["Ride", "VirtualRide"]'
 # Your birthday. Needed to calculate heart rate zones.
 ATHLETE_BIRTHDAY=YYYY-MM-DD
 # History of weight (in kg or pounds, depending on UNIT_SYSTEM). Needed to calculate relative w/kg.
@@ -104,7 +118,6 @@ docker compose exec app bin/console app:strava:build-files
 
 ## 🧐 Some things to consider
 
-* Only (virtual) bike rides are imported, other sports are ignored at this moment in time. There's an open issue to support runs as well.
 * Because of technical (Strava) limitations, not all Strava challenges can be imported. Only the visible ones on your public profile can be imported
   (please be sure that your profile is public, otherwise this won't work)
 * Running the import for the first time can take a while, depending on how many activities you have on Strava.
@@ -112,13 +125,6 @@ docker compose exec app bin/console app:strava:build-files
   this limit is not exceeded. See https://developers.strava.com/docs/rate-limits/. If you have more than 500 activities,
   you might run into the daily rate limit. If you do so, the app will import the remaining activities the next day(s).
 * You can only build the files once all data from Strava was imported
-
-## 📸 Screenshots
-
-<img src="public/assets/images/readme/screenshot-dashboard.jpeg" alt="Dashboard">
-<img src="public/assets/images/readme/screenshot-gear-stats.jpg" alt="Gear Stats">
-<img src="public/assets/images/readme/screenshot-eddington.jpg" alt="Eddington">
-<img src="public/assets/images/readme/screenshot-challenges.jpg" alt="Challenges">
 
 ## 💡 Feature request?
 

@@ -6,6 +6,7 @@ enum ActivityType: string
 {
     case RIDE = 'Ride';
     case VIRTUAL_RIDE = 'VirtualRide';
+    case RUN = 'Run';
 
     public function supportsWeather(): bool
     {
@@ -19,6 +20,6 @@ enum ActivityType: string
 
     public function isVirtual(): bool
     {
-        return self::RIDE !== $this;
+        return self::VIRTUAL_RIDE === $this;
     }
 }
