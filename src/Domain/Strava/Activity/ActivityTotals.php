@@ -83,7 +83,7 @@ final readonly class ActivityTotals
         return CarbonInterval::days($days)->cascade()->forHumans(['minimumUnit' => 'day', 'join' => [' ', ' and '], 'parts' => 2]);
     }
 
-    public function getTotalDaysOfCycling(): int
+    public function getTotalDaysOfWorkingOut(): int
     {
         return count(array_unique($this->activities->map(fn (Activity $activity) => $activity->getStartDate()->format('Ymd'))));
     }
