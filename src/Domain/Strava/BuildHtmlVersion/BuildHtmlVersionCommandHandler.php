@@ -95,6 +95,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID);
         $allActivities = $this->activityRepository->findAll();
         $allBikeActivities = $allActivities->getAllBikeActivities();
+        $allRunActivities = $allActivities->filterOnActivityType(ActivityType::RUN);
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
@@ -102,8 +103,12 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $allSegments = $this->segmentRepository->findAll();
 
         $command->getOutput()->writeln('  => Calculating Eddington');
-        $eddington = Eddington::fromActivities(
-            activities: $allActivities,
+        $eddingtonForBikeRides = Eddington::fromActivities(
+            activities: $allBikeActivities,
+            unitSystem: $this->unitSystem
+        );
+        $eddingtonForRuns = Eddington::fromActivities(
+            activities: $allRunActivities,
             unitSystem: $this->unitSystem
         );
 
@@ -177,7 +182,10 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/index.html',
             $this->twig->load('html/index.html.twig')->render([
                 'totalActivityCount' => count($allActivities),
-                'eddingtonNumber' => $eddington->getNumber(),
+                'eddingtonNumbers' => [
+                    'bikeRides' => $eddingtonForBikeRides->getNumber(),
+                    'runs' => $eddingtonForRuns->getNumber(),
+                ],
                 'completedChallenges' => count($allChallenges),
                 'totalPhotoCount' => count($allImages),
                 'lastUpdate' => $now,
@@ -298,11 +306,11 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             $this->twig->load('html/eddington.html.twig')->render([
                 'eddingtonChart' => Json::encode(
                     EddingtonChartBuilder::fromEddington(
-                        eddington: $eddington,
+                        eddington: $eddingtonForBikeRides,
                         unitSystem: $this->unitSystem,
                     )->build(),
                 ),
-                'eddington' => $eddington,
+                'eddington' => $eddingtonForBikeRides,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );
