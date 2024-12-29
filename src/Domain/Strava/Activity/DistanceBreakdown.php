@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava;
+namespace App\Domain\Strava\Activity;
 
 use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
 use App\Domain\Measurement\Velocity\KmPerHour;
-use App\Domain\Strava\Activity\Activities;
-use App\Domain\Strava\Activity\Activity;
 use Carbon\CarbonInterval;
 
 final readonly class DistanceBreakdown
