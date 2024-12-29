@@ -61,13 +61,23 @@ final readonly class ChallengeConsistency
             $rideTotalDistance = Kilometer::from($rideActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
             $rideTotalElevation = Meter::from($rideActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
 
+            $runActivities = $activities->filterOnActivityType(ActivityType::RUN);
+            $maxDistanceRunningActivity = !$runActivities->isEmpty() ? Kilometer::from($runActivities->max(fn (Activity $activity) => $activity->getDistance()->toFloat())) : Kilometer::zero();
+            $runTotalDistance = Kilometer::from($runActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
+            $runTotalElevation = Meter::from($runActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
+
             $consistency[ConsistencyChallenge::RIDE_KM_200->value][] = $rideTotalDistance->toFloat() >= 200;
             $consistency[ConsistencyChallenge::RIDE_KM_600->value][] = $rideTotalDistance->toFloat() >= 600;
             $consistency[ConsistencyChallenge::RIDE_KM_1250->value][] = $rideTotalDistance->toFloat() >= 1250;
             $consistency[ConsistencyChallenge::RIDE_CLIMBING_7500->value][] = $rideTotalElevation->toFloat() >= 7500;
-            $consistency[ConsistencyChallenge::RIDE_GRAN_FONDO->value][] = $rideActivities->max(
+            $consistency[ConsistencyChallenge::RIDE_GRAN_FONDO->value][] = !$rideActivities->isEmpty() && $rideActivities->max(
                 fn (Activity $activity) => $activity->getDistance()->toFloat(),
             ) >= 100;
+            $consistency[ConsistencyChallenge::RUN_KM_5->value][] = $maxDistanceRunningActivity->toFloat() >= 5;
+            $consistency[ConsistencyChallenge::RUN_KM_10->value][] = $maxDistanceRunningActivity->toFloat() >= 10;
+            $consistency[ConsistencyChallenge::RUN_HALF_MARATHON->value][] = $maxDistanceRunningActivity->toFloat() >= 21.1;
+            $consistency[ConsistencyChallenge::RUN_KM_100_TOTAL->value][] = $runTotalDistance->toFloat() >= 100;
+            $consistency[ConsistencyChallenge::RUN_CLIMBING_2000->value][] = $runTotalElevation->toFloat() >= 2000;
 
             // First monday of the month until 4 weeks later, sunday.
             $firstMonday = $month->getFirstMonday();
