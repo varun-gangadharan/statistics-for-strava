@@ -10,12 +10,12 @@ enum ActivityType: string
 
     public function supportsWeather(): bool
     {
-        return self::RIDE === $this;
+        return self::RIDE === $this || self::RUN === $this;
     }
 
     public function supportsReverseGeocoding(): bool
     {
-        return self::RIDE === $this;
+        return self::RIDE === $this || self::RUN === $this;
     }
 
     public function isVirtual(): bool

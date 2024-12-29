@@ -284,12 +284,12 @@
                             </th>
                             <th scope="col" class="px-2 py-3">
                                 <div class="flex items-center justify-center">
-                                    {{ renderSvg('power') }}
+                                    {{ renderSvg('distance') }}
                                 </div>
                             </th>
                             <th scope="col" class="px-2 py-3">
                                 <div class="flex items-center justify-center">
-                                    {{ renderSvg('distance') }}
+                                    {{ renderSvg('power') }}
                                 </div>
                             </th>
                         </tr>
@@ -311,12 +311,14 @@
                                     {{ renderComponent('measurement', {'measurement': segmentEffort.getAverageSpeed(), 'precision': 1}) }}
                                 </td>
                                 <td class="px-2 py-2">
-                                    {% if segmentEffort.getAverageWatts() %}
-                                        {{ segmentEffort.getAverageWatts()|formatNumber(0) }}<span class="text-xs">w</span>
-                                    {% endif %}
+                                    {{ renderComponent('measurement', {'measurement': segmentEffort.getDistance(), 'precision': 2}) }}
                                 </td>
                                 <td class="px-2 py-2">
-                                    {{ renderComponent('measurement', {'measurement': segmentEffort.getDistance(), 'precision': 2}) }}
+                                    {% if segmentEffort.getAverageWatts() %}
+                                        {{ segmentEffort.getAverageWatts()|formatNumber(0) }}<span class="text-xs">w</span>
+                                    {% else %}
+                                        n/a
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
