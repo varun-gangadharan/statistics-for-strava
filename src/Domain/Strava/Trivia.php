@@ -4,7 +4,6 @@ namespace App\Domain\Strava;
 
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
-use App\Domain\Strava\Activity\ActivityType;
 use App\Infrastructure\ValueObject\Time\Dates;
 
 final readonly class Trivia
@@ -82,14 +81,12 @@ final readonly class Trivia
 
     public function getLongestRide(): ?Activity
     {
-        $rideActivities = $this->activities
-            ->filterOnActivityType(ActivityType::RIDE)
-            ->mergeWith($this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
+        $bikeActivities = $this->activities->getAllBikeActivities();
 
-        if (!$longestActivity = $rideActivities->getFirst()) {
+        if (!$longestActivity = $bikeActivities->getFirst()) {
             return null;
         }
-        foreach ($rideActivities as $activity) {
+        foreach ($bikeActivities as $activity) {
             if ($activity->getDistance()->toFloat() < $longestActivity->getDistance()->toFloat()) {
                 continue;
             }
@@ -101,15 +98,13 @@ final readonly class Trivia
 
     public function getFastestRide(): ?Activity
     {
-        $rideActivities = $this->activities
-            ->filterOnActivityType(ActivityType::RIDE)
-            ->mergeWith($this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
+        $bikeActivities = $this->activities->getAllBikeActivities();
 
-        if (!$fastestActivity = $rideActivities->getFirst()) {
+        if (!$fastestActivity = $bikeActivities->getFirst()) {
             return null;
         }
 
-        foreach ($rideActivities as $activity) {
+        foreach ($bikeActivities as $activity) {
             if ($activity->getAverageSpeed()->toFloat() < $fastestActivity->getAverageSpeed()->toFloat()) {
                 continue;
             }

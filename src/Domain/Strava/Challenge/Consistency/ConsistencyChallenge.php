@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Challenge;
+namespace App\Domain\Strava\Challenge\Consistency;
 
 enum ConsistencyChallenge: string
 {

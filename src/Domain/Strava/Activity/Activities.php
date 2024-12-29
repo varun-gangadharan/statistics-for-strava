@@ -63,6 +63,14 @@ final class Activities extends Collection
         return $this->filter(fn (Activity $activity) => $activityType === $activity->getType());
     }
 
+    public function getAllBikeActivities(): Activities
+    {
+        return self::fromArray([
+            ...$this->filterOnActivityType(ActivityType::RIDE),
+            ...$this->filterOnActivityType(ActivityType::VIRTUAL_RIDE),
+        ]);
+    }
+
     public function getByActivityId(ActivityId $activityId): Activity
     {
         $activities = $this->filter(fn (Activity $activity) => $activityId == $activity->getId())->toArray();

@@ -35,8 +35,8 @@ use App\Domain\Strava\Athlete\Weight\AthleteWeightRepository;
 use App\Domain\Strava\Calendar\Calendar;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Months;
-use App\Domain\Strava\Challenge\ChallengeConsistency;
 use App\Domain\Strava\Challenge\ChallengeRepository;
+use App\Domain\Strava\Challenge\Consistency\ChallengeConsistency;
 use App\Domain\Strava\Ftp\FtpHistoryChartBuilder;
 use App\Domain\Strava\Ftp\FtpRepository;
 use App\Domain\Strava\Gear\DistanceOverTimePerGearChartBuilder;
@@ -94,6 +94,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID);
         $allActivities = $this->activityRepository->findAll();
+        $allBikeActivities = $allActivities->getAllBikeActivities();
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
@@ -217,7 +218,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     DaytimeStatsChartsBuilder::fromDaytimeStats($dayTimeStats)->build(),
                 ),
                 'daytimeStats' => $dayTimeStats,
-                'distanceBreakdown' => DistanceBreakdown::fromActivities($allActivities),
+                'distanceBreakdown' => DistanceBreakdown::fromActivities($allBikeActivities),
                 'trivia' => Trivia::fromActivities($allActivities),
                 'ftpHistoryChart' => !$allFtps->isEmpty() ? Json::encode(
                     FtpHistoryChartBuilder::fromFtps(

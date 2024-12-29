@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Challenge;
+namespace App\Domain\Strava\Challenge\Consistency;
 
 use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
@@ -55,22 +55,20 @@ final readonly class ChallengeConsistency
                 continue;
             }
 
-            $rideActivities = $activities
-                ->filterOnActivityType(ActivityType::RIDE)
-                ->mergeWith($activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
-            $rideTotalDistance = Kilometer::from($rideActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
-            $rideTotalElevation = Meter::from($rideActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
+            $bikeActivities = $activities->getAllBikeActivities();
+            $bikeTotalDistance = Kilometer::from($bikeActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
+            $bikeTotalElevation = Meter::from($bikeActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
 
             $runActivities = $activities->filterOnActivityType(ActivityType::RUN);
             $maxDistanceRunningActivity = !$runActivities->isEmpty() ? Kilometer::from($runActivities->max(fn (Activity $activity) => $activity->getDistance()->toFloat())) : Kilometer::zero();
             $runTotalDistance = Kilometer::from($runActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
             $runTotalElevation = Meter::from($runActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
 
-            $consistency[ConsistencyChallenge::RIDE_KM_200->value][] = $rideTotalDistance->toFloat() >= 200;
-            $consistency[ConsistencyChallenge::RIDE_KM_600->value][] = $rideTotalDistance->toFloat() >= 600;
-            $consistency[ConsistencyChallenge::RIDE_KM_1250->value][] = $rideTotalDistance->toFloat() >= 1250;
-            $consistency[ConsistencyChallenge::RIDE_CLIMBING_7500->value][] = $rideTotalElevation->toFloat() >= 7500;
-            $consistency[ConsistencyChallenge::RIDE_GRAN_FONDO->value][] = !$rideActivities->isEmpty() && $rideActivities->max(
+            $consistency[ConsistencyChallenge::RIDE_KM_200->value][] = $bikeTotalDistance->toFloat() >= 200;
+            $consistency[ConsistencyChallenge::RIDE_KM_600->value][] = $bikeTotalDistance->toFloat() >= 600;
+            $consistency[ConsistencyChallenge::RIDE_KM_1250->value][] = $bikeTotalDistance->toFloat() >= 1250;
+            $consistency[ConsistencyChallenge::RIDE_CLIMBING_7500->value][] = $bikeTotalElevation->toFloat() >= 7500;
+            $consistency[ConsistencyChallenge::RIDE_GRAN_FONDO->value][] = !$bikeActivities->isEmpty() && $bikeActivities->max(
                 fn (Activity $activity) => $activity->getDistance()->toFloat(),
             ) >= 100;
             $consistency[ConsistencyChallenge::RUN_KM_5->value][] = $maxDistanceRunningActivity->toFloat() >= 5;
