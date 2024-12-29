@@ -80,50 +80,31 @@
                         {% endfor %}
                         </tbody>
                         <tfoot>
-                        <tr class="font-semibold text-gray-900 dark:text-white border-t-4 dark:border-gray-700">
-                            <td class="px-2 py-2 text-right sticky left-0 bg-white dark:bg-gray-800">
-                                Virtual/Indoor
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForZwift().numberOfRides }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ renderComponent('measurement', {'measurement':  monthlyStatistics.getTotalsForZwift().totalDistance, 'precision': 0}) }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ renderComponent('measurement', {'measurement':  monthlyStatistics.getTotalsForZwift().totalElevation, 'precision': 0}) }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForZwift().movingTime }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForZwift().totalCalories|formatNumber(0) }}<span class="text-xs">kcal</span>
-                            </td>
-                            <td class="px-2 py-2">
-                            </td>
-                        </tr>
-                        <tr class="font-semibold text-gray-900 dark:text-white">
-                            <td class="px-2 py-2 text-right sticky left-0 bg-white dark:bg-gray-800">
-                                Outside
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForOutsideBikeRides().numberOfRides }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ renderComponent('measurement', {'measurement':  monthlyStatistics.getTotalsForOutsideBikeRides().totalDistance, 'precision': 0}) }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ renderComponent('measurement', {'measurement':  monthlyStatistics.getTotalsForOutsideBikeRides().totalElevation, 'precision': 0}) }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForOutsideBikeRides().movingTime }}
-                            </td>
-                            <td class="px-2 py-2">
-                                {{ monthlyStatistics.getTotalsForOutsideBikeRides().totalCalories|formatNumber(0) }}<span class="text-xs">kcal</span>
-                            </td>
-                            <td class="px-2 py-2">
-                            </td>
-                        </tr>
+                        {% for activityType in enum('App\\Domain\\Strava\\Activity\\ActivityType').cases %}
+                            {% set totalsForActivityType =  monthlyStatistics.getTotalsForActivityType(activityType) %}
+                            <tr class="font-semibold text-gray-900 dark:text-white {{ loop.first ? 'border-t-4 dark:border-gray-700' : '' }}">
+                                <td class="px-2 py-2 text-right sticky left-0 bg-white dark:bg-gray-800">
+                                    {{ activityType.value }}
+                                </td>
+                                <td class="px-2 py-2">
+                                    {{ totalsForActivityType.numberOfRides }}
+                                </td>
+                                <td class="px-2 py-2">
+                                    {{ renderComponent('measurement', {'measurement':  totalsForActivityType.totalDistance, 'precision': 0}) }}
+                                </td>
+                                <td class="px-2 py-2">
+                                    {{ renderComponent('measurement', {'measurement':  totalsForActivityType.totalElevation, 'precision': 0}) }}
+                                </td>
+                                <td class="px-2 py-2">
+                                    {{ totalsForActivityType.movingTime }}
+                                </td>
+                                <td class="px-2 py-2">
+                                    {{ totalsForActivityType.totalCalories|formatNumber(0) }}<span class="text-xs">kcal</span>
+                                </td>
+                                <td class="px-2 py-2">
+                                </td>
+                            </tr>
+                        {% endfor %}
                         <tr class="font-semibold text-gray-900 dark:text-white">
                             <td class="px-2 py-2 text-right sticky left-0 bg-white dark:bg-gray-800">
                                 Total

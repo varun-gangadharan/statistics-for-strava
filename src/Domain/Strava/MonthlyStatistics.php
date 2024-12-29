@@ -111,21 +111,9 @@ final readonly class MonthlyStatistics
     /**
      * @return array<mixed>
      */
-    public function getTotalsForOutsideBikeRides(): array
+    public function getTotalsForActivityType(ActivityType $activityType): array
     {
-        $outsideBikeRides = $this->activities->filterOnActivityType(ActivityType::RIDE);
-
-        return $this->getTotalsForActivities($outsideBikeRides);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getTotalsForZwift(): array
-    {
-        $virtualRides = $this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE);
-
-        return $this->getTotalsForActivities($virtualRides);
+        return $this->getTotalsForActivities($this->activities->filterOnActivityType($activityType));
     }
 
     /**
