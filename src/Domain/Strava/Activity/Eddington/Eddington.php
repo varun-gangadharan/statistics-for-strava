@@ -10,7 +10,7 @@ final class Eddington
 {
     private const string DATE_FORMAT = 'Y-m-d';
     /** @var array<string, int|float> */
-    private static array $distancesPerDay = [];
+    private array $distancesPerDay = [];
 
     private function __construct(
         private readonly Activities $activities,
@@ -23,22 +23,22 @@ final class Eddington
      */
     private function getDistancesPerDay(): array
     {
-        if (!empty(Eddington::$distancesPerDay)) {
-            return Eddington::$distancesPerDay;
+        if (!empty($this->distancesPerDay)) {
+            return $this->distancesPerDay;
         }
 
-        Eddington::$distancesPerDay = [];
+        $this->distancesPerDay = [];
         foreach ($this->activities as $activity) {
             $day = $activity->getStartDate()->format(self::DATE_FORMAT);
-            if (!array_key_exists($day, Eddington::$distancesPerDay)) {
-                Eddington::$distancesPerDay[$day] = 0;
+            if (!array_key_exists($day, $this->distancesPerDay)) {
+                $this->distancesPerDay[$day] = 0;
             }
 
             $distance = $activity->getDistance()->toUnitSystem($this->unitSystem);
-            Eddington::$distancesPerDay[$day] += $distance->toFloat();
+            $this->distancesPerDay[$day] += $distance->toFloat();
         }
 
-        return Eddington::$distancesPerDay;
+        return $this->distancesPerDay;
     }
 
     public function getLongestDistanceInADay(): int
