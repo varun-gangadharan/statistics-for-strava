@@ -22,4 +22,14 @@ enum ActivityType: string
     {
         return self::VIRTUAL_RIDE === $this;
     }
+
+    public function isRide(): bool
+    {
+        return self::RIDE === $this || self::VIRTUAL_RIDE === $this;
+    }
+
+    public function isRun(): bool
+    {
+        return self::RUN === $this;
+    }
 }

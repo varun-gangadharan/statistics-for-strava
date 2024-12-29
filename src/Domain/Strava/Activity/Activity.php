@@ -476,7 +476,7 @@ final class Activity
      */
     public function getSearchables(): array
     {
-        return [$this->getName()];
+        return [$this->getName(), 'is-'.$this->getType()->value];
     }
 
     public function delete(): void
