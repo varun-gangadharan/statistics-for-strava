@@ -93,7 +93,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID);
         $allActivities = $this->activityRepository->findAll();
         $allChallenges = $this->challengeRepository->findAll();
-        $allBikes = $this->gearRepository->findAll();
+        $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
         $allFtps = $this->ftpRepository->findAll();
         $allSegments = $this->segmentRepository->findAll();
@@ -381,21 +381,21 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/gear-stats.html',
             $this->twig->load('html/gear-stats.html.twig')->render([
-                'bikeStatistics' => GearStatistics::fromActivitiesAndGear(
+                'gearStatistics' => GearStatistics::fromActivitiesAndGear(
                     activities: $allActivities,
-                    bikes: $allBikes
+                    bikes: $allGear
                 ),
                 'distancePerMonthPerGearChart' => Json::encode(
                     DistancePerMonthPerGearChartBuilder::fromGearAndActivities(
-                        gearCollection: $allBikes,
+                        gearCollection: $allGear,
                         activityCollection: $allActivities,
                         unitSystem: $this->unitSystem,
                         months: $allMonths,
                     )->build()
                 ),
-                'distanceOverTimePerBike' => Json::encode(
+                'distanceOverTimePerGear' => Json::encode(
                     DistanceOverTimePerGearChartBuilder::fromGearAndActivities(
-                        gearCollection: $allBikes,
+                        gearCollection: $allGear,
                         activityCollection: $allActivities,
                         unitSystem: $this->unitSystem,
                         now: $now,
