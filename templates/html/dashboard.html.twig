@@ -273,7 +273,7 @@
                                     {{ weekday }}
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}
@@ -336,7 +336,7 @@
                                     <div class="font-normal text-xs">{{ statistic.daytime.getHours()[0] }}h - {{ statistic.daytime.getHours()[1] }}h</div>
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}
@@ -402,7 +402,7 @@
                                     <div>{{ statistic.label }}</div>
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}

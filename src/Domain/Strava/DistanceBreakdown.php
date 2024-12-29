@@ -40,7 +40,7 @@ final readonly class DistanceBreakdown
         foreach ($range as $breakdownLimit) {
             $statistics[$breakdownLimit] = [
                 'label' => sprintf('%d - %d km', $breakdownLimit - $breakdownOnKm, $breakdownLimit),
-                'numberOfRides' => 0,
+                'numberOfWorkouts' => 0,
                 'totalDistance' => 0,
                 'totalElevation' => 0,
                 'movingTime' => 0,
@@ -57,11 +57,11 @@ final readonly class DistanceBreakdown
             }
             $distanceBreakdown = ceil($activity->getDistance()->toFloat() / $breakdownOnKm) * $breakdownOnKm;
 
-            ++$statistics[$distanceBreakdown]['numberOfRides'];
+            ++$statistics[$distanceBreakdown]['numberOfWorkouts'];
             $statistics[$distanceBreakdown]['totalDistance'] += $activity->getDistance()->toFloat();
             $statistics[$distanceBreakdown]['totalElevation'] += $activity->getElevation()->toFloat();
             $statistics[$distanceBreakdown]['movingTime'] += $activity->getMovingTimeInSeconds();
-            $statistics[$distanceBreakdown]['averageDistance'] = $statistics[$distanceBreakdown]['totalDistance'] / $statistics[$distanceBreakdown]['numberOfRides'];
+            $statistics[$distanceBreakdown]['averageDistance'] = $statistics[$distanceBreakdown]['totalDistance'] / $statistics[$distanceBreakdown]['numberOfWorkouts'];
             if ($statistics[$distanceBreakdown]['movingTime'] > 0) {
                 $statistics[$distanceBreakdown]['averageSpeed'] = ($statistics[$distanceBreakdown]['totalDistance'] / $statistics[$distanceBreakdown]['movingTime']) * 3600;
             }

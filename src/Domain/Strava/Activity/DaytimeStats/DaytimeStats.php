@@ -34,7 +34,7 @@ final readonly class DaytimeStats
         foreach (Daytime::cases() as $daytime) {
             $statistics[$daytime->value] = [
                 'daytime' => $daytime,
-                'numberOfRides' => 0,
+                'numberOfWorkouts' => 0,
                 'totalDistance' => 0,
                 'totalElevation' => 0,
                 'movingTime' => 0,
@@ -47,11 +47,11 @@ final readonly class DaytimeStats
         foreach ($this->activities as $activity) {
             $daytime = Daytime::fromSerializableDateTime($activity->getStartDate());
 
-            ++$statistics[$daytime->value]['numberOfRides'];
+            ++$statistics[$daytime->value]['numberOfWorkouts'];
             $statistics[$daytime->value]['totalDistance'] += $activity->getDistance()->toFloat();
             $statistics[$daytime->value]['totalElevation'] += $activity->getElevation()->toFloat();
             $statistics[$daytime->value]['movingTime'] += $activity->getMovingTimeInSeconds();
-            $statistics[$daytime->value]['averageDistance'] = $statistics[$daytime->value]['totalDistance'] / $statistics[$daytime->value]['numberOfRides'];
+            $statistics[$daytime->value]['averageDistance'] = $statistics[$daytime->value]['totalDistance'] / $statistics[$daytime->value]['numberOfWorkouts'];
             $statistics[$daytime->value]['movingTimeForHumans'] = CarbonInterval::seconds($statistics[$daytime->value]['movingTime'])->cascade()->forHumans(['short' => true, 'minimumUnit' => 'minute']);
             $statistics[$daytime->value]['percentage'] = round($statistics[$daytime->value]['movingTime'] / $totalMovingTime * 100, 2);
         }

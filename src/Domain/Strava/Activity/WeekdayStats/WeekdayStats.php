@@ -36,7 +36,7 @@ final readonly class WeekdayStats
 
         foreach ([1, 2, 3, 4, 5, 6, 0] as $weekDay) {
             $statistics[$daysOfTheWeekMap[$weekDay]] = [
-                'numberOfRides' => 0,
+                'numberOfWorkouts' => 0,
                 'totalDistance' => 0,
                 'totalElevation' => 0,
                 'movingTime' => 0,
@@ -49,12 +49,12 @@ final readonly class WeekdayStats
         foreach ($this->activities as $activity) {
             $weekDay = $daysOfTheWeekMap[$activity->getStartDate()->format('w')];
 
-            ++$statistics[$weekDay]['numberOfRides'];
+            ++$statistics[$weekDay]['numberOfWorkouts'];
 
             $statistics[$weekDay]['totalDistance'] += $activity->getDistance()->toFloat();
             $statistics[$weekDay]['totalElevation'] += $activity->getElevation()->toFloat();
             $statistics[$weekDay]['movingTime'] += $activity->getMovingTimeInSeconds();
-            $statistics[$weekDay]['averageDistance'] = $statistics[$weekDay]['totalDistance'] / $statistics[$weekDay]['numberOfRides'];
+            $statistics[$weekDay]['averageDistance'] = $statistics[$weekDay]['totalDistance'] / $statistics[$weekDay]['numberOfWorkouts'];
             $statistics[$weekDay]['movingTimeForHumans'] = CarbonInterval::seconds($statistics[$weekDay]['movingTime'])->cascade()->forHumans(['short' => true, 'minimumUnit' => 'minute']);
             $statistics[$weekDay]['percentage'] = round($statistics[$weekDay]['movingTime'] / $totalMovingTime * 100, 2);
         }
