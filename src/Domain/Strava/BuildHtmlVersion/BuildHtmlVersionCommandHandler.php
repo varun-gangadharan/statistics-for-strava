@@ -62,6 +62,8 @@ use Twig\Environment;
 
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
+    private const string APP_VERSION = 'v0.1.14';
+
     public function __construct(
         private ActivityRepository $activityRepository,
         private ChallengeRepository $challengeRepository,
@@ -179,7 +181,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 'totalPhotoCount' => count($allImages),
                 'lastUpdate' => $now,
                 'athleteId' => $athleteId,
-                'currentAppVersion' => 'v0.1.14',
+                'currentAppVersion' => self::APP_VERSION,
                 'latestAppVersion' => $this->gitHub->getRepoLatestRelease('robiningelbrecht/strava-statistics'),
             ]),
         );
