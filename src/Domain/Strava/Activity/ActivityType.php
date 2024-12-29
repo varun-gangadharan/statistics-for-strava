@@ -32,4 +32,13 @@ enum ActivityType: string
     {
         return self::RUN === $this;
     }
+
+    public function getColor(): string
+    {
+        return match ($this) {
+            ActivityType::RIDE => 'emerald-600',
+            ActivityType::VIRTUAL_RIDE => 'orange-500',
+            ActivityType::RUN => 'yellow-300',
+        };
+    }
 }
