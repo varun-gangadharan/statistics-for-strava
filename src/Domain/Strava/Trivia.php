@@ -4,6 +4,7 @@ namespace App\Domain\Strava;
 
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
+use App\Domain\Strava\Activity\ActivityType;
 use App\Infrastructure\ValueObject\Time\Dates;
 
 final readonly class Trivia
@@ -79,11 +80,16 @@ final readonly class Trivia
         return $latestActivity;
     }
 
-    public function getLongestActivity(): Activity
+    public function getLongestRide(): ?Activity
     {
-        /** @var Activity $longestActivity */
-        $longestActivity = $this->activities->getFirst();
-        foreach ($this->activities as $activity) {
+        $rideActivities = $this->activities
+            ->filterOnActivityType(ActivityType::RIDE)
+            ->mergeWith($this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
+
+        if (!$longestActivity = $rideActivities->getFirst()) {
+            return null;
+        }
+        foreach ($rideActivities as $activity) {
             if ($activity->getDistance()->toFloat() < $longestActivity->getDistance()->toFloat()) {
                 continue;
             }
@@ -91,6 +97,26 @@ final readonly class Trivia
         }
 
         return $longestActivity;
+    }
+
+    public function getFastestRide(): ?Activity
+    {
+        $rideActivities = $this->activities
+            ->filterOnActivityType(ActivityType::RIDE)
+            ->mergeWith($this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
+
+        if (!$fastestActivity = $rideActivities->getFirst()) {
+            return null;
+        }
+
+        foreach ($rideActivities as $activity) {
+            if ($activity->getAverageSpeed()->toFloat() < $fastestActivity->getAverageSpeed()->toFloat()) {
+                continue;
+            }
+            $fastestActivity = $activity;
+        }
+
+        return $fastestActivity;
     }
 
     public function getActivityWithHighestElevation(): Activity
@@ -105,20 +131,6 @@ final readonly class Trivia
         }
 
         return $mostElevationActivity;
-    }
-
-    public function getFastestActivity(): Activity
-    {
-        /** @var Activity $fastestActivity */
-        $fastestActivity = $this->activities->getFirst();
-        foreach ($this->activities as $activity) {
-            if ($activity->getAverageSpeed()->toFloat() < $fastestActivity->getAverageSpeed()->toFloat()) {
-                continue;
-            }
-            $fastestActivity = $activity;
-        }
-
-        return $fastestActivity;
     }
 
     public function getMostConsecutiveDaysOfCycling(): Dates
