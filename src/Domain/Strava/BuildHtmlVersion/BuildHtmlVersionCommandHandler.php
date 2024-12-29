@@ -14,7 +14,6 @@ use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
 use App\Domain\Strava\Activity\Eddington\Eddington;
 use App\Domain\Strava\Activity\Eddington\EddingtonChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
-use App\Domain\Strava\Activity\Image\Image;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
@@ -275,8 +274,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/photos.html',
             $this->twig->load('html/photos.html.twig')->render([
-                'rideImagesCount' => count(array_filter($allImages, fn (Image $image) => ActivityType::RIDE === $image->getActivity()->getType())),
-                'virtualRideImagesCount' => count(array_filter($allImages, fn (Image $image) => ActivityType::VIRTUAL_RIDE === $image->getActivity()->getType())),
                 'images' => $allImages,
             ]),
         );
