@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Challenge;
 
+use App\Domain\Measurement\Length\Kilometer;
+use App\Domain\Measurement\Length\Meter;
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
+use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\Calendar\Week;
-use App\Domain\Strava\MonthlyStatistics;
 
 final readonly class ChallengeConsistency
 {
@@ -16,7 +18,6 @@ final readonly class ChallengeConsistency
 
     private function __construct(
         Months $months,
-        private MonthlyStatistics $monthlyStatistics,
         private Activities $activities,
     ) {
         $this->months = $months->reverse();
@@ -24,12 +25,10 @@ final readonly class ChallengeConsistency
 
     public static function create(
         Months $months,
-        MonthlyStatistics $monthlyStatistics,
         Activities $activities,
     ): self {
         return new self(
             months: $months,
-            monthlyStatistics: $monthlyStatistics,
             activities: $activities
         );
     }
@@ -48,22 +47,25 @@ final readonly class ChallengeConsistency
 
         /** @var \App\Domain\Strava\Calendar\Month $month */
         foreach ($this->months as $month) {
-            if (!$monthlyStats = $this->monthlyStatistics->getStatisticsForMonth($month)) {
+            $activities = $this->activities->filterOnMonth($month);
+            if ($activities->isEmpty()) {
                 foreach (ConsistencyChallenge::cases() as $consistencyChallenge) {
                     $consistency[$consistencyChallenge->value][] = 0;
                 }
                 continue;
             }
 
-            $activities = $this->activities->filterOnMonth($month);
+            $rideActivities = $activities
+                ->filterOnActivityType(ActivityType::RIDE)
+                ->mergeWith($activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE));
+            $rideTotalDistance = Kilometer::from($rideActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
+            $rideTotalElevation = Meter::from($rideActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
 
-            $totalDistance = $monthlyStats['totalDistance'];
-
-            $consistency[ConsistencyChallenge::KM_200->value][] = $totalDistance->toFloat() >= 200;
-            $consistency[ConsistencyChallenge::KM_600->value][] = $totalDistance->toFloat() >= 600;
-            $consistency[ConsistencyChallenge::KM_1250->value][] = $totalDistance->toFloat() >= 1250;
-            $consistency[ConsistencyChallenge::CLIMBING_7500->value][] = $monthlyStats['totalElevation']->toFloat() >= 7500;
-            $consistency[ConsistencyChallenge::GRAN_FONDO->value][] = $activities->max(
+            $consistency[ConsistencyChallenge::RIDE_KM_200->value][] = $rideTotalDistance->toFloat() >= 200;
+            $consistency[ConsistencyChallenge::RIDE_KM_600->value][] = $rideTotalDistance->toFloat() >= 600;
+            $consistency[ConsistencyChallenge::RIDE_KM_1250->value][] = $rideTotalDistance->toFloat() >= 1250;
+            $consistency[ConsistencyChallenge::RIDE_CLIMBING_7500->value][] = $rideTotalElevation->toFloat() >= 7500;
+            $consistency[ConsistencyChallenge::RIDE_GRAN_FONDO->value][] = $rideActivities->max(
                 fn (Activity $activity) => $activity->getDistance()->toFloat(),
             ) >= 100;
 

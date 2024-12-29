@@ -234,7 +234,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 ),
                 'challengeConsistency' => ChallengeConsistency::create(
                     months: $allMonths,
-                    monthlyStatistics: $monthlyStatistics,
                     activities: $allActivities
                 ),
                 'yearlyDistanceChart' => Json::encode(
