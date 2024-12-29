@@ -6,6 +6,7 @@ use App\Domain\GitHub\GitHub;
 use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\UnitSystem;
 use App\Domain\Strava\Activity\ActivityHeatmapChartBuilder;
+use App\Domain\Strava\Activity\ActivityHighlights;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
@@ -105,6 +106,9 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             unitSystem: $this->unitSystem
         );
 
+        $command->getOutput()->writeln('  => Calculating activity highlights');
+        $activityHighlights = ActivityHighlights::fromActivities($allActivities);
+
         $command->getOutput()->writeln('  => Calculating weekday stats');
         $weekdayStats = WeekdayStats::fromActivities($allActivities);
 
@@ -190,6 +194,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/dashboard.html',
             $this->twig->load('html/dashboard.html.twig')->render([
                 'mostRecentActivities' => $allActivities->slice(0, 5),
+                'activityHighlights' => $activityHighlights,
                 'intro' => ActivityTotals::fromActivities(
                     activities: $allActivities,
                     now: $now,
@@ -474,6 +479,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 markup: $this->twig->load('html/data-table/activity-data-table-row.html.twig')->render([
                     'timeIntervals' => ActivityPowerRepository::TIME_INTERVAL_IN_SECONDS,
                     'activity' => $activity,
+                    'activityHighlights' => $activityHighlights,
                 ]),
                 searchables: $activity->getSearchables(),
                 // @phpstan-ignore-next-line

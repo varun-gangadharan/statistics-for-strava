@@ -1,4 +1,5 @@
   => Calculating Eddington
+  => Calculating activity highlights
   => Calculating weekday stats
   => Calculating daytime stats
   => Calculating monthly stats
