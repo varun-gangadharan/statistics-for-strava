@@ -22,9 +22,9 @@ https://github.com/user-attachments/assets/7fd9262d-744f-44dc-9c17-6730b1cfc383
 
 ## ⚠️ Disclaimer
 
-* 🛠️ Under active development: Expect frequent updates, bugs, and breaking changes.
-* 📦 Backup before updates: Always backup your Docker volumes before upgrading.
-* 🔄 Stay up-to-date: Make sure you're running the latest version for the best experience.
+* 🛠️ __Under active development__: Expect frequent updates, bugs, and breaking changes.
+* 📦 __Backup before updates__: Always backup your Docker volumes before upgrading.
+* 🔄 __Stay up-to-date__: Make sure you're running the latest version for the best experience.
 
 ## 🪄 Prerequisites
 
