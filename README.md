@@ -16,12 +16,9 @@
 
 Strava Statistics is a self-hosted web app designed to provide you with better stats
 
-## 📸 Screenshots
+## 📸 Showcase
 
-<img src="public/assets/images/readme/screenshot-dashboard.jpeg" alt="Dashboard">
-<img src="public/assets/images/readme/screenshot-gear-stats.jpg" alt="Gear Stats">
-<img src="public/assets/images/readme/screenshot-eddington.jpg" alt="Eddington">
-<img src="public/assets/images/readme/screenshot-challenges.jpg" alt="Challenges">
+[![Watch the showcase](public/assets/images/readme/screenshot.png)](public/assets/images/readme/showcase.mp4)
 
 ## ⚠️ Disclaimer
 
