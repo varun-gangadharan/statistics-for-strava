@@ -183,8 +183,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             $this->twig->load('html/index.html.twig')->render([
                 'totalActivityCount' => count($allActivities),
                 'eddingtonNumbers' => [
-                    'bikeRides' => $eddingtonForBikeRides->getNumber(),
-                    'runs' => $eddingtonForRuns->getNumber(),
+                    'bikeRides' => $eddingtonForBikeRides->isApplicable() ? $eddingtonForBikeRides->getNumber() : 0,
+                    'runs' => $eddingtonForBikeRides->isApplicable() ? $eddingtonForRuns->getNumber() : 0,
                 ],
                 'completedChallenges' => count($allChallenges),
                 'totalPhotoCount' => count($allImages),
@@ -206,7 +206,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 ),
                 'weeklyDistanceChart' => Json::encode(
                     WeeklyDistanceChartBuilder::fromActivities(
-                        activities: $allActivities,
+                        activities: $allBikeActivities,
                         unitSystem: $this->unitSystem,
                         now: $now,
                     )->build(),
@@ -301,29 +301,36 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         );
 
         $command->getOutput()->writeln('  => Building eddington.html');
+
+        $eddingtonInstances = [];
+
+        if ($eddingtonForBikeRides->isApplicable()) {
+            $eddingtonInstances['Rides'] = [
+                'chart' => Json::encode(
+                    EddingtonChartBuilder::fromEddington(
+                        eddington: $eddingtonForBikeRides,
+                        unitSystem: $this->unitSystem,
+                    )->build(),
+                ),
+                'eddington' => $eddingtonForBikeRides,
+            ];
+        }
+        if ($eddingtonForRuns->isApplicable()) {
+            $eddingtonInstances['Runs'] = [
+                'chart' => Json::encode(
+                    EddingtonChartBuilder::fromEddington(
+                        eddington: $eddingtonForRuns,
+                        unitSystem: $this->unitSystem,
+                    )->build(),
+                ),
+                'eddington' => $eddingtonForRuns,
+            ];
+        }
+
         $this->filesystem->write(
             'build/html/eddington.html',
             $this->twig->load('html/eddington.html.twig')->render([
-                'eddingtonInstances' => [
-                    'Rides' => [
-                        'chart' => Json::encode(
-                            EddingtonChartBuilder::fromEddington(
-                                eddington: $eddingtonForBikeRides,
-                                unitSystem: $this->unitSystem,
-                            )->build(),
-                        ),
-                        'eddington' => $eddingtonForBikeRides,
-                    ],
-                    'Runs' => [
-                        'chart' => Json::encode(
-                            EddingtonChartBuilder::fromEddington(
-                                eddington: $eddingtonForRuns,
-                                unitSystem: $this->unitSystem,
-                            )->build(),
-                        ),
-                        'eddington' => $eddingtonForRuns,
-                    ],
-                ],
+                'eddingtonInstances' => $eddingtonInstances,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );

@@ -11,6 +11,7 @@ final class Eddington
     private const string DATE_FORMAT = 'Y-m-d';
     /** @var array<string, int|float> */
     private array $distancesPerDay = [];
+    private ?int $eddingtonNumber = null;
 
     private function __construct(
         private readonly Activities $activities,
@@ -64,8 +65,17 @@ final class Eddington
         return $data;
     }
 
+    public function isApplicable(): bool
+    {
+        return !$this->activities->isEmpty();
+    }
+
     public function getNumber(): int
     {
+        if (!is_null($this->eddingtonNumber)) {
+            return $this->eddingtonNumber;
+        }
+
         $number = 1;
         for ($distance = 1; $distance <= $this->getLongestDistanceInADay(); ++$distance) {
             $timesCompleted = count(array_filter($this->getDistancesPerDay(), fn (float $distanceForDay) => $distanceForDay >= $distance));
@@ -75,7 +85,9 @@ final class Eddington
             $number = $distance;
         }
 
-        return $number;
+        $this->eddingtonNumber = $number;
+
+        return $this->eddingtonNumber;
     }
 
     /**
