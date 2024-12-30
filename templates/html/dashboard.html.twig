@@ -40,11 +40,6 @@
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 <div class="flex items-center justify-center">
-                                    {{ renderSvg('power') }}
-                                </div>
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                <div class="flex items-center justify-center">
                                     {{ renderSvg('speed') }}
                                 </div>
                             </th>
@@ -58,6 +53,11 @@
                                     {{ renderSvg('calories') }}
                                 </div>
                             </th>
+                            <th scope="col" class="px-6 py-3">
+                                <div class="flex items-center justify-center">
+                                    {{ renderSvg('power') }}
+                                </div>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -69,26 +69,26 @@
                                 <td class="px-2 py-2 truncate sticky left-0 {{ cycle(['bg-white dark:bg-gray-900', 'bg-gray-50 dark:bg-gray-800'], loop.index0) }}">
                                     {{ renderComponent('activity-title', {'activity': activity, 'ellipses': 30}) }}
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getLongestDistance() == activity.getDistance().toFloat() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     {{ renderComponent('measurement', {'measurement': activity.getDistance(), 'precision': 0}) }}
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getHighestElevation() == activity.getElevation().toFloat() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     <div class="w-[4rem]">{{ renderComponent('measurement', {'measurement': activity.getElevation(), 'precision': 0}) }}</div>
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getLongestMovingTimeFormatted() == activity.getMovingTimeFormatted() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     {{ activity.getMovingTimeFormatted() }}
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getHighestAveragePower() == activity.getAveragePower() ? 'text-strava-orange font-bold': '' }}">
-                                    {{ activity.getAveragePower() ? activity.getAveragePower() ~ '<span class="text-xs">w</span>': 'n/a' }}
-                                </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getFastestAverageSpeed() == activity.getAverageSpeed().toFloat() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     {{ renderComponent('measurement', {'measurement': activity.getAverageSpeed(), 'precision': 1}) }}
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getHighestAverageHeartRate() == activity.getAverageHeartRate() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     {{ activity.getAverageHeartRate() ?? 'n/a' }}
                                 </td>
-                                <td class="px-6 py-2 {{ activityHighlights.getCalories() == activity.getCalories() ? 'text-strava-orange font-bold': '' }}">
+                                <td class="px-6 py-2">
                                     {{ activity.getCalories() }}<span class="text-xs">kcal</span>
+                                </td>
+                                <td class="px-6 py-2">
+                                    {{ activity.getAveragePower() ? activity.getAveragePower() ~ '<span class="text-xs">w</span>': 'n/a' }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -99,9 +99,9 @@
             <!-- INTRO -->
             <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <p class="mb-3">
-                    Since I began cycling
+                    Since I began working out
                     <kbd class="px-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">{{ intro.getTotalDaysSinceFirstActivity() }}</kbd>
-                    ago on <span class="text-sm">{{ intro.getStartDate().format('d-m-Y') }}</span>, I had <kbd class="px-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">{{ intro.getTotalDaysOfCycling() }} cycling days</kbd>.
+                    ago on <span class="text-sm">{{ intro.getStartDate().format('d-m-Y') }}</span>, I had <kbd class="px-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">{{ intro.getTotalDaysOfWorkingOut() }} active days</kbd> of working out.
                 </p>
                 <p class="mb-3">
                     {% set convertedIntroDistance = intro.getDistance()|convertMeasurement %}
@@ -130,13 +130,32 @@
             <h3 class="mb-4 text-lg font-semibold">
                 Weekly distances
             </h3>
-            <div class="h-80" data-echarts-options='{{ weeklyDistanceChart }}'></div>
+            {% if weeklyDistanceCharts|length > 1 %}
+                <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="weeklyDistancesActivityTypeTab" data-tabs-toggle="#weeklyDistancesActivityTypeTabContent" role="tablist">
+                        {% for sportType,chart in weeklyDistanceCharts %}
+                            <li class="mr-2" role="presentation">
+                                <a href="#dashboard" data-tabs-target="#{{ sportType }}" role="tab" aria-controls="{{ sportType }}" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 aria-selected:text-strava-orange aria-selected:border-strava-orange group">
+                                    {{ sportType }}s
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div id="weeklyDistancesActivityTypeTabContent">
+                {% for sportType,chart in weeklyDistanceCharts %}
+                    <div id="{{ sportType }}" role="tabpanel" aria-labelledby="{{ sportType }}-tab">
+                        <div class="h-80" data-echarts-options='{{ chart }}'></div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <!-- BEST POWER OUTPUTS -->
+            <!-- PEAK POWER OUTPUTS -->
             <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <h3 class="flex items-center gap-x-1 mb-4 text-lg font-semibold">
-                    <span>Best power outputs over time</span>
+                    <span>Peak power outputs</span>
                     <a href="#" data-model-content-url="power-output.html" class="{{ classes|join(' ') }}" rel="nofollow">
                         <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v15a1 1 0 0 0 1 1h15M8 16l2.5-5.5 3 3L17.273 7 20 9.667"/>
@@ -247,7 +266,7 @@
 
                             </th>
                             <th scope="col" class="px-6 py-3">
-                                # rides
+                                # workouts
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 <div class="flex items-center justify-center">
@@ -264,11 +283,6 @@
                                     {{ renderSvg('time') }}
                                 </div>
                             </th>
-                            <th scope="col" class="px-6 py-3">
-                                <div class="flex items-center justify-center">
-                                    {{ renderSvg('speed') }}
-                                </div>
-                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -278,7 +292,7 @@
                                     {{ weekday }}
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}
@@ -293,9 +307,6 @@
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {{ statistic.movingTimeForHumans }}
-                                </td>
-                                <td class="px-6 py-2 truncate">
-                                    {{ renderComponent('measurement', {'measurement': statistic.averageSpeed, 'precision': 1}) }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -317,7 +328,7 @@
 
                             </th>
                             <th scope="col" class="px-6 py-3">
-                                # rides
+                                # workouts
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 <div class="flex items-center justify-center">
@@ -334,11 +345,6 @@
                                     {{ renderSvg('time') }}
                                 </div>
                             </th>
-                            <th scope="col" class="px-6 py-3">
-                                <div class="flex items-center justify-center">
-                                    {{ renderSvg('speed') }}
-                                </div>
-                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -349,7 +355,7 @@
                                     <div class="font-normal text-xs">{{ statistic.daytime.getHours()[0] }}h - {{ statistic.daytime.getHours()[1] }}h</div>
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}
@@ -365,9 +371,6 @@
                                 <td class="px-6 py-2 truncate">
                                     {{ statistic.movingTimeForHumans }}
                                 </td>
-                                <td class="px-6 py-2 truncate">
-                                    {{ renderComponent('measurement', {'measurement': statistic.averageSpeed, 'precision': 1}) }}
-                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -377,7 +380,7 @@
             <!-- DISTANCE BREAKDOWN -->
             <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <h3 class="mb-4 text-lg font-semibold">
-                    Distance breakdown
+                    Ride distance breakdown
                 </h3>
                 <div class="relative overflow-x-auto">
                     <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
@@ -418,7 +421,7 @@
                                     <div>{{ statistic.label }}</div>
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ statistic.numberOfRides }}
+                                    {{ statistic.numberOfWorkouts }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {% if statistic.totalDistance.toFloat() > 0 %}
@@ -452,7 +455,7 @@
                     <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
                         <div class="text-center">
                             {% set firstActivity = trivia.getFirstActivity() %}
-                            <dd class="text-sm text-gray-500 dark:text-gray-400">First ride</dd>
+                            <dd class="text-sm text-gray-500 dark:text-gray-400">First workout</dd>
                             <dt class="mb-1 font-extrabold">{{ firstActivity.getStartDate().format('d-m-Y') }}</dt>
                             <span class="text-xs">
                                 {{ renderComponent('activity-title', {'activity': firstActivity, 'ellipses': 30, 'hideIcon': true}) }}
@@ -479,16 +482,18 @@
                             </span>
                         </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
-                        {% set longestActivity = trivia.getLongestActivity() %}
-                        <div class="text-center">
-                            <dd class="text-sm text-gray-500 dark:text-gray-400">Longest ride</dd>
-                            <dt class="mb-1 font-extrabold">{{ renderComponent('measurement', {'measurement': longestActivity.getDistance(), 'precision': 0}) }}</dt>
-                            <span class="text-xs">
+                    {% set longestActivity = trivia.getLongestRide() %}
+                    {% if longestActivity %}
+                        <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
+                            <div class="text-center">
+                                <dd class="text-sm text-gray-500 dark:text-gray-400">Longest ride</dd>
+                                <dt class="mb-1 font-extrabold">{{ renderComponent('measurement', {'measurement': longestActivity.getDistance(), 'precision': 0}) }}</dt>
+                                <span class="text-xs">
                                 {{ renderComponent('activity-title', {'activity': longestActivity, 'ellipses': 30, 'hideIcon': true}) }}
                             </span>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                     <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
                         {% set highestElevationActivity = trivia.getActivityWithHighestElevation() %}
                         <div class="text-center">
@@ -499,16 +504,19 @@
                             </span>
                         </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
-                        <div class="text-center">
-                            {% set fastestActivity = trivia.getFastestActivity() %}
-                            <dd class="text-sm text-gray-500 dark:text-gray-400">Fastest ride</dd>
-                            <dt class="mb-1 font-extrabold">{{ renderComponent('measurement', {'measurement': fastestActivity.getAverageSpeed(), 'precision': 1}) }}</dt>
-                            <span class="text-xs">
+                    {% set fastestActivity = trivia.getFastestRide() %}
+                    {% if fastestActivity %}
+                        <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
+                            <div class="text-center">
+
+                                <dd class="text-sm text-gray-500 dark:text-gray-400">Fastest ride</dd>
+                                <dt class="mb-1 font-extrabold">{{ renderComponent('measurement', {'measurement': fastestActivity.getAverageSpeed(), 'precision': 1}) }}</dt>
+                                <span class="text-xs">
                                 {{ renderComponent('activity-title', {'activity': fastestActivity, 'ellipses': 30, 'hideIcon': true}) }}
                             </span>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                     <div class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg shadow dark:border-gray-700">
                         <div class="text-center">
                             {% set mostKudosActivity = trivia.getMostKudotedActivity() %}
@@ -673,7 +681,7 @@
                     <h3 class="mb-4 text-lg font-semibold">
                         FTP history
                     </h3>
-                    <div class="h-64" data-echarts-options='{{ ftpHistoryChart }}'></div>
+                    <div class="h-full min-h-64" data-echarts-options='{{ ftpHistoryChart }}'></div>
                 </div>
             {% endif %}
         </div>

@@ -6,11 +6,11 @@ namespace App\Domain\Strava\Ftp;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final class FtpHistoryChartBuilder
+final readonly class FtpHistoryChartBuilder
 {
     private function __construct(
-        private readonly Ftps $ftps,
-        private readonly SerializableDateTime $now,
+        private Ftps $ftps,
+        private SerializableDateTime $now,
     ) {
     }
 
@@ -77,6 +77,7 @@ final class FtpHistoryChartBuilder
                     'axisLabel' => [
                         'formatter' => '{value} w',
                     ],
+                    'min' => $this->ftps->min(fn (Ftp $ftp) => $ftp->getFtp()->getValue()) - 10,
                 ],
                 [
                     'type' => 'value',
@@ -86,6 +87,7 @@ final class FtpHistoryChartBuilder
                     'axisLabel' => [
                         'formatter' => '{value} w/kg',
                     ],
+                    'min' => $this->ftps->min(fn (Ftp $ftp) => $ftp->getRelativeFtp()) - 1,
                 ],
             ],
             'series' => [

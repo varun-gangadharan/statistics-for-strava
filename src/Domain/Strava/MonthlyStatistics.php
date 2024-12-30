@@ -49,7 +49,7 @@ final readonly class MonthlyStatistics
             $statistics[$month->getId()] = [
                 'id' => $month->getId(),
                 'month' => $month->getLabel(),
-                'numberOfRides' => 0,
+                'numberOfWorkouts' => 0,
                 'totalDistance' => 0,
                 'totalElevation' => 0,
                 'totalCalories' => 0,
@@ -66,14 +66,14 @@ final readonly class MonthlyStatistics
         foreach ($this->activities as $activity) {
             $month = $activity->getStartDate()->format(Month::MONTH_ID_FORMAT);
 
-            ++$statistics[$month]['numberOfRides'];
+            ++$statistics[$month]['numberOfWorkouts'];
             $statistics[$month]['totalDistance'] += $activity->getDistance()->toFloat();
             $statistics[$month]['totalElevation'] += $activity->getElevation()->toFloat();
             $statistics[$month]['movingTimeInSeconds'] += $activity->getMovingTimeInSeconds();
             $statistics[$month]['totalCalories'] += $activity->getCalories();
         }
 
-        $statistics = array_filter($statistics, fn (array $statistic) => $statistic['numberOfRides'] > 0);
+        $statistics = array_filter($statistics, fn (array $statistic) => $statistic['numberOfWorkouts'] > 0);
 
         foreach ($statistics as &$statistic) {
             $statistic['movingTime'] = CarbonInterval::seconds($statistic['movingTimeInSeconds'])->cascade()->forHumans(['short' => true, 'minimumUnit' => 'minute']);
@@ -111,21 +111,9 @@ final readonly class MonthlyStatistics
     /**
      * @return array<mixed>
      */
-    public function getTotalsForOutsideBikeRides(): array
+    public function getTotalsForActivityType(ActivityType $activityType): array
     {
-        $outsideBikeRides = $this->activities->filterOnActivityType(ActivityType::RIDE);
-
-        return $this->getTotalsForActivities($outsideBikeRides);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getTotalsForZwift(): array
-    {
-        $virtualRides = $this->activities->filterOnActivityType(ActivityType::VIRTUAL_RIDE);
-
-        return $this->getTotalsForActivities($virtualRides);
+        return $this->getTotalsForActivities($this->activities->filterOnActivityType($activityType));
     }
 
     /**
@@ -134,7 +122,7 @@ final readonly class MonthlyStatistics
     private function getTotalsForActivities(Activities $activities): array
     {
         return [
-            'numberOfRides' => count($activities),
+            'numberOfWorkouts' => count($activities),
             'totalDistance' => Kilometer::from($activities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat())),
             'totalElevation' => Meter::from($activities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat())),
             'totalCalories' => $activities->sum(fn (Activity $activity) => $activity->getCalories()),

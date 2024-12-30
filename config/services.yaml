@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(UnitSystem): 'metric'
+    env(ACTIVITY_TYPES_TO_IMPORT): '["Ride", "VirtualRide"]'
 
 services:
     # default configuration for services in *this* file
@@ -56,32 +58,32 @@ services:
 
     App\Domain\Strava\StravaClientId:
         factory: [ App\Domain\Strava\StravaClientId, 'fromString' ]
-        arguments: ['%env(resolve:STRAVA_CLIENT_ID)%']
+        arguments: ['%env(string:STRAVA_CLIENT_ID)%']
 
     App\Domain\Strava\StravaClientSecret:
         factory: [ App\Domain\Strava\StravaClientSecret, 'fromString' ]
-        arguments: ['%env(resolve:STRAVA_CLIENT_SECRET)%']
+        arguments: ['%env(string:STRAVA_CLIENT_SECRET)%']
 
     App\Domain\Strava\StravaRefreshToken:
         factory: [ App\Domain\Strava\StravaRefreshToken, 'fromString' ]
-        arguments: ['%env(resolve:STRAVA_REFRESH_TOKEN)%']
-
-    App\Domain\Strava\Athlete\AthleteId:
-        factory: [ App\Domain\Strava\Athlete\AthleteId, 'fromString' ]
-        arguments: ['%env(resolve:ATHLETE_ID)%']
+        arguments: ['%env(string:STRAVA_REFRESH_TOKEN)%']
 
     App\Domain\Strava\Athlete\AthleteBirthday:
         factory: [ App\Domain\Strava\Athlete\AthleteBirthday, 'fromString' ]
-        arguments: ['%env(resolve:ATHLETE_BIRTHDAY)%']
+        arguments: ['%env(string:ATHLETE_BIRTHDAY)%']
+
+    App\Domain\Strava\Activity\ActivityTypesToImport:
+        factory: [ 'App\Domain\Strava\Activity\ActivityTypesToImport', from ]
+        arguments: [ '%env(json:ACTIVITY_TYPES_TO_IMPORT)%' ]
 
     App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightsFromEnvFile:
         factory: [ 'App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightsFromEnvFile', fromString ]
-        arguments: [ '%env(resolve:ATHLETE_WEIGHTS)%',  '@App\Domain\Measurement\UnitSystem']
+        arguments: [ '%env(string:ATHLETE_WEIGHTS)%',  '@App\Domain\Measurement\UnitSystem']
 
     App\Domain\Strava\Ftp\ImportFtp\FtpValuesFromEnvFile:
         factory: [ 'App\Domain\Strava\Ftp\ImportFtp\FtpValuesFromEnvFile', fromString ]
-        arguments: [ '%env(resolve:FTP_VALUES)%' ]
+        arguments: [ '%env(string:FTP_VALUES)%' ]
 
     App\Domain\Measurement\UnitSystem:
         factory: [ 'App\Domain\Measurement\UnitSystem', from ]
-        arguments: [ '%env(resolve:UNIT_SYSTEM)%' ]
+        arguments: [ '%env(string:UNIT_SYSTEM)%' ]

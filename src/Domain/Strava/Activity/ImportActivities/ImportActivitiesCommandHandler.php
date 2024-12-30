@@ -8,6 +8,7 @@ use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityType;
+use App\Domain\Strava\Activity\ActivityTypesToImport;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\MaxStravaUsageHasBeenReached;
 use App\Domain\Strava\Strava;
@@ -39,6 +40,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private ActivityRepository $activityRepository,
         private KeyValueStore $keyValueStore,
         private FilesystemOperator $filesystem,
+        private ActivityTypesToImport $activityTypesToImport,
         private MaxStravaUsageHasBeenReached $maxStravaUsageHasBeenReached,
         private StravaDataImportStatus $stravaDataImportStatus,
         private UuidFactory $uuidFactory,
@@ -68,6 +70,10 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             if (!$activityType = ActivityType::tryFrom($stravaActivity['type'])) {
                 continue;
             }
+            if (!$this->activityTypesToImport->has($activityType)) {
+                continue;
+            }
+
             $activityId = ActivityId::fromUnprefixed((string) $stravaActivity['id']);
             try {
                 $activity = $this->activityRepository->find($activityId);
@@ -102,6 +108,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     $activity = Activity::create(
                         activityId: $activityId,
                         startDateTime: $startDate,
+                        activityType: $activityType,
                         data: $this->strava->getActivity($activityId),
                         gearId: GearId::fromOptionalUnprefixed($stravaActivity['gear_id'] ?? null)
                     );

@@ -172,6 +172,14 @@ abstract class Collection implements \Countable, \IteratorAggregate, \JsonSerial
         return max($numbers);
     }
 
+    public function min(\Closure $closure): mixed
+    {
+        /** @var non-empty-array<float|int> $numbers */
+        $numbers = $this->map(fn ($item): int|float => $closure($item));
+
+        return min($numbers);
+    }
+
     public function filter(?\Closure $closure = null): static
     {
         if (is_null($closure)) {

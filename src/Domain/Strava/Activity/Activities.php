@@ -6,6 +6,7 @@ namespace App\Domain\Strava\Activity;
 
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Week;
+use App\Domain\Strava\SportType;
 use App\Infrastructure\ValueObject\Collection;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;
@@ -61,6 +62,11 @@ final class Activities extends Collection
     public function filterOnActivityType(ActivityType $activityType): Activities
     {
         return $this->filter(fn (Activity $activity) => $activityType === $activity->getType());
+    }
+
+    public function filterOnSportType(SportType $sportType): Activities
+    {
+        return $this->filter(fn (Activity $activity) => $sportType === $activity->getType()->getSportType());
     }
 
     public function getByActivityId(ActivityId $activityId): Activity

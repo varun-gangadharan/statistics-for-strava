@@ -10,7 +10,8 @@ final class Eddington
 {
     private const string DATE_FORMAT = 'Y-m-d';
     /** @var array<string, int|float> */
-    private static array $distancesPerDay = [];
+    private array $distancesPerDay = [];
+    private ?int $eddingtonNumber = null;
 
     private function __construct(
         private readonly Activities $activities,
@@ -23,22 +24,22 @@ final class Eddington
      */
     private function getDistancesPerDay(): array
     {
-        if (!empty(Eddington::$distancesPerDay)) {
-            return Eddington::$distancesPerDay;
+        if (!empty($this->distancesPerDay)) {
+            return $this->distancesPerDay;
         }
 
-        Eddington::$distancesPerDay = [];
+        $this->distancesPerDay = [];
         foreach ($this->activities as $activity) {
             $day = $activity->getStartDate()->format(self::DATE_FORMAT);
-            if (!array_key_exists($day, Eddington::$distancesPerDay)) {
-                Eddington::$distancesPerDay[$day] = 0;
+            if (!array_key_exists($day, $this->distancesPerDay)) {
+                $this->distancesPerDay[$day] = 0;
             }
 
             $distance = $activity->getDistance()->toUnitSystem($this->unitSystem);
-            Eddington::$distancesPerDay[$day] += $distance->toFloat();
+            $this->distancesPerDay[$day] += $distance->toFloat();
         }
 
-        return Eddington::$distancesPerDay;
+        return $this->distancesPerDay;
     }
 
     public function getLongestDistanceInADay(): int
@@ -66,6 +67,10 @@ final class Eddington
 
     public function getNumber(): int
     {
+        if (!is_null($this->eddingtonNumber)) {
+            return $this->eddingtonNumber;
+        }
+
         $number = 1;
         for ($distance = 1; $distance <= $this->getLongestDistanceInADay(); ++$distance) {
             $timesCompleted = count(array_filter($this->getDistancesPerDay(), fn (float $distanceForDay) => $distanceForDay >= $distance));
@@ -75,13 +80,15 @@ final class Eddington
             $number = $distance;
         }
 
-        return $number;
+        $this->eddingtonNumber = $number;
+
+        return $this->eddingtonNumber;
     }
 
     /**
      * @return array<int, int>
      */
-    public function getRidesToCompleteForFutureNumbers(): array
+    public function getDaysToCompleteForFutureNumbers(): array
     {
         $futureNumbers = [];
         $eddingtonNumber = $this->getNumber();

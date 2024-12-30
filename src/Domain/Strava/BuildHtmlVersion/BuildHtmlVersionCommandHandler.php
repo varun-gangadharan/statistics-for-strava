@@ -6,16 +6,15 @@ use App\Domain\GitHub\GitHub;
 use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\UnitSystem;
 use App\Domain\Strava\Activity\ActivityHeatmapChartBuilder;
-use App\Domain\Strava\Activity\ActivityHighlights;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStats;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
+use App\Domain\Strava\Activity\DistanceBreakdown;
 use App\Domain\Strava\Activity\Eddington\Eddington;
 use App\Domain\Strava\Activity\Eddington\EddingtonChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
-use App\Domain\Strava\Activity\Image\Image;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
@@ -36,9 +35,8 @@ use App\Domain\Strava\Athlete\Weight\AthleteWeightRepository;
 use App\Domain\Strava\Calendar\Calendar;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Months;
-use App\Domain\Strava\Challenge\ChallengeConsistency;
 use App\Domain\Strava\Challenge\ChallengeRepository;
-use App\Domain\Strava\DistanceBreakdown;
+use App\Domain\Strava\Challenge\Consistency\ChallengeConsistency;
 use App\Domain\Strava\Ftp\FtpHistoryChartBuilder;
 use App\Domain\Strava\Ftp\FtpRepository;
 use App\Domain\Strava\Gear\DistanceOverTimePerGearChartBuilder;
@@ -49,6 +47,7 @@ use App\Domain\Strava\MonthlyStatistics;
 use App\Domain\Strava\Segment\Segment;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Domain\Strava\Segment\SegmentRepository;
+use App\Domain\Strava\SportType;
 use App\Domain\Strava\Trivia;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
@@ -64,6 +63,8 @@ use Twig\Environment;
 
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
+    private const string APP_VERSION = 'v0.2.0';
+
     public function __construct(
         private ActivityRepository $activityRepository,
         private ChallengeRepository $challengeRepository,
@@ -94,20 +95,30 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID);
         $allActivities = $this->activityRepository->findAll();
+        $activitiesPerSportType = [];
+        foreach (SportType::cases() as $sportType) {
+            $activitiesPerSportType[$sportType->value] = $allActivities->filterOnSportType($sportType);
+        }
         $allChallenges = $this->challengeRepository->findAll();
-        $allBikes = $this->gearRepository->findAll();
+        $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
         $allFtps = $this->ftpRepository->findAll();
         $allSegments = $this->segmentRepository->findAll();
 
         $command->getOutput()->writeln('  => Calculating Eddington');
-        $eddington = Eddington::fromActivities(
-            activities: $allActivities,
-            unitSystem: $this->unitSystem
-        );
-
-        $command->getOutput()->writeln('  => Calculating activity highlights');
-        $activityHighlights = ActivityHighlights::fromActivities($allActivities);
+        $eddingtonPerSportType = [];
+        foreach (SportType::cases() as $sportType) {
+            if (!$sportType->supportsEddington()) {
+                continue;
+            }
+            if (empty($activitiesPerSportType[$sportType->value])) {
+                continue;
+            }
+            $eddingtonPerSportType[$sportType->value] = Eddington::fromActivities(
+                activities: $activitiesPerSportType[$sportType->value],
+                unitSystem: $this->unitSystem
+            );
+        }
 
         $command->getOutput()->writeln('  => Calculating weekday stats');
         $weekdayStats = WeekdayStats::fromActivities($allActivities);
@@ -179,33 +190,43 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/index.html',
             $this->twig->load('html/index.html.twig')->render([
                 'totalActivityCount' => count($allActivities),
-                'eddingtonNumber' => $eddington->getNumber(),
+                'eddingtons' => $eddingtonPerSportType,
                 'completedChallenges' => count($allChallenges),
                 'totalPhotoCount' => count($allImages),
                 'lastUpdate' => $now,
                 'athleteId' => $athleteId,
-                'currentAppVersion' => 'v0.1.14',
+                'currentAppVersion' => self::APP_VERSION,
                 'latestAppVersion' => $this->gitHub->getRepoLatestRelease('robiningelbrecht/strava-statistics'),
             ]),
         );
 
         $command->getOutput()->writeln('  => Building dashboard.html');
+
+        $weeklyDistanceCharts = [];
+
+        foreach (SportType::cases() as $sportType) {
+            $activities = $allActivities->filterOnSportType($sportType);
+            if ($activities->isEmpty()) {
+                continue;
+            }
+            $weeklyDistanceCharts[$sportType->value] = Json::encode(
+                WeeklyDistanceChartBuilder::fromActivities(
+                    activities: $activities,
+                    unitSystem: $this->unitSystem,
+                    now: $now,
+                )->build()
+            );
+        }
+
         $this->filesystem->write(
             'build/html/dashboard.html',
             $this->twig->load('html/dashboard.html.twig')->render([
                 'mostRecentActivities' => $allActivities->slice(0, 5),
-                'activityHighlights' => $activityHighlights,
                 'intro' => ActivityTotals::fromActivities(
                     activities: $allActivities,
                     now: $now,
                 ),
-                'weeklyDistanceChart' => Json::encode(
-                    WeeklyDistanceChartBuilder::fromActivities(
-                        activities: $allActivities,
-                        unitSystem: $this->unitSystem,
-                        now: $now,
-                    )->build(),
-                ),
+                'weeklyDistanceCharts' => $weeklyDistanceCharts,
                 'powerOutputs' => $bestPowerOutputs,
                 'activityHeatmapChart' => Json::encode(
                     ActivityHeatmapChartBuilder::fromActivities(
@@ -221,7 +242,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     DaytimeStatsChartsBuilder::fromDaytimeStats($dayTimeStats)->build(),
                 ),
                 'daytimeStats' => $dayTimeStats,
-                'distanceBreakdown' => DistanceBreakdown::fromActivities($allActivities),
+                'distanceBreakdown' => DistanceBreakdown::fromActivities($activitiesPerSportType[SportType::RIDE->value]),
                 'trivia' => Trivia::fromActivities($allActivities),
                 'ftpHistoryChart' => !$allFtps->isEmpty() ? Json::encode(
                     FtpHistoryChartBuilder::fromFtps(
@@ -240,7 +261,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 ),
                 'challengeConsistency' => ChallengeConsistency::create(
                     months: $allMonths,
-                    monthlyStatistics: $monthlyStatistics,
                     activities: $allActivities
                 ),
                 'yearlyDistanceChart' => Json::encode(
@@ -280,8 +300,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/photos.html',
             $this->twig->load('html/photos.html.twig')->render([
-                'rideImagesCount' => count(array_filter($allImages, fn (Image $image) => ActivityType::RIDE === $image->getActivity()->getType())),
-                'virtualRideImagesCount' => count(array_filter($allImages, fn (Image $image) => ActivityType::VIRTUAL_RIDE === $image->getActivity()->getType())),
                 'images' => $allImages,
             ]),
         );
@@ -299,16 +317,22 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         );
 
         $command->getOutput()->writeln('  => Building eddington.html');
+
+        $eddingtonChartsPerSportType = [];
+        foreach ($eddingtonPerSportType as $sportType => $eddington) {
+            $eddingtonChartsPerSportType[$sportType] = Json::encode(
+                EddingtonChartBuilder::fromEddington(
+                    eddington: $eddington,
+                    unitSystem: $this->unitSystem,
+                )->build()
+            );
+        }
+
         $this->filesystem->write(
             'build/html/eddington.html',
             $this->twig->load('html/eddington.html.twig')->render([
-                'eddingtonChart' => Json::encode(
-                    EddingtonChartBuilder::fromEddington(
-                        eddington: $eddington,
-                        unitSystem: $this->unitSystem,
-                    )->build(),
-                ),
-                'eddington' => $eddington,
+                'eddingtons' => $eddingtonPerSportType,
+                'eddingtonCharts' => $eddingtonChartsPerSportType,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );
@@ -389,21 +413,21 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/gear-stats.html',
             $this->twig->load('html/gear-stats.html.twig')->render([
-                'bikeStatistics' => GearStatistics::fromActivitiesAndGear(
+                'gearStatistics' => GearStatistics::fromActivitiesAndGear(
                     activities: $allActivities,
-                    bikes: $allBikes
+                    bikes: $allGear
                 ),
                 'distancePerMonthPerGearChart' => Json::encode(
                     DistancePerMonthPerGearChartBuilder::fromGearAndActivities(
-                        gearCollection: $allBikes,
+                        gearCollection: $allGear,
                         activityCollection: $allActivities,
                         unitSystem: $this->unitSystem,
                         months: $allMonths,
                     )->build()
                 ),
-                'distanceOverTimePerBike' => Json::encode(
+                'distanceOverTimePerGear' => Json::encode(
                     DistanceOverTimePerGearChartBuilder::fromGearAndActivities(
-                        gearCollection: $allBikes,
+                        gearCollection: $allGear,
                         activityCollection: $allActivities,
                         unitSystem: $this->unitSystem,
                         now: $now,
@@ -479,7 +503,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 markup: $this->twig->load('html/data-table/activity-data-table-row.html.twig')->render([
                     'timeIntervals' => ActivityPowerRepository::TIME_INTERVAL_IN_SECONDS,
                     'activity' => $activity,
-                    'activityHighlights' => $activityHighlights,
                 ]),
                 searchables: $activity->getSearchables(),
                 // @phpstan-ignore-next-line
