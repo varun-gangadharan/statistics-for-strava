@@ -196,6 +196,27 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         );
 
         $command->getOutput()->writeln('  => Building dashboard.html');
+
+        $weeklyDistanceCharts = [];
+        if (!$allBikeActivities->isEmpty()) {
+            $weeklyDistanceCharts['Rides'] = Json::encode(
+                WeeklyDistanceChartBuilder::fromActivities(
+                    activities: $allBikeActivities,
+                    unitSystem: $this->unitSystem,
+                    now: $now,
+                )->build()
+            );
+        }
+        if (!$allRunActivities->isEmpty()) {
+            $weeklyDistanceCharts['Runs'] = Json::encode(
+                WeeklyDistanceChartBuilder::fromActivities(
+                    activities: $allRunActivities,
+                    unitSystem: $this->unitSystem,
+                    now: $now,
+                )->build()
+            );
+        }
+
         $this->filesystem->write(
             'build/html/dashboard.html',
             $this->twig->load('html/dashboard.html.twig')->render([
@@ -204,13 +225,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     activities: $allActivities,
                     now: $now,
                 ),
-                'weeklyDistanceChart' => Json::encode(
-                    WeeklyDistanceChartBuilder::fromActivities(
-                        activities: $allBikeActivities,
-                        unitSystem: $this->unitSystem,
-                        now: $now,
-                    )->build(),
-                ),
+                'weeklyDistanceCharts' => $weeklyDistanceCharts,
                 'powerOutputs' => $bestPowerOutputs,
                 'activityHeatmapChart' => Json::encode(
                     ActivityHeatmapChartBuilder::fromActivities(
