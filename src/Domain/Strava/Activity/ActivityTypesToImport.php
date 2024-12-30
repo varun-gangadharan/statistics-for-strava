@@ -18,6 +18,10 @@ final class ActivityTypesToImport extends Collection
      */
     public static function from(array $types): self
     {
+        if (0 === count($types)) {
+            throw new \InvalidArgumentException('Ypu must import at least one type');
+        }
+
         return self::fromArray(array_map(
             fn ($type) => ActivityType::from($type),
             $types

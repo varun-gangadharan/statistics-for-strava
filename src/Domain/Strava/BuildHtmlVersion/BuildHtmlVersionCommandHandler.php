@@ -304,13 +304,26 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/eddington.html',
             $this->twig->load('html/eddington.html.twig')->render([
-                'eddingtonChart' => Json::encode(
-                    EddingtonChartBuilder::fromEddington(
-                        eddington: $eddingtonForBikeRides,
-                        unitSystem: $this->unitSystem,
-                    )->build(),
-                ),
-                'eddington' => $eddingtonForBikeRides,
+                'eddingtonInstances' => [
+                    'Rides' => [
+                        'chart' => Json::encode(
+                            EddingtonChartBuilder::fromEddington(
+                                eddington: $eddingtonForBikeRides,
+                                unitSystem: $this->unitSystem,
+                            )->build(),
+                        ),
+                        'eddington' => $eddingtonForBikeRides,
+                    ],
+                    'Runs' => [
+                        'chart' => Json::encode(
+                            EddingtonChartBuilder::fromEddington(
+                                eddington: $eddingtonForRuns,
+                                unitSystem: $this->unitSystem,
+                            )->build(),
+                        ),
+                        'eddington' => $eddingtonForRuns,
+                    ],
+                ],
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );

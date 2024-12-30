@@ -81,7 +81,7 @@ final class Eddington
     /**
      * @return array<int, int>
      */
-    public function getRidesToCompleteForFutureNumbers(): array
+    public function getDaysToCompleteForFutureNumbers(): array
     {
         $futureNumbers = [];
         $eddingtonNumber = $this->getNumber();

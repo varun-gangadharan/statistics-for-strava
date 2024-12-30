@@ -20,55 +20,75 @@
                 </blockquote>
             </div>
             <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-                <!-- EDDINGTON CHART -->
-                <div class="h-64" data-echarts-options='{{ eddingtonChart }}'></div>
-                <!-- DAYS NEEDED -->
-                <h3 class="font-bold mt-6 mb-2">Days needed</h3>
-                <div class="relative overflow-x-auto">
-                    <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            {% for eddingtonNumber,daysNeeded in eddington.getRidesToCompleteForFutureNumbers() %}
-                                <th scope="col" class="px-6 py-3">
-                                    {{ eddingtonNumber }}<span class="text-xs">{{ distanceUnit }}</span>
-                                </th>
+                {% if eddingtonInstances|length > 1 %}
+                    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="activityTypeTab" data-tabs-toggle="#activityTypeTabContent" role="tablist">
+                            {% for label,eddingtonInstance in eddingtonInstances %}
+                                <li class="mr-2" role="presentation">
+                                    <a href="#eddington" data-tabs-target="#{{ label }}" role="tab" aria-controls="{{ label }}" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 aria-selected:text-strava-orange aria-selected:border-strava-orange group">
+                                        {{ label }} ({{ eddingtonInstance.eddington.getNumber() }})
+                                    </a>
+                                </li>
                             {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            {% for eddingtonNumber,daysNeeded in eddington.getRidesToCompleteForFutureNumbers() %}
-                                <td class="px-6 py-2">
-                                    {{ daysNeeded }}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- HISTORY -->
-                <h3 class="font-bold mt-6 mb-2">History</h3>
-                <div class="relative overflow-x-auto">
-                    <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
-                                <th scope="col" class="px-6 py-3">
-                                    {{ eddingtonNumber }}<span class="text-xs">{{ distanceUnit }}</span>
-                                </th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
-                                <td class="px-6 py-2 truncate">
-                                    {{ dateAchieved.format('d-m-Y') }}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
+                        </ul>
+                    </div>
+                {% endif %}
+                <div id="activityTypeTabContent">
+                    {% for label,eddingtonInstance in eddingtonInstances %}
+                        {% set eddington = eddingtonInstance.eddington  %}
+                        <div id="{{ label }}" role="tabpanel" aria-labelledby="{{ label }}-tab">
+                            <!-- EDDINGTON CHART -->
+                            <div class="h-64" data-echarts-options='{{ eddingtonInstance.chart }}'></div>
+                            <!-- DAYS NEEDED -->
+                            <h3 class="font-bold mt-6 mb-2">Days needed</h3>
+                            <div class="relative overflow-x-auto">
+                                <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        {% for eddingtonNumber,daysNeeded in eddington.getDaysToCompleteForFutureNumbers() %}
+                                            <th scope="col" class="px-6 py-3">
+                                                {{ eddingtonNumber }}<span class="text-xs">{{ distanceUnit }}</span>
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        {% for eddingtonNumber,daysNeeded in eddington.getDaysToCompleteForFutureNumbers() %}
+                                            <td class="px-6 py-2">
+                                                {{ daysNeeded }}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- HISTORY -->
+                            <h3 class="font-bold mt-6 mb-2">History</h3>
+                            <div class="relative overflow-x-auto">
+                                <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
+                                            <th scope="col" class="px-6 py-3">
+                                                {{ eddingtonNumber }}<span class="text-xs">{{ distanceUnit }}</span>
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
+                                            <td class="px-6 py-2 truncate">
+                                                {{ dateAchieved.format('d-m-Y') }}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
