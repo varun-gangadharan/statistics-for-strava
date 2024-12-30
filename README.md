@@ -88,6 +88,15 @@ FTP_VALUES='{
 }'
 ```
 
+### Permission issues
+
+You might encounter an `SQLSTATE[HY000] [14] unable to open database file` error. There's an [open issue](https://github.com/robiningelbrecht/strava-statistics/issues/57) to investigate this. In the mean time, you can run following commands manually to fix this:
+
+```bash
+> chmod -R 777 storage/database
+> chmod -R 777 storage/files
+```
+
 ### Import all challenges and trophies
 
 Strava does not allow to fetch all your completed challenges and trophies, but there's a little workaround if you'd like to import those:
