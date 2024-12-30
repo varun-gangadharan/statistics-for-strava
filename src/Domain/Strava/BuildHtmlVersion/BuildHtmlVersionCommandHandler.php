@@ -47,6 +47,7 @@ use App\Domain\Strava\MonthlyStatistics;
 use App\Domain\Strava\Segment\Segment;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Domain\Strava\Segment\SegmentRepository;
+use App\Domain\Strava\SportType;
 use App\Domain\Strava\Trivia;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
@@ -94,8 +95,10 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $athleteId = $this->keyValueStore->find(Key::ATHLETE_ID);
         $allActivities = $this->activityRepository->findAll();
-        $allBikeActivities = $allActivities->getAllBikeActivities();
-        $allRunActivities = $allActivities->filterOnActivityType(ActivityType::RUN);
+        $activitiesPerSportType = [];
+        foreach (SportType::cases() as $sportType) {
+            $activitiesPerSportType[$sportType->value] = $allActivities->filterOnSportType($sportType);
+        }
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
@@ -103,14 +106,19 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $allSegments = $this->segmentRepository->findAll();
 
         $command->getOutput()->writeln('  => Calculating Eddington');
-        $eddingtonForBikeRides = Eddington::fromActivities(
-            activities: $allBikeActivities,
-            unitSystem: $this->unitSystem
-        );
-        $eddingtonForRuns = Eddington::fromActivities(
-            activities: $allRunActivities,
-            unitSystem: $this->unitSystem
-        );
+        $eddingtonPerSportType = [];
+        foreach (SportType::cases() as $sportType) {
+            if (!$sportType->supportsEddington()) {
+                continue;
+            }
+            if (empty($activitiesPerSportType[$sportType->value])) {
+                continue;
+            }
+            $eddingtonPerSportType[$sportType->value] = Eddington::fromActivities(
+                activities: $activitiesPerSportType[$sportType->value],
+                unitSystem: $this->unitSystem
+            );
+        }
 
         $command->getOutput()->writeln('  => Calculating weekday stats');
         $weekdayStats = WeekdayStats::fromActivities($allActivities);
@@ -182,10 +190,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/index.html',
             $this->twig->load('html/index.html.twig')->render([
                 'totalActivityCount' => count($allActivities),
-                'eddingtonNumbers' => [
-                    'bikeRides' => $eddingtonForBikeRides->isApplicable() ? $eddingtonForBikeRides->getNumber() : 0,
-                    'runs' => $eddingtonForBikeRides->isApplicable() ? $eddingtonForRuns->getNumber() : 0,
-                ],
+                'eddingtons' => $eddingtonPerSportType,
                 'completedChallenges' => count($allChallenges),
                 'totalPhotoCount' => count($allImages),
                 'lastUpdate' => $now,
@@ -198,19 +203,15 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $command->getOutput()->writeln('  => Building dashboard.html');
 
         $weeklyDistanceCharts = [];
-        if (!$allBikeActivities->isEmpty()) {
-            $weeklyDistanceCharts['Rides'] = Json::encode(
+
+        foreach (SportType::cases() as $sportType) {
+            $activities = $allActivities->filterOnSportType($sportType);
+            if ($activities->isEmpty()) {
+                continue;
+            }
+            $weeklyDistanceCharts[$sportType->value] = Json::encode(
                 WeeklyDistanceChartBuilder::fromActivities(
-                    activities: $allBikeActivities,
-                    unitSystem: $this->unitSystem,
-                    now: $now,
-                )->build()
-            );
-        }
-        if (!$allRunActivities->isEmpty()) {
-            $weeklyDistanceCharts['Runs'] = Json::encode(
-                WeeklyDistanceChartBuilder::fromActivities(
-                    activities: $allRunActivities,
+                    activities: $activities,
                     unitSystem: $this->unitSystem,
                     now: $now,
                 )->build()
@@ -241,7 +242,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     DaytimeStatsChartsBuilder::fromDaytimeStats($dayTimeStats)->build(),
                 ),
                 'daytimeStats' => $dayTimeStats,
-                'distanceBreakdown' => DistanceBreakdown::fromActivities($allBikeActivities),
+                'distanceBreakdown' => DistanceBreakdown::fromActivities($activitiesPerSportType[SportType::RIDE->value]),
                 'trivia' => Trivia::fromActivities($allActivities),
                 'ftpHistoryChart' => !$allFtps->isEmpty() ? Json::encode(
                     FtpHistoryChartBuilder::fromFtps(
@@ -317,35 +318,21 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $command->getOutput()->writeln('  => Building eddington.html');
 
-        $eddingtonInstances = [];
-
-        if ($eddingtonForBikeRides->isApplicable()) {
-            $eddingtonInstances['Rides'] = [
-                'chart' => Json::encode(
-                    EddingtonChartBuilder::fromEddington(
-                        eddington: $eddingtonForBikeRides,
-                        unitSystem: $this->unitSystem,
-                    )->build(),
-                ),
-                'eddington' => $eddingtonForBikeRides,
-            ];
-        }
-        if ($eddingtonForRuns->isApplicable()) {
-            $eddingtonInstances['Runs'] = [
-                'chart' => Json::encode(
-                    EddingtonChartBuilder::fromEddington(
-                        eddington: $eddingtonForRuns,
-                        unitSystem: $this->unitSystem,
-                    )->build(),
-                ),
-                'eddington' => $eddingtonForRuns,
-            ];
+        $eddingtonChartsPerSportType = [];
+        foreach ($eddingtonPerSportType as $sportType => $eddington) {
+            $eddingtonChartsPerSportType[$sportType] = Json::encode(
+                EddingtonChartBuilder::fromEddington(
+                    eddington: $eddington,
+                    unitSystem: $this->unitSystem,
+                )->build()
+            );
         }
 
         $this->filesystem->write(
             'build/html/eddington.html',
             $this->twig->load('html/eddington.html.twig')->render([
-                'eddingtonInstances' => $eddingtonInstances,
+                'eddingtons' => $eddingtonPerSportType,
+                'eddingtonCharts' => $eddingtonChartsPerSportType,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );

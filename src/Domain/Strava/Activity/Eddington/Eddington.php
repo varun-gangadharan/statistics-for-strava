@@ -65,11 +65,6 @@ final class Eddington
         return $data;
     }
 
-    public function isApplicable(): bool
-    {
-        return !$this->activities->isEmpty();
-    }
-
     public function getNumber(): int
     {
         if (!is_null($this->eddingtonNumber)) {

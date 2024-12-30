@@ -2,6 +2,8 @@
 
 namespace App\Domain\Strava\Activity;
 
+use App\Domain\Strava\SportType;
+
 enum ActivityType: string
 {
     case RIDE = 'Ride';
@@ -25,12 +27,20 @@ enum ActivityType: string
 
     public function isRide(): bool
     {
-        return self::RIDE === $this || self::VIRTUAL_RIDE === $this;
+        return SportType::RIDE === $this->getSportType();
     }
 
     public function isRun(): bool
     {
-        return self::RUN === $this;
+        return SportType::RUN === $this->getSportType();
+    }
+
+    public function getSportType(): SportType
+    {
+        return match ($this) {
+            ActivityType::RIDE, ActivityType::VIRTUAL_RIDE => SportType::RIDE,
+            ActivityType::RUN => SportType::RUN,
+        };
     }
 
     public function getColor(): string

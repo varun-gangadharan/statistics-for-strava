@@ -81,7 +81,7 @@ final readonly class Trivia
 
     public function getLongestRide(): ?Activity
     {
-        $bikeActivities = $this->activities->getAllBikeActivities();
+        $bikeActivities = $this->activities->filterOnSportType(SportType::RIDE);
 
         if (!$longestActivity = $bikeActivities->getFirst()) {
             return null;
@@ -98,7 +98,7 @@ final readonly class Trivia
 
     public function getFastestRide(): ?Activity
     {
-        $bikeActivities = $this->activities->getAllBikeActivities();
+        $bikeActivities = $this->activities->filterOnSportType(SportType::RIDE);
 
         if (!$fastestActivity = $bikeActivities->getFirst()) {
             return null;

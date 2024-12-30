@@ -201,12 +201,9 @@
                                   d="M1 1v14h16m0-9-3-2-3 5-3-2-3 4"/>
                         </svg>
                         <span class="flex-1 ml-3 whitespace-nowrap">Eddington</span>
-                        {% if eddingtonNumbers.bikeRides > 0 %}
-                            <span class="bg-orange-200 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ eddingtonNumbers.bikeRides }}</span>
-                        {% endif %}
-                        {% if eddingtonNumbers.runs > 0 %}
-                            <span class="bg-yellow-200 text-yellow-600 text-xs font-medium ml-0.5 px-2.5 py-0.5 rounded-full">{{ eddingtonNumbers.runs }}</span>
-                        {% endif %}
+                        {% for sportType,eddington in eddingtons %}
+                            <span class="bg-orange-200 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full {{ loop.last and not loop.first ? 'ml-0.5' : '' }}">{{ eddington.getNumber() }}</span>
+                        {% endfor %}
                     </a>
                 </li>
                 <li>
