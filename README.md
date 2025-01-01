@@ -77,24 +77,17 @@ ACTIVITY_TYPES_TO_IMPORT='["Ride", "VirtualRide"]'
 # Your birthday. Needed to calculate heart rate zones.
 ATHLETE_BIRTHDAY=YYYY-MM-DD
 # History of weight (in kg or pounds, depending on UNIT_SYSTEM). Needed to calculate relative w/kg.
+# Check https://github.com/robiningelbrecht/strava-statistics/wiki/FAQ for more info.
 ATHLETE_WEIGHTS='{
     "YYYY-MM-DD": 74.6,
     "YYYY-MM-DD": 70.3
 }'
-# History of FTP. Needed to calculate activity stress level
+# History of FTP. Needed to calculate activity stress level.
+# Check https://github.com/robiningelbrecht/strava-statistics/wiki/FAQ for more info.
 FTP_VALUES='{
     "YYYY-MM-DD": 198,
     "YYYY-MM-DD": 220
 }'
-```
-
-### Permission issues
-
-You might encounter an `SQLSTATE[HY000] [14] unable to open database file` error. There's an [open issue](https://github.com/robiningelbrecht/strava-statistics/issues/57) to investigate this. In the mean time, you can run following commands manually to fix this:
-
-```bash
-> chmod -R 777 storage/database
-> chmod -R 777 storage/files
 ```
 
 ### Import all challenges and trophies
@@ -122,15 +115,9 @@ You can configure a crontab on your host system:
 docker compose exec app bin/console app:strava:build-files
 ```
 
-## 🧐 Some things to consider
+## 📚 Wiki
 
-* Because of technical (Strava) limitations, not all Strava challenges can be imported. Only the visible ones on your public profile can be imported
-  (please be sure that your profile is public, otherwise this won't work)
-* Running the import for the first time can take a while, depending on how many activities you have on Strava.
-  Strava's API has a `rate limit` of `100 request per 15 minutes` and a `1000 requests per day`. We have to make sure
-  this limit is not exceeded. See https://developers.strava.com/docs/rate-limits/. If you have more than 500 activities,
-  you might run into the daily rate limit. If you do so, the app will import the remaining activities the next day(s).
-* You can only build the files once all data from Strava was imported
+Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki/FAQ) before opening new issues. The question you have might be answered over there.
 
 ## 💡 Feature request?
 
