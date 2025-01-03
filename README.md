@@ -1,7 +1,8 @@
 <p align="center">
-    <img src="public/assets/images/strava.png"
-         alt="Strava">
+  <img src="public/assets/images/logo.png" width="250" alt="Logo" >
 </p>
+
+<h1 align="center">Strava Statistics</h1>
 
 <p align="center">
 <a href="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/ci.yml"><img src="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -60,9 +61,6 @@ services:
 ### .env
 
 ```bash
-# Leave this unchanged.
-DATABASE_URL="sqlite:///%kernel.project_dir%/storage/database/strava.db?charset=utf8mb4"
-
 # The client id of your Strava app.
 STRAVA_CLIENT_ID=YOUR_CLIENT_ID
 # The client secret of your Strava app.
