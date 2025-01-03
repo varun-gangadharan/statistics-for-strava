@@ -242,7 +242,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 ),
                 'trivia' => Trivia::fromActivities($allActivities),
                 'ftpHistoryChart' => !$allFtps->isEmpty() ? Json::encode(
-                    FtpHistoryChartBuilder::fromFtps(
+                    FtpHistoryChartBuilder::create(
                         ftps: $allFtps,
                         now: $now
                     )->build()
