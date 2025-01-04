@@ -27,4 +27,16 @@ enum ActivityType: string
             default => throw new \RuntimeException(sprintf('No icon found for activityType %s', $this->value)),
         };
     }
+
+    public function getColor(): string
+    {
+        return match ($this) {
+            ActivityType::RIDE => 'emerald-600',
+            ActivityType::RUN => 'orange-500',
+            ActivityType::WALK => 'yellow-300',
+            ActivityType::WATER_SPORTS => 'blue-600',
+            ActivityType::WINTER_SPORTS => 'red-600',
+            default => 'grey-500',
+        };
+    }
 }

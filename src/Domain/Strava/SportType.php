@@ -99,16 +99,6 @@ enum SportType: string
         return self::RIDE === $this || self::RUN === $this;
     }
 
-    public function getColor(): string
-    {
-        return match ($this) {
-            SportType::RIDE => 'emerald-600',
-            SportType::VIRTUAL_RIDE => 'orange-500',
-            SportType::RUN => 'yellow-300',
-            default => 'grey-500',
-        };
-    }
-
     public function isVirtualVirtualRide(): bool
     {
         return self::VIRTUAL_RIDE === $this;
