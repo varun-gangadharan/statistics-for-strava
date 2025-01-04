@@ -20,7 +20,8 @@ final class SportTypesToImport extends Collection
     public static function from(array $types): self
     {
         if (0 === count($types)) {
-            throw new \InvalidArgumentException('You must import at least one type');
+            // Import all sport types.
+            return self::fromArray(SportType::cases());
         }
 
         return self::fromArray(array_map(
