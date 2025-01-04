@@ -8,9 +8,9 @@ use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
+use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\Calendar\Week;
-use App\Domain\Strava\SportType;
 
 final readonly class ChallengeConsistency
 {
@@ -55,11 +55,11 @@ final readonly class ChallengeConsistency
                 continue;
             }
 
-            $bikeActivities = $activities->filterOnSportType(SportType::RIDE);
+            $bikeActivities = $activities->filterOnActivityType(ActivityType::RIDE);
             $bikeTotalDistance = Kilometer::from($bikeActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
             $bikeTotalElevation = Meter::from($bikeActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
 
-            $runActivities = $activities->filterOnSportType(SportType::RUN);
+            $runActivities = $activities->filterOnActivityType(ActivityType::RUN);
             $maxDistanceRunningActivity = !$runActivities->isEmpty() ? Kilometer::from($runActivities->max(fn (Activity $activity) => $activity->getDistance()->toFloat())) : Kilometer::zero();
             $runTotalDistance = Kilometer::from($runActivities->sum(fn (Activity $activity) => $activity->getDistance()->toFloat()));
             $runTotalElevation = Meter::from($runActivities->sum(fn (Activity $activity) => $activity->getElevation()->toFloat()));
