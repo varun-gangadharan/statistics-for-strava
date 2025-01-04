@@ -96,13 +96,14 @@ enum SportType: string
             SportType::RIDE, SportType::VIRTUAL_RIDE => 'bike',
             SportType::MOUNTAIN_BIKE_RIDE, SportType::E_MOUNTAIN_BIKE_RIDE => 'mountain-bike-ride',
             SportType::GRAVEL_RIDE => 'gravel-ride',
-            SportType::RUN => 'run',
+            SportType::RUN, SportType::VIRTUAL_RUN => 'run',
             SportType::TRAIL_RUN => 'trail-run',
             SportType::WALK => 'walk',
             SportType::SWIM => 'swim',
             SportType::CROSSFIT, SportType::WEIGHT_TRAINING => 'weight-training',
             SportType::WORKOUT => 'workout',
             SportType::SNOWBOARD => 'snowboard',
+            SportType::YOGA => 'yoga',
             default => throw new \RuntimeException(sprintf('No icon found for SportType %s', $this->value)),
         };
     }
