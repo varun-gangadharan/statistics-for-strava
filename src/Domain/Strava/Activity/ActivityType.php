@@ -19,15 +19,6 @@ enum ActivityType: string
         };
     }
 
-    public function getSvgIcon(): string
-    {
-        return match ($this) {
-            ActivityType::RIDE => 'bike',
-            ActivityType::RUN => 'run',
-            default => throw new \RuntimeException(sprintf('No icon found for activityType %s', $this->value)),
-        };
-    }
-
     public function getColor(): string
     {
         return match ($this) {

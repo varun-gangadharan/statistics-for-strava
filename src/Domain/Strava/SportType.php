@@ -89,6 +89,24 @@ enum SportType: string
         };
     }
 
+    public function getSvgIcon(): string
+    {
+        return match ($this) {
+            SportType::ALPINE_SKI => 'alpine-ski',
+            SportType::RIDE, SportType::VIRTUAL_RIDE => 'bike',
+            SportType::MOUNTAIN_BIKE_RIDE, SportType::E_MOUNTAIN_BIKE_RIDE => 'mountain-bike-ride',
+            SportType::GRAVEL_RIDE => 'gravel-ride',
+            SportType::RUN => 'run',
+            SportType::TRAIL_RUN => 'trail-run',
+            SportType::WALK => 'walk',
+            SportType::SWIM => 'swim',
+            SportType::CROSSFIT, SportType::WEIGHT_TRAINING => 'weight-training',
+            SportType::WORKOUT => 'workout',
+            SportType::SNOWBOARD => 'snowboard',
+            default => throw new \RuntimeException(sprintf('No icon found for SportType %s', $this->value)),
+        };
+    }
+
     public function supportsReverseGeocoding(): bool
     {
         return self::RIDE === $this || self::RUN === $this;
