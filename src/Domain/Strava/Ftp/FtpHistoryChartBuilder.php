@@ -79,7 +79,7 @@ final readonly class FtpHistoryChartBuilder
                     ],
                     'min' => $this->ftps->min(fn (Ftp $ftp) => $ftp->getFtp()->getValue()) - 10,
                 ],
-                $this->ftps->getFirst()->getRelativeFtp() ? [
+                $this->ftps->getFirst()?->getRelativeFtp() ? [
                     'type' => 'value',
                     'splitLine' => [
                         'show' => false,
@@ -121,7 +121,7 @@ final readonly class FtpHistoryChartBuilder
                         ] : [],
                     ],
                 ],
-                $this->ftps->getFirst()->getRelativeFtp() ? [
+                $this->ftps->getFirst()?->getRelativeFtp() ? [
                     'name' => 'FTP w/kg',
                     'type' => 'line',
                     'smooth' => false,
