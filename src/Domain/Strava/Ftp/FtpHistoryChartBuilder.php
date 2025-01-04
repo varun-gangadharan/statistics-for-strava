@@ -14,7 +14,7 @@ final readonly class FtpHistoryChartBuilder
     ) {
     }
 
-    public static function fromFtps(
+    public static function create(
         Ftps $ftps,
         SerializableDateTime $now,
     ): self {
@@ -79,7 +79,7 @@ final readonly class FtpHistoryChartBuilder
                     ],
                     'min' => $this->ftps->min(fn (Ftp $ftp) => $ftp->getFtp()->getValue()) - 10,
                 ],
-                [
+                $this->ftps->getFirst()?->getRelativeFtp() ? [
                     'type' => 'value',
                     'splitLine' => [
                         'show' => false,
@@ -88,7 +88,7 @@ final readonly class FtpHistoryChartBuilder
                         'formatter' => '{value} w/kg',
                     ],
                     'min' => $this->ftps->min(fn (Ftp $ftp) => $ftp->getRelativeFtp()) - 1,
-                ],
+                ] : [],
             ],
             'series' => [
                 [
@@ -121,7 +121,7 @@ final readonly class FtpHistoryChartBuilder
                         ] : [],
                     ],
                 ],
-                [
+                $this->ftps->getFirst()?->getRelativeFtp() ? [
                     'name' => 'FTP w/kg',
                     'type' => 'line',
                     'smooth' => false,
@@ -150,7 +150,7 @@ final readonly class FtpHistoryChartBuilder
                             $this->ftps->getLast()->getRelativeFtp(),
                         ] : [],
                     ],
-                ],
+                ] : [],
             ],
         ];
     }
