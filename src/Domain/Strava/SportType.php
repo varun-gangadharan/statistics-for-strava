@@ -92,34 +92,15 @@ enum SportType: string
     public function getSvgIcon(): string
     {
         return match ($this) {
-            SportType::ALPINE_SKI, SportType::BACK_COUNTRY_SKI , SportType::NORDIC_SKI => 'ski',
+            SportType::ALPINE_SKI, SportType::BACK_COUNTRY_SKI,
+            SportType::NORDIC_SKI, SportType::ROLLER_SKI => 'ski',
             SportType::RIDE, SportType::VIRTUAL_RIDE => 'bike-ride',
             SportType::CROSSFIT, SportType::WEIGHT_TRAINING => 'weight-training',
             SportType::RUN, SportType::VIRTUAL_RUN => 'run',
             SportType::WORKOUT, SportType::ELLIPTICAL => 'workout',
             SportType::CANOEING, SportType::KAYAKING => 'canoeing',
-            SportType::E_BIKE_RIDE => 'e-bike-ride',
-            SportType::MOUNTAIN_BIKE_RIDE, => 'mountain-bike-ride',
-            SportType::E_MOUNTAIN_BIKE_RIDE => 'e-mountain-bike-ride',
-            SportType::GRAVEL_RIDE => 'gravel-ride',
-            SportType::TRAIL_RUN => 'trail-run',
-            SportType::WALK => 'walk',
-            SportType::HIKE => 'hike',
-            SportType::SWIM => 'swim',
-            SportType::SNOWBOARD => 'snowboard',
-            SportType::YOGA => 'yoga',
-            SportType::INLINE_SKATE => 'inline-skate',
-            SportType::VELO_MOBILE => 'velo-mobile',
-            SportType::BADMINTON => 'badminton',
-            SportType::GOLF => 'golf',
-            SportType::ICE_SKATE => 'ice-skate',
-            SportType::HAND_CYCLE => 'hand-cycle',
-            SportType::HIIT => 'hiit',
-            SportType::KITE_SURF => 'kite-surf',
-            SportType::PICKLE_BALL => 'pickle-ball',
-            SportType::PILATES => 'pilates',
-            SportType::RACQUET_BALL => 'racquet-ball',
-            default => throw new \RuntimeException(sprintf('No icon found for SportType %s', $this->value)),
+            SportType::SAIL, SportType::WIND_SURF => 'sail',
+            default => str_replace('_', '-', strtolower($this->name)),
         };
     }
 
