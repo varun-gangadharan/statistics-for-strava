@@ -106,12 +106,50 @@ enum SportType: string
 
     public function supportsReverseGeocoding(): bool
     {
-        return self::RIDE === $this || self::RUN === $this;
+        return !in_array($this, [
+            self::VIRTUAL_RIDE,
+            self::VIRTUAL_RUN,
+            self::VIRTUAL_ROW,
+            self::BADMINTON,
+            self::CROSSFIT,
+            self::ELLIPTICAL,
+            self::INLINE_SKATE,
+            self::HIIT,
+            self::PICKLE_BALL,
+            self::PILATES,
+            self::RACQUET_BALL,
+            self::SQUASH,
+            self::TABLE_TENNIS,
+            self::WEIGHT_TRAINING,
+            self::WORKOUT,
+            self::SWIM,
+            self::ICE_SKATE,
+            self::YOGA,
+        ]);
     }
 
     public function supportsWeather(): bool
     {
-        return self::RIDE === $this || self::RUN === $this;
+        return !in_array($this, [
+            self::VIRTUAL_RIDE,
+            self::VIRTUAL_RUN,
+            self::VIRTUAL_ROW,
+            self::BADMINTON,
+            self::CROSSFIT,
+            self::ELLIPTICAL,
+            self::INLINE_SKATE,
+            self::HIIT,
+            self::PICKLE_BALL,
+            self::PILATES,
+            self::RACQUET_BALL,
+            self::SQUASH,
+            self::TABLE_TENNIS,
+            self::WEIGHT_TRAINING,
+            self::WORKOUT,
+            self::SWIM,
+            self::ICE_SKATE,
+            self::YOGA,
+        ]);
     }
 
     public function isVirtualVirtualRide(): bool
