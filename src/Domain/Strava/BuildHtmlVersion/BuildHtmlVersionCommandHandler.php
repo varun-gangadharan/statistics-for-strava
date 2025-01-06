@@ -200,13 +200,18 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             if ($activities->isEmpty()) {
                 continue;
             }
-            $weeklyDistanceCharts[$activityType->value] = Json::encode(
-                WeeklyDistanceChartBuilder::create(
-                    activities: $activities,
-                    unitSystem: $this->unitSystem,
-                    now: $now,
-                )->build()
-            );
+
+            $chartData = WeeklyDistanceChartBuilder::create(
+                activities: $activities,
+                unitSystem: $this->unitSystem,
+                now: $now,
+            )->build();
+
+            if (empty($chartData)) {
+                continue;
+            }
+
+            $weeklyDistanceCharts[$activityType->value] = Json::encode($chartData);
         }
 
         $this->filesystem->write(

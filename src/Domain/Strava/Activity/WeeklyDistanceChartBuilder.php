@@ -40,6 +40,11 @@ final readonly class WeeklyDistanceChartBuilder
         );
         $zoomValueSpan = 10;
         $data = $this->getData($weeks);
+        if (empty(array_filter($data[0]))) {
+            // Activities do not contain distances.
+            return [];
+        }
+
         $xAxisLabels = [];
         /** @var Week $week */
         foreach ($weeks as $week) {
