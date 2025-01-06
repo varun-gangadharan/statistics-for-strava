@@ -1856,11 +1856,6 @@ input:checked + .toggle-bg {
   border-left-color: rgb(5 150 105 / var(--tw-border-opacity));
 }
 
-.border-l-orange-500 {
-  --tw-border-opacity: 1;
-  border-left-color: rgb(255 90 31 / var(--tw-border-opacity));
-}
-
 .bg-blue-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(26 86 219 / var(--tw-bg-opacity));
@@ -1898,10 +1893,6 @@ input:checked + .toggle-bg {
 .bg-orange-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(252 217 189 / var(--tw-bg-opacity));
-}
-
-.bg-orange-500\/\[\.1\] {
-  background-color: rgb(255 90 31 / .1);
 }
 
 .bg-transparent {
