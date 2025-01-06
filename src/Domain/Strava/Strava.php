@@ -45,6 +45,12 @@ class Strava
         $options = array_merge([
             'base_uri' => 'https://www.strava.com/',
         ], $options);
+
+        if ('GET' === $method) {
+            // Try to avoid Strava rate limits.
+            $this->sleep->sweetDreams(10);
+        }
+
         $response = $this->client->request($method, $path, $options);
 
         $this->logger->info(new Monolog(
@@ -117,8 +123,6 @@ class Strava
             ]));
             $allActivities = array_merge($allActivities, $activities);
             ++$page;
-            // Try to avoid too many calls.
-            $this->sleep->sweetDreams(1);
         } while (count($activities) > 0);
 
         return $allActivities;
