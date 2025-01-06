@@ -27,7 +27,7 @@ enum ActivityType: string
             ActivityType::WALK => 'yellow-300',
             ActivityType::WATER_SPORTS => 'blue-600',
             ActivityType::WINTER_SPORTS => 'red-600',
-            default => 'grey-500',
+            default => 'slate-600',
         };
     }
 }
