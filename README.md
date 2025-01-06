@@ -26,6 +26,7 @@ https://github.com/user-attachments/assets/7fd9262d-744f-44dc-9c17-6730b1cfc383
 * 🛠️ __Under active development__: Expect frequent updates, bugs, and breaking changes.
 * 📦 __Backup before updates__: Always backup your Docker volumes before upgrading.
 * 🔄 __Stay up-to-date__: Make sure you're running the latest version for the best experience.
+* 🤓 __Check the release notes__: Always check the release notes to verify if there are any breaking changes.
 
 ## 🪄 Prerequisites
 
