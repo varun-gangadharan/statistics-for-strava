@@ -9,6 +9,7 @@ use App\Infrastructure\Doctrine\MigrationRunner;
 use App\Infrastructure\Serialization\Json;
 use App\Tests\Infrastructure\FileSystem\SuccessfulPermissionChecker;
 use App\Tests\Infrastructure\FileSystem\UnwritablePermissionChecker;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use Spatie\Snapshots\MatchesSnapshots;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +22,7 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
     private ImportStravaDataConsoleCommand $importStravaDataConsoleCommand;
     private MockObject $commandBus;
     private MockObject $migrationRunner;
+    private MockObject $connection;
 
     public function testExecute(): void
     {
@@ -32,6 +34,11 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
             ->expects($this->any())
             ->method('dispatch')
             ->willReturnCallback(fn (DomainCommand $command) => $this->assertMatchesJsonSnapshot(Json::encode($command)));
+
+        $this->connection
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->with('VACUUM');
 
         $command = $this->getCommandInApplication('app:strava:import-data');
         $commandTester = new CommandTester($command);
@@ -50,6 +57,11 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
             ->expects($this->any())
             ->method('dispatch');
 
+        $this->connection
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->with('VACUUM');
+
         $command = $this->getCommandInApplication('app:strava:import-data');
         $commandTester = new CommandTester($command);
         $commandTester->execute([
@@ -60,9 +72,10 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
     public function testExecuteWithInsufficientPermissions(): void
     {
         $this->importStravaDataConsoleCommand = new ImportStravaDataConsoleCommand(
-            $this->commandBus = $this->createMock(CommandBus::class),
+            $this->commandBus,
             new UnwritablePermissionChecker(),
-            $this->migrationRunner = $this->createMock(MigrationRunner::class)
+            $this->migrationRunner,
+            $this->connection,
         );
 
         $this->migrationRunner
@@ -72,6 +85,11 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
         $this->commandBus
             ->expects($this->never())
             ->method('dispatch');
+
+        $this->connection
+            ->expects($this->never())
+            ->method('executeStatement')
+            ->with('VACUUM');
 
         $command = $this->getCommandInApplication('app:strava:import-data');
         $commandTester = new CommandTester($command);
@@ -90,7 +108,8 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
         $this->importStravaDataConsoleCommand = new ImportStravaDataConsoleCommand(
             $this->commandBus = $this->createMock(CommandBus::class),
             new SuccessfulPermissionChecker(),
-            $this->migrationRunner = $this->createMock(MigrationRunner::class)
+            $this->migrationRunner = $this->createMock(MigrationRunner::class),
+            $this->connection = $this->createMock(Connection::class),
         );
     }
 

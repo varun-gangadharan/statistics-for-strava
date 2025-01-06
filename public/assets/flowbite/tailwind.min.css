@@ -1856,6 +1856,11 @@ input:checked + .toggle-bg {
   border-left-color: rgb(5 150 105 / var(--tw-border-opacity));
 }
 
+.border-l-yellow-300 {
+  --tw-border-opacity: 1;
+  border-left-color: rgb(250 202 21 / var(--tw-border-opacity));
+}
+
 .bg-blue-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(26 86 219 / var(--tw-bg-opacity));
@@ -1906,6 +1911,10 @@ input:checked + .toggle-bg {
 
 .bg-white\/50 {
   background-color: rgb(255 255 255 / 0.5);
+}
+
+.bg-yellow-300\/\[\.1\] {
+  background-color: rgb(250 202 21 / .1);
 }
 
 .bg-opacity-50 {

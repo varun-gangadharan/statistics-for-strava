@@ -8,7 +8,7 @@ monolog:
             max_files: 1
             path: "%kernel.project_dir%/storage/files/strava-app.log"
             level: debug
-            channels: ["strava-app", "console"]
+            channels: ["strava-app"]
 
 when@dev:
     monolog:

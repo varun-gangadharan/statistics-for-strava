@@ -156,8 +156,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 streamTypes: StreamTypes::fromArray([StreamType::CADENCE])
             );
 
-            if ($cadenceStream = $streams->getByStreamType(StreamType::CADENCE)) {
-                // @phpstan-ignore-next-line
+            if (($cadenceStream = $streams->getByStreamType(StreamType::CADENCE)) && !empty($cadenceStream->getData())) {
                 $activity->enrichWithMaxCadence(max($cadenceStream->getData()));
             }
 
