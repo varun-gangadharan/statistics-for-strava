@@ -18,6 +18,7 @@ use App\Domain\Strava\Activity\Eddington\EddingtonHistoryChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
+use App\Domain\Strava\Activity\SportType\SportTypeRepository;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
@@ -76,6 +77,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         private SegmentRepository $segmentRepository,
         private SegmentEffortRepository $segmentEffortRepository,
         private FtpRepository $ftpRepository,
+        private SportTypeRepository $sportTypeRepository,
         private ActivityIntensity $activityIntensity,
         private UnitSystem $unitSystem,
         private Environment $twig,
@@ -96,7 +98,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         foreach (ActivityType::cases() as $activityType) {
             $activitiesPerActivityType[$activityType->value] = $allActivities->filterOnActivityType($activityType);
         }
-        $importedSportTypes = $allActivities->getSportTypes();
+        $importedSportTypes = $this->sportTypeRepository->findAll();
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
