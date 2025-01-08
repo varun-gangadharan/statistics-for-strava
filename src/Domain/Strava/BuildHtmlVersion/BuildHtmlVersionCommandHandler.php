@@ -14,6 +14,7 @@ use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
 use App\Domain\Strava\Activity\DistanceBreakdown;
 use App\Domain\Strava\Activity\Eddington\Eddington;
 use App\Domain\Strava\Activity\Eddington\EddingtonChartBuilder;
+use App\Domain\Strava\Activity\Eddington\EddingtonHistoryChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
@@ -47,7 +48,6 @@ use App\Domain\Strava\MonthlyStatistics;
 use App\Domain\Strava\Segment\Segment;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Domain\Strava\Segment\SegmentRepository;
-use App\Domain\Strava\SportType;
 use App\Domain\Strava\Trivia;
 use App\Infrastructure\CQRS\Bus\Command;
 use App\Infrastructure\CQRS\Bus\CommandHandler;
@@ -61,7 +61,7 @@ use Twig\Environment;
 
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
-    private const string APP_VERSION = 'v0.2.13';
+    private const string APP_VERSION = 'v0.3.0';
 
     public function __construct(
         private ActivityRepository $activityRepository,
@@ -92,11 +92,11 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $athlete = $this->athleteRepository->find();
         $allActivities = $this->activityRepository->findAll();
-        $activitiesPerSportType = [];
-        foreach (SportType::cases() as $sportType) {
-            $activitiesPerSportType[$sportType->value] = $allActivities->filterOnSportType($sportType);
+        $activitiesPerActivityType = [];
+        foreach (ActivityType::cases() as $activityType) {
+            $activitiesPerActivityType[$activityType->value] = $allActivities->filterOnActivityType($activityType);
         }
-        $importedActivityTypes = $allActivities->getActivityTypes();
+        $importedSportTypes = $allActivities->getSportTypes();
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
@@ -104,16 +104,16 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $allSegments = $this->segmentRepository->findAll();
 
         $command->getOutput()->writeln('  => Calculating Eddington');
-        $eddingtonPerSportType = [];
-        foreach (SportType::cases() as $sportType) {
-            if (!$sportType->supportsEddington()) {
+        $eddingtonPerActivityType = [];
+        foreach (ActivityType::cases() as $activityType) {
+            if (!$activityType->supportsEddington()) {
                 continue;
             }
-            if ($activitiesPerSportType[$sportType->value]->isEmpty()) {
+            if ($activitiesPerActivityType[$activityType->value]->isEmpty()) {
                 continue;
             }
-            $eddingtonPerSportType[$sportType->value] = Eddington::fromActivities(
-                activities: $activitiesPerSportType[$sportType->value],
+            $eddingtonPerActivityType[$activityType->value] = Eddington::fromActivities(
+                activities: $activitiesPerActivityType[$activityType->value],
                 unitSystem: $this->unitSystem
             );
         }
@@ -134,7 +134,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         );
 
         $command->getOutput()->writeln('  => Calculating monthly stats');
-        $monthlyStatistics = MonthlyStatistics::fromActivitiesAndChallenges(
+        $monthlyStatistics = MonthlyStatistics::create(
             activities: $allActivities,
             challenges: $allChallenges,
             months: $allMonths,
@@ -154,8 +154,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 streamTypes: StreamTypes::fromArray([StreamType::CADENCE])
             );
 
-            if ($cadenceStream = $streams->getByStreamType(StreamType::CADENCE)) {
-                // @phpstan-ignore-next-line
+            if (($cadenceStream = $streams->getByStreamType(StreamType::CADENCE)) && !empty($cadenceStream->getData())) {
                 $activity->enrichWithMaxCadence(max($cadenceStream->getData()));
             }
 
@@ -181,7 +180,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/index.html',
             $this->twig->load('html/index.html.twig')->render([
                 'totalActivityCount' => count($allActivities),
-                'eddingtons' => $eddingtonPerSportType,
+                'eddingtons' => $eddingtonPerActivityType,
                 'completedChallenges' => count($allChallenges),
                 'totalPhotoCount' => count($allImages),
                 'lastUpdate' => $now,
@@ -193,19 +192,43 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $command->getOutput()->writeln('  => Building dashboard.html');
 
         $weeklyDistanceCharts = [];
-
-        foreach (SportType::cases() as $sportType) {
-            $activities = $allActivities->filterOnSportType($sportType);
-            if ($activities->isEmpty()) {
+        $distanceBreakdowns = [];
+        $yearlyDistanceCharts = [];
+        $yearlyStatistics = [];
+        foreach (ActivityType::cases() as $activityType) {
+            if ($activitiesPerActivityType[$activityType->value]->isEmpty()) {
                 continue;
             }
-            $weeklyDistanceCharts[$sportType->value] = Json::encode(
-                WeeklyDistanceChartBuilder::fromActivities(
-                    activities: $activities,
-                    unitSystem: $this->unitSystem,
-                    now: $now,
-                )->build()
-            );
+
+            if ($activityType->supportsWeeklyDistanceStats() && $chartData = WeeklyDistanceChartBuilder::create(
+                activities: $activitiesPerActivityType[$activityType->value],
+                unitSystem: $this->unitSystem,
+                now: $now,
+            )->build()) {
+                $weeklyDistanceCharts[$activityType->value] = Json::encode($chartData);
+            }
+
+            if ($activityType->supportsDistanceBreakdownStats()) {
+                $distanceBreakdowns[$activityType->value] = DistanceBreakdown::create(
+                    activities: $activitiesPerActivityType[$activityType->value],
+                    unitSystem: $this->unitSystem
+                );
+            }
+
+            if ($activityType->supportsYearlyStats()) {
+                $yearlyDistanceCharts[$activityType->value] = Json::encode(
+                    YearlyDistanceChartBuilder::fromActivities(
+                        activities: $activitiesPerActivityType[$activityType->value],
+                        unitSystem: $this->unitSystem,
+                        now: $now
+                    )->build()
+                );
+
+                $yearlyStatistics[$activityType->value] = YearlyStatistics::create(
+                    activities: $activitiesPerActivityType[$activityType->value],
+                    years: $allYears
+                );
+            }
         }
 
         $this->filesystem->write(
@@ -233,10 +256,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     DaytimeStatsChartsBuilder::fromDaytimeStats($dayTimeStats)->build(),
                 ),
                 'daytimeStats' => $dayTimeStats,
-                'distanceBreakdown' => DistanceBreakdown::create(
-                    activities: $activitiesPerSportType[SportType::RIDE->value],
-                    unitSystem: $this->unitSystem
-                ),
+                'distanceBreakdowns' => $distanceBreakdowns,
                 'trivia' => Trivia::fromActivities($allActivities),
                 'ftpHistoryChart' => !$allFtps->isEmpty() ? Json::encode(
                     FtpHistoryChartBuilder::create(
@@ -257,17 +277,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     months: $allMonths,
                     activities: $allActivities
                 ),
-                'yearlyDistanceChart' => Json::encode(
-                    YearlyDistanceChartBuilder::fromActivities(
-                        activities: $allActivities,
-                        unitSystem: $this->unitSystem,
-                        now: $now
-                    )->build()
-                ),
-                'yearlyStatistics' => YearlyStatistics::fromActivities(
-                    activities: $allActivities,
-                    years: $allYears
-                ),
+                'yearlyDistanceCharts' => $yearlyDistanceCharts,
+                'yearlyStatistics' => $yearlyStatistics,
             ]),
         );
 
@@ -284,18 +295,12 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             );
         }
 
-        $command->getOutput()->writeln('  => Building activities.html');
-        $this->filesystem->write(
-            'build/html/activities.html',
-            $this->twig->load('html/activities.html.twig')->render(),
-        );
-
         $command->getOutput()->writeln('  => Building photos.html');
         $this->filesystem->write(
             'build/html/photos.html',
             $this->twig->load('html/photos.html.twig')->render([
                 'images' => $allImages,
-                'activityTypes' => $importedActivityTypes,
+                'sportTypes' => $importedSportTypes,
             ]),
         );
 
@@ -313,12 +318,18 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $command->getOutput()->writeln('  => Building eddington.html');
 
-        $eddingtonChartsPerSportType = [];
-        foreach ($eddingtonPerSportType as $sportType => $eddington) {
-            $eddingtonChartsPerSportType[$sportType] = Json::encode(
-                EddingtonChartBuilder::fromEddington(
+        $eddingtonChartsPerActivityType = [];
+        $eddingtonHistoryChartsPerActivityType = [];
+        foreach ($eddingtonPerActivityType as $activityType => $eddington) {
+            $eddingtonChartsPerActivityType[$activityType] = Json::encode(
+                EddingtonChartBuilder::create(
                     eddington: $eddington,
                     unitSystem: $this->unitSystem,
+                )->build()
+            );
+            $eddingtonHistoryChartsPerActivityType[$activityType] = Json::encode(
+                EddingtonHistoryChartBuilder::create(
+                    eddington: $eddington,
                 )->build()
             );
         }
@@ -326,8 +337,9 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $this->filesystem->write(
             'build/html/eddington.html',
             $this->twig->load('html/eddington.html.twig')->render([
-                'eddingtons' => $eddingtonPerSportType,
-                'eddingtonCharts' => $eddingtonChartsPerSportType,
+                'eddingtons' => $eddingtonPerActivityType,
+                'eddingtonCharts' => $eddingtonChartsPerActivityType,
+                'eddingtonHistoryCharts' => $eddingtonHistoryChartsPerActivityType,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );
@@ -343,8 +355,6 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             /** @var \App\Domain\Strava\Segment\SegmentEffort\SegmentEffort $segmentEffort */
             foreach ($segmentEfforts as $segmentEffort) {
                 $activity = $allActivities->getByActivityId($segmentEffort->getActivityId());
-                // Hacky solution to know what type of segment this is (Zwift or Rouvy).
-                $segment->enrichWithDeviceName($activity->getDeviceName());
                 $segmentEffort->enrichWithActivity($activity);
             }
 
@@ -361,12 +371,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     'segment' => $segment,
                 ]),
                 searchables: $segment->getSearchables(),
-                sortValues: [
-                    'name' => (string) $segment->getName(),
-                    'distance' => round($segment->getDistance()->toFloat(), 2),
-                    'max-gradient' => $segment->getMaxGradient(),
-                    'ride-count' => $segment->getNumberOfTimesRidden(),
-                ]
+                filterables: $segment->getFilterables(),
+                sortValues: $segment->getSortables()
             );
         }
 
@@ -377,7 +383,9 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $this->filesystem->write(
             'build/html/segments.html',
-            $this->twig->load('html/segments.html.twig')->render(),
+            $this->twig->load('html/segments.html.twig')->render([
+                'sportTypes' => $importedSportTypes,
+            ]),
         );
 
         $command->getOutput()->writeln('  => Building monthly-stats.html');
@@ -385,7 +393,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/monthly-stats.html',
             $this->twig->load('html/monthly-stats.html.twig')->render([
                 'monthlyStatistics' => $monthlyStatistics,
-                'activityTypes' => $importedActivityTypes,
+                'sportTypes' => $importedSportTypes,
             ]),
         );
 
@@ -433,10 +441,10 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         );
 
         $routesPerCountry = [];
-        $routesInMostRiddenState = [];
-        $mostRiddenState = $this->activityRepository->findMostRiddenState();
+        $routesInMostActiveState = [];
+        $mostActiveState = $this->activityRepository->findMostActiveState();
         foreach ($allActivities as $activity) {
-            if (ActivityType::RIDE !== $activity->getType()) {
+            if (!$activity->getSportType()->supportsReverseGeocoding()) {
                 continue;
             }
             if (!$polyline = $activity->getPolylineSummary()) {
@@ -446,8 +454,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                 continue;
             }
             $routesPerCountry[$countryCode][] = $polyline;
-            if ($activity->getLocation()?->getState() === $mostRiddenState) {
-                $routesInMostRiddenState[] = $polyline;
+            if ($activity->getLocation()?->getState() === $mostActiveState) {
+                $routesInMostActiveState[] = $polyline;
             }
         }
 
@@ -456,11 +464,18 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             'build/html/heatmap.html',
             $this->twig->load('html/heatmap.html.twig')->render([
                 'routesPerCountry' => Json::encode($routesPerCountry),
-                'routesInMostRiddenState' => Json::encode($routesInMostRiddenState),
+                'routesInMostRiddenState' => Json::encode($routesInMostActiveState),
             ]),
         );
 
-        $command->getOutput()->writeln('  => Building activity.html');
+        $command->getOutput()->writeln('  => Building activities.html');
+        $this->filesystem->write(
+            'build/html/activities.html',
+            $this->twig->load('html/activities.html.twig')->render([
+                'sportTypes' => $importedSportTypes,
+            ]),
+        );
+
         $dataDatableRows = [];
         foreach ($allActivities as $activity) {
             $heartRateData = $this->activityHeartRateRepository->findTimeInSecondsPerHeartRateForActivity($activity->getId());
@@ -500,17 +515,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
                     'activity' => $activity,
                 ]),
                 searchables: $activity->getSearchables(),
-                // @phpstan-ignore-next-line
-                sortValues: [
-                    'start-date' => $activity->getStartDate()->getTimestamp(),
-                    'distance' => $activity->getDistance()->toFloat(),
-                    'elevation' => $activity->getElevation()->toFloat(),
-                    'moving-time' => $activity->getMovingTimeInSeconds(),
-                    'power' => $activity->getAveragePower(),
-                    'speed' => round($activity->getAverageSpeed()->toFloat(), 1),
-                    'heart-rate' => $activity->getAverageHeartRate(),
-                    'calories' => $activity->getCalories(),
-                ]
+                filterables: $activity->getFilterables(),
+                sortValues: $activity->getSortables()
             );
         }
 

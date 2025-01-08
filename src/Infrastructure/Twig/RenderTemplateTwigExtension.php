@@ -32,6 +32,10 @@ final readonly class RenderTemplateTwigExtension
      */
     public function renderSvg(string $template, array $context = []): string
     {
-        return $this->render(sprintf('html/svg/svg-%s.html.twig', $template), $context);
+        if (empty($context['customPath'])) {
+            return $this->render(sprintf('html/svg/svg-%s.html.twig', $template), $context);
+        }
+
+        return $this->render(sprintf('%s/svg-%s.html.twig', $context['customPath'], $template), $context);
     }
 }

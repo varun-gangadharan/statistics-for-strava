@@ -6,6 +6,7 @@ use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
 use App\Domain\Measurement\Velocity\KmPerHour;
 use App\Domain\Nominatim\Location;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\Stream\PowerOutput;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\LeafletMap;
@@ -39,7 +40,7 @@ final class Activity
         #[ORM\Column(type: 'datetime_immutable')]
         private readonly SerializableDateTime $startDateTime,
         #[ORM\Column(type: 'string', nullable: true)]
-        private readonly ActivityType $activityType,
+        private readonly SportType $sportType,
         #[ORM\Column(type: 'json')]
         private array $data,
         #[ORM\Column(type: 'json', nullable: true)]
@@ -57,14 +58,14 @@ final class Activity
     public static function create(
         ActivityId $activityId,
         SerializableDateTime $startDateTime,
-        ActivityType $activityType,
+        SportType $sportType,
         array $data,
         ?GearId $gearId = null,
     ): self {
         return new self(
             activityId: $activityId,
             startDateTime: $startDateTime,
-            activityType: $activityType,
+            sportType: $sportType,
             data: $data,
             gearId: $gearId
         );
@@ -77,7 +78,7 @@ final class Activity
     public static function fromState(
         ActivityId $activityId,
         SerializableDateTime $startDateTime,
-        ActivityType $activityType,
+        SportType $sportType,
         array $data,
         ?Location $location = null,
         array $weather = [],
@@ -86,7 +87,7 @@ final class Activity
         return new self(
             activityId: $activityId,
             startDateTime: $startDateTime,
-            activityType: $activityType,
+            sportType: $sportType,
             data: $data,
             location: $location,
             weather: $weather,
@@ -104,9 +105,9 @@ final class Activity
         return $this->startDateTime;
     }
 
-    public function getType(): ActivityType
+    public function getSportType(): SportType
     {
-        return $this->activityType;
+        return $this->sportType;
     }
 
     public function getLatitude(): ?Latitude
@@ -393,7 +394,7 @@ final class Activity
         if (!$this->getLatitude() || !$this->getLongitude()) {
             return null;
         }
-        if (ActivityType::RIDE === $this->getType()) {
+        if ($this->getSportType()->supportsReverseGeocoding()) {
             return LeafletMap::REAL_WORLD;
         }
         if (!$this->isZwiftRide()) {
@@ -404,14 +405,6 @@ final class Activity
             latitude: $this->getLatitude(),
             longitude: $this->getLongitude(),
         ));
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getSearchables(): array
-    {
-        return [$this->getName(), 'is-'.$this->getType()->value];
     }
 
     public function delete(): void
@@ -435,5 +428,40 @@ final class Activity
     public function updateLocation(?Location $location = null): void
     {
         $this->location = $location;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSearchables(): array
+    {
+        return [$this->getName()];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getFilterables(): array
+    {
+        return [
+            'sportType' => $this->getSportType()->value,
+        ];
+    }
+
+    /**
+     * @return array<string, string|int|float>
+     */
+    public function getSortables(): array
+    {
+        return array_filter([
+            'start-date' => $this->getStartDate()->getTimestamp(),
+            'distance' => $this->getDistance()->toFloat(),
+            'elevation' => $this->getElevation()->toFloat(),
+            'moving-time' => $this->getMovingTimeInSeconds(),
+            'power' => $this->getAveragePower(),
+            'speed' => round($this->getAverageSpeed()->toFloat(), 1),
+            'heart-rate' => $this->getAverageHeartRate(),
+            'calories' => $this->getCalories(),
+        ]);
     }
 }

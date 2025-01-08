@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity;
+namespace App\Domain\Strava\Activity\SportType;
 
 use App\Infrastructure\ValueObject\Collection;
 
-final class ActivityTypes extends Collection
+final class SportTypes extends Collection
 {
     public function getItemClassName(): string
     {
-        return ActivityType::class;
+        return SportType::class;
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Segment;
 
 use App\Domain\Measurement\Length\Kilometer;
-use App\Domain\Strava\Activity\ActivityType;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffort;
 use App\Infrastructure\ValueObject\String\Name;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +15,6 @@ final class Segment
 {
     private ?SegmentEffort $bestEffort = null;
     private int $numberOfTimesRidden = 0;
-    private ?string $deviceName = null;
 
     /**
      * @param array<mixed> $data
@@ -67,11 +66,21 @@ final class Segment
 
     public function getName(): Name
     {
-        if ($this->isKOM()) {
-            return Name::fromString('🏔️ '.$this->name);
+        $parts = [];
+        if ($this->isStarred()) {
+            $parts[] = '⭐️';
         }
+        if ($this->isKOM()) {
+            $parts[] = '🏔️';
+        }
+        $parts[] = $this->name;
 
-        return $this->name;
+        return Name::fromString(implode(' ', $parts));
+    }
+
+    public function getDeviceName(): ?string
+    {
+        return $this->data['device_name'] ?? null;
     }
 
     public function getDistance(): Kilometer
@@ -84,24 +93,19 @@ final class Segment
         return $this->data['maximum_grade'];
     }
 
-    public function getActivityType(): ActivityType
+    public function getSportType(): SportType
     {
-        return ActivityType::from($this->data['activity_type']);
+        return SportType::from($this->data['sport_type']);
     }
 
     public function isZwiftSegment(): bool
     {
-        return 'zwift' === strtolower($this->deviceName ?? '');
+        return 'zwift' === strtolower($this->getDeviceName() ?? '');
     }
 
     public function isRouvySegment(): bool
     {
-        return 'rouvy' === strtolower($this->deviceName ?? '');
-    }
-
-    public function enrichWithDeviceName(?string $deviceName): void
-    {
-        $this->deviceName = $deviceName;
+        return 'rouvy' === strtolower($this->getDeviceName() ?? '');
     }
 
     /**
@@ -110,18 +114,6 @@ final class Segment
     public function getData(): array
     {
         return $this->data;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getSearchables(): array
-    {
-        return array_filter([
-            (string) $this->getName(),
-            $this->isStarred() ? 'favourite starred' : null,
-            $this->isKOM() ? 'is-kom' : null,
-        ]);
     }
 
     public function getBestEffort(): ?SegmentEffort
@@ -151,6 +143,41 @@ final class Segment
         }
 
         return (bool) $this->data['starred'];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSearchables(): array
+    {
+        return array_filter([
+            (string) $this->getName(),
+        ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getFilterables(): array
+    {
+        return [
+            'isKom' => $this->isKOM() ? 'isKom' : '',
+            'isFavourite' => $this->isStarred() ? 'isFavourite' : '',
+            'sportType' => $this->getSportType()->value,
+        ];
+    }
+
+    /**
+     * @return array<string, string|int|float>
+     */
+    public function getSortables(): array
+    {
+        return array_filter([
+            'name' => (string) $this->getName(),
+            'distance' => round($this->getDistance()->toFloat(), 2),
+            'max-gradient' => $this->getMaxGradient(),
+            'ride-count' => $this->getNumberOfTimesRidden(),
+        ]);
     }
 
     public function isKOM(): bool

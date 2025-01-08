@@ -14,6 +14,7 @@ use App\Domain\Strava\Segment\ImportSegments\ImportSegments;
 use App\Infrastructure\CQRS\Bus\CommandBus;
 use App\Infrastructure\Doctrine\MigrationRunner;
 use App\Infrastructure\FileSystem\PermissionChecker;
+use Doctrine\DBAL\Connection;
 use League\Flysystem\UnableToCreateDirectory;
 use League\Flysystem\UnableToWriteFile;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,6 +29,7 @@ final class ImportStravaDataConsoleCommand extends Command
         private readonly CommandBus $commandBus,
         private readonly PermissionChecker $fileSystemPermissionChecker,
         private readonly MigrationRunner $migrationRunner,
+        private readonly Connection $connection,
     ) {
         parent::__construct();
     }
@@ -53,6 +55,9 @@ final class ImportStravaDataConsoleCommand extends Command
         $this->commandBus->dispatch(new ImportFtp($output));
         $this->commandBus->dispatch(new ImportAthleteWeight($output));
         $this->commandBus->dispatch(new CalculateBestStreamAverages($output));
+
+        $this->connection->executeStatement('VACUUM');
+        $output->writeln('Database got vacuumed 🧹');
 
         return Command::SUCCESS;
     }

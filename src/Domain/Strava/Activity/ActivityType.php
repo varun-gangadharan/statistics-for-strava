@@ -2,43 +2,44 @@
 
 namespace App\Domain\Strava\Activity;
 
-use App\Domain\Strava\SportType;
-
 enum ActivityType: string
 {
     case RIDE = 'Ride';
-    case VIRTUAL_RIDE = 'VirtualRide';
     case RUN = 'Run';
+    case WALK = 'Walk';
+    case WATER_SPORTS = 'WaterSports';
+    case WINTER_SPORTS = 'WinterSports';
+    case OTHER = 'Other';
 
-    public function supportsWeather(): bool
-    {
-        return self::RIDE === $this || self::RUN === $this;
-    }
-
-    public function supportsReverseGeocoding(): bool
-    {
-        return self::RIDE === $this || self::RUN === $this;
-    }
-
-    public function isVirtual(): bool
-    {
-        return self::VIRTUAL_RIDE === $this;
-    }
-
-    public function getSportType(): SportType
+    public function supportsEddington(): bool
     {
         return match ($this) {
-            ActivityType::RIDE, ActivityType::VIRTUAL_RIDE => SportType::RIDE,
-            ActivityType::RUN => SportType::RUN,
+            self::RUN, self::RIDE, => true,
+            default => false,
         };
     }
 
-    public function getSvgIcon(): string
+    public function supportsWeeklyDistanceStats(): bool
     {
         return match ($this) {
-            ActivityType::RIDE => 'bike',
-            ActivityType::RUN => 'run',
-            default => throw new \RuntimeException(sprintf('No icon found for activityType %s', $this->value)),
+            self::RUN, self::RIDE, self::WALK, self::WATER_SPORTS, => true,
+            default => false,
+        };
+    }
+
+    public function supportsDistanceBreakdownStats(): bool
+    {
+        return match ($this) {
+            self::RUN, self::RIDE, => true,
+            default => false,
+        };
+    }
+
+    public function supportsYearlyStats(): bool
+    {
+        return match ($this) {
+            self::RUN, self::RIDE, self::WALK => true,
+            default => false,
         };
     }
 
@@ -46,8 +47,11 @@ enum ActivityType: string
     {
         return match ($this) {
             ActivityType::RIDE => 'emerald-600',
-            ActivityType::VIRTUAL_RIDE => 'orange-500',
-            ActivityType::RUN => 'yellow-300',
+            ActivityType::RUN => 'orange-500',
+            ActivityType::WALK => 'yellow-300',
+            ActivityType::WATER_SPORTS => 'blue-600',
+            ActivityType::WINTER_SPORTS => 'red-600',
+            default => 'slate-600',
         };
     }
 }

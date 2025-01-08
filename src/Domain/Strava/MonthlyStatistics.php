@@ -6,7 +6,7 @@ use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
-use App\Domain\Strava\Activity\ActivityType;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\Challenge\Challenge;
@@ -26,7 +26,7 @@ final readonly class MonthlyStatistics
         $this->statistics = $this->buildStatistics();
     }
 
-    public static function fromActivitiesAndChallenges(
+    public static function create(
         Activities $activities,
         Challenges $challenges,
         Months $months): self
@@ -111,9 +111,9 @@ final readonly class MonthlyStatistics
     /**
      * @return array<string,mixed>
      */
-    public function getTotalsForActivityType(ActivityType $activityType): array
+    public function getTotalsForSportType(SportType $sportType): array
     {
-        return $this->getTotalsForActivities($this->activities->filterOnActivityType($activityType));
+        return $this->getTotalsForActivities($this->activities->filterOnSportType($sportType));
     }
 
     /**

@@ -7,8 +7,8 @@ use App\Domain\Nominatim\Nominatim;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
-use App\Domain\Strava\Activity\ActivityType;
-use App\Domain\Strava\Activity\ActivityTypesToImport;
+use App\Domain\Strava\Activity\SportType\SportType;
+use App\Domain\Strava\Activity\SportType\SportTypesToImport;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaDataImportStatus;
@@ -32,7 +32,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private Nominatim $nominatim,
         private ActivityRepository $activityRepository,
         private FilesystemOperator $filesystem,
-        private ActivityTypesToImport $activityTypesToImport,
+        private SportTypesToImport $sportTypesToImport,
         private StravaDataImportStatus $stravaDataImportStatus,
         private UuidFactory $uuidFactory,
     ) {
@@ -50,10 +50,14 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         );
 
         foreach ($this->strava->getActivities() as $stravaActivity) {
-            if (!$activityType = ActivityType::tryFrom($stravaActivity['type'])) {
+            if (!$sportType = SportType::tryFrom($stravaActivity['sport_type'])) {
+                $command->getOutput()->writeln(sprintf(
+                    '  => Sport type "%s" not supported yet. <a href="https://github.com/robiningelbrecht/strava-statistics/issues/new?assignees=robiningelbrecht&labels=new+feature&projects=&template=feature_request.md&title=Add+support+for+sport+type+%s>Open a new GitHub issue</a> to if you want support for this sport type',
+                    $stravaActivity['sport_type'],
+                    $stravaActivity['sport_type']));
                 continue;
             }
-            if (!$this->activityTypesToImport->has($activityType)) {
+            if (!$this->sportTypesToImport->has($sportType)) {
                 continue;
             }
 
@@ -67,7 +71,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     ->updateKudoCount($stravaActivity['kudos_count'] ?? 0)
                     ->updateGearId(GearId::fromOptionalUnprefixed($stravaActivity['gear_id'] ?? null));
 
-                if (!$activity->getLocation() && $activityType->supportsReverseGeocoding()
+                if (!$activity->getLocation() && $sportType->supportsReverseGeocoding()
                     && $activity->getLatitude() && $activity->getLongitude()) {
                     $reverseGeocodedAddress = $this->nominatim->reverseGeocode(Coordinate::createFromLatAndLng(
                         latitude: $activity->getLatitude(),
@@ -90,7 +94,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     $activity = Activity::create(
                         activityId: $activityId,
                         startDateTime: $startDate,
-                        activityType: $activityType,
+                        sportType: $sportType,
                         data: $this->strava->getActivity($activityId),
                         gearId: GearId::fromOptionalUnprefixed($stravaActivity['gear_id'] ?? null)
                     );
@@ -117,7 +121,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                         $activity->updateLocalImagePaths($localImagePaths);
                     }
 
-                    if ($activityType->supportsWeather() && $activity->getLatitude() && $activity->getLongitude()) {
+                    if ($sportType->supportsWeather() && $activity->getLatitude() && $activity->getLongitude()) {
                         $weather = $this->openMeteo->getWeatherStats(
                             $activity->getLatitude(),
                             $activity->getLongitude(),
@@ -126,7 +130,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                         $activity->updateWeather($weather);
                     }
 
-                    if ($activityType->supportsReverseGeocoding() && $activity->getLatitude() && $activity->getLongitude()) {
+                    if ($sportType->supportsReverseGeocoding() && $activity->getLatitude() && $activity->getLongitude()) {
                         $reverseGeocodedAddress = $this->nominatim->reverseGeocode(Coordinate::createFromLatAndLng(
                             latitude: $activity->getLatitude(),
                             longitude: $activity->getLongitude(),

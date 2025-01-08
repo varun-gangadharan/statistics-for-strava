@@ -26,6 +26,7 @@ https://github.com/user-attachments/assets/7fd9262d-744f-44dc-9c17-6730b1cfc383
 * 🛠️ __Under active development__: Expect frequent updates, bugs, and breaking changes.
 * 📦 __Backup before updates__: Always backup your Docker volumes before upgrading.
 * 🔄 __Stay up-to-date__: Make sure you're running the latest version for the best experience.
+* 🤓 __Check the release notes__: Always check the release notes to verify if there are any breaking changes.
 
 ## 🪄 Prerequisites
 
@@ -70,8 +71,9 @@ STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
 
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
-# Activity types to import. Allowed options: "Ride", "VirtualRide" and "Run"
-ACTIVITY_TYPES_TO_IMPORT='["Ride", "VirtualRide"]'
+# Sport types to import. Leave empty to import all sport types
+# A full list of allowed options is available on https://github.com/robiningelbrecht/strava-statistics/wiki/Supported-sport-types/
+SPORT_TYPES_TO_IMPORT='[]'
 # Your birthday. Needed to calculate heart rate zones.
 ATHLETE_BIRTHDAY=YYYY-MM-DD
 # History of weight (in kg or pounds, depending on UNIT_SYSTEM). Needed to calculate relative w/kg.
@@ -121,10 +123,6 @@ Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) befo
 
 * Because of technical (Strava) limitations, not all Strava challenges can be imported. Only the visible ones on your public profile can be imported
   (please be sure that your profile is public, otherwise this won't work)
-* Running the import for the first time can take a while, depending on how many activities you have on Strava.
-  Strava's API has a `rate limit` of `100 request per 15 minutes` and a `1000 requests per day`. We have to make sure
-  this limit is not exceeded. See https://developers.strava.com/docs/rate-limits/. If you have more than 500 activities,
-  you might run into the daily rate limit. If you do so, the app will import the remaining activities the next day(s).
 * You can only build the files once all data from Strava was imported
 
 ## 💡 Feature request?
