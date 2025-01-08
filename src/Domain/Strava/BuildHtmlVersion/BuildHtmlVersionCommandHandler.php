@@ -14,6 +14,7 @@ use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
 use App\Domain\Strava\Activity\DistanceBreakdown;
 use App\Domain\Strava\Activity\Eddington\Eddington;
 use App\Domain\Strava\Activity\Eddington\EddingtonChartBuilder;
+use App\Domain\Strava\Activity\Eddington\EddingtonHistoryChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
@@ -311,11 +312,17 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $command->getOutput()->writeln('  => Building eddington.html');
 
         $eddingtonChartsPerActivityType = [];
+        $eddingtonHistoryChartsPerActivityType = [];
         foreach ($eddingtonPerActivityType as $activityType => $eddington) {
             $eddingtonChartsPerActivityType[$activityType] = Json::encode(
-                EddingtonChartBuilder::fromEddington(
+                EddingtonChartBuilder::create(
                     eddington: $eddington,
                     unitSystem: $this->unitSystem,
+                )->build()
+            );
+            $eddingtonHistoryChartsPerActivityType[$activityType] = Json::encode(
+                EddingtonHistoryChartBuilder::create(
+                    eddington: $eddington,
                 )->build()
             );
         }
@@ -325,6 +332,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
             $this->twig->load('html/eddington.html.twig')->render([
                 'eddingtons' => $eddingtonPerActivityType,
                 'eddingtonCharts' => $eddingtonChartsPerActivityType,
+                'eddingtonHistoryCharts' => $eddingtonHistoryChartsPerActivityType,
                 'distanceUnit' => Kilometer::from(1)->toUnitSystem($this->unitSystem)->getSymbol(),
             ]),
         );

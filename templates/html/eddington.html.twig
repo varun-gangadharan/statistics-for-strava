@@ -38,6 +38,9 @@
                         <div id="{{ sportType }}" role="tabpanel" aria-labelledby="{{ sportType }}-tab">
                             <!-- EDDINGTON CHART -->
                             <div class="h-64" data-echarts-options='{{ eddingtonCharts[sportType] }}'></div>
+                            <!-- HISTORY -->
+                            <h3 class="font-bold mt-6 mb-2">History</h3>
+                            <div class="h-64" data-echarts-options='{{ eddingtonHistoryCharts[sportType] }}'></div>
                             <!-- DAYS NEEDED -->
                             <h3 class="font-bold mt-6 mb-2">Days needed</h3>
                             <div class="relative overflow-x-auto">
@@ -56,30 +59,6 @@
                                         {% for eddingtonNumber,daysNeeded in eddington.getDaysToCompleteForFutureNumbers() %}
                                             <td class="px-6 py-2">
                                                 {{ daysNeeded }}
-                                            </td>
-                                        {% endfor %}
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- HISTORY -->
-                            <h3 class="font-bold mt-6 mb-2">History</h3>
-                            <div class="relative overflow-x-auto">
-                                <table class="w-full text-sm text-center text-gray-500">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                    <tr>
-                                        {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
-                                            <th scope="col" class="px-6 py-3">
-                                                {{ eddingtonNumber }}<span class="text-xs">{{ distanceUnit }}</span>
-                                            </th>
-                                        {% endfor %}
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr class="bg-white border-b">
-                                        {% for eddingtonNumber,dateAchieved in eddington.getEddingtonHistory() %}
-                                            <td class="px-6 py-2 truncate">
-                                                {{ dateAchieved.format('d-m-Y') }}
                                             </td>
                                         {% endfor %}
                                     </tr>

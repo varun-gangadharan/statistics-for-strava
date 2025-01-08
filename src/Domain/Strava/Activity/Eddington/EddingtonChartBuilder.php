@@ -13,7 +13,7 @@ final readonly class EddingtonChartBuilder
     ) {
     }
 
-    public static function fromEddington(
+    public static function create(
         Eddington $eddington,
         UnitSystem $unitSystem,
     ): self {
