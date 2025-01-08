@@ -29,6 +29,7 @@ class ImportSegmentsCommandHandlerTest extends ContainerTestCase
             ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed(1))
                 ->withData([
+                    'device_name' => 'Zwift',
                     'segment_efforts' => [
                         [
                             'id' => '1',
@@ -80,6 +81,10 @@ class ImportSegmentsCommandHandlerTest extends ContainerTestCase
 
         $this->commandBus->dispatch(new ImportSegments($output));
         $this->assertMatchesTextSnapshot($output);
+
+        $this->assertMatchesJsonSnapshot(
+            $this->getConnection()->executeQuery('SELECT * FROM Segment')->fetchAllAssociative()
+        );
     }
 
     #[\Override]

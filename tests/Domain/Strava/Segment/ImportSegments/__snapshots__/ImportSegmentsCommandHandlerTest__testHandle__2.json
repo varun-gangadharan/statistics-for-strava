@@ -1,0 +1,7 @@
+[
+    {
+        "segmentId": "segment-1",
+        "name": "Segment One",
+        "data": "{\"id\":\"1\",\"name\":\"Segment One\",\"device_name\":\"Zwift\",\"sport_type\":\"Ride\"}"
+    }
+]

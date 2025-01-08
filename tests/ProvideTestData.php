@@ -223,8 +223,9 @@ trait ProvideTestData
                 ->withData([
                     'distance' => 100,
                     'maximum_grade' => 5.3,
-                    'activity_type' => 'VirtualRide',
                     'starred' => true,
+                    'device_name' => 'Polar',
+                    'sport_type' => 'Ride',
                 ])
                 ->build()
         );
@@ -235,7 +236,8 @@ trait ProvideTestData
                 ->withData([
                     'distance' => 110,
                     'maximum_grade' => 1,
-                    'activity_type' => 'Ride',
+                    'sport_type' => 'Ride',
+                    'device_name' => 'Polar',
                 ])
                 ->build()
         );
@@ -246,7 +248,8 @@ trait ProvideTestData
                 ->withData([
                     'distance' => 100,
                     'maximum_grade' => 5.3,
-                    'activity_type' => 'VirtualRide',
+                    'sport_type' => 'Ride',
+                    'device_name' => 'Polar',
                     'starred' => true,
                 ])
                 ->build()
