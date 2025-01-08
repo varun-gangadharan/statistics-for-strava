@@ -15,8 +15,6 @@ final class Segment
 {
     private ?SegmentEffort $bestEffort = null;
     private int $numberOfTimesRidden = 0;
-    private ?string $deviceName = null;
-    private ?SportType $sportType = null;
 
     /**
      * @param array<mixed> $data
@@ -80,6 +78,11 @@ final class Segment
         return Name::fromString(implode(' ', $parts));
     }
 
+    public function getDeviceName(): ?string
+    {
+        return $this->data['device_name'] ?? null;
+    }
+
     public function getDistance(): Kilometer
     {
         return Kilometer::from($this->data['distance'] / 1000);
@@ -90,29 +93,19 @@ final class Segment
         return $this->data['maximum_grade'];
     }
 
-    public function getSportType(): ?SportType
+    public function getSportType(): SportType
     {
-        return $this->sportType;
-    }
-
-    public function enrichWithSportType(SportType $sportType): void
-    {
-        $this->sportType = $sportType;
+        return SportType::from($this->data['sport_type']);
     }
 
     public function isZwiftSegment(): bool
     {
-        return 'zwift' === strtolower($this->deviceName ?? '');
+        return 'zwift' === strtolower($this->getDeviceName() ?? '');
     }
 
     public function isRouvySegment(): bool
     {
-        return 'rouvy' === strtolower($this->deviceName ?? '');
-    }
-
-    public function enrichWithDeviceName(?string $deviceName): void
-    {
-        $this->deviceName = $deviceName;
+        return 'rouvy' === strtolower($this->getDeviceName() ?? '');
     }
 
     /**
@@ -170,7 +163,7 @@ final class Segment
         return [
             'isKom' => $this->isKOM() ? 'isKom' : '',
             'isFavourite' => $this->isStarred() ? 'isFavourite' : '',
-            'sportType' => $this->getSportType() ? $this->getSportType()->value : '',
+            'sportType' => $this->getSportType()->value,
         ];
     }
 

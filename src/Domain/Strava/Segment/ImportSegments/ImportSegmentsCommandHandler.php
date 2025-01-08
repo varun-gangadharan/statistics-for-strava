@@ -37,7 +37,7 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
         /** @var Activity $activity */
         foreach ($this->activityRepository->findAll() as $activity) {
             if (!$segmentEfforts = $activity->getSegmentEfforts()) {
-                // No segments or we already imported and deleted them from the activity.
+                // No segments or we already imported them activity.
                 continue;
             }
 
@@ -48,7 +48,13 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
                 $segment = Segment::create(
                     segmentId: $segmentId,
                     name: Name::fromString($activitySegment['name']),
-                    data: array_merge($activitySegment, ['device_name' => $activity->getDeviceName()]),
+                    data: [
+                        ...$activitySegment,
+                        ...[
+                            'device_name' => $activity->getDeviceName(),
+                            'sport_type' => $activity->getSportType()->value,
+                        ],
+                    ],
                 );
 
                 // Do not import segments that have been imported in the current run.
@@ -64,7 +70,6 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
                 }
 
                 $segmentEffortId = SegmentEffortId::fromUnprefixed((string) $activitySegmentEffort['id']);
-                // TODO: fetch segment data from strava if it's a KOMs to be able to display leaflet map.
                 try {
                     $segmentEffort = $this->segmentEffortRepository->find($segmentEffortId);
                     $this->segmentEffortRepository->update($segmentEffort);
