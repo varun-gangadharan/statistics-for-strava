@@ -73,8 +73,8 @@ services:
         factory: [ App\Domain\Strava\Athlete\AthleteBirthDate, 'fromString' ]
         arguments: ['%env(string:ATHLETE_BIRTHDAY)%']
 
-    App\Domain\Strava\Activity\SportTypesToImport:
-        factory: [ 'App\Domain\Strava\Activity\SportTypesToImport', from ]
+    App\Domain\Strava\Activity\SportType\SportTypesToImport:
+        factory: [ 'App\Domain\Strava\Activity\SportType\SportTypesToImport', from ]
         arguments: [ '%env(json:SPORT_TYPES_TO_IMPORT)%' ]
 
     App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightsFromEnvFile:

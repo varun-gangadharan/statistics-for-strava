@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava;
+namespace App\Domain\Strava\Activity\SportType;
 
 use App\Domain\Strava\Activity\ActivityType;
 

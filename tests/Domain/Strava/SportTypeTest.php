@@ -2,7 +2,7 @@
 
 namespace App\Tests\Domain\Strava;
 
-use App\Domain\Strava\SportType;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Tests\ContainerTestCase;
 use Spatie\Snapshots\MatchesSnapshots;
 use Twig\Environment;

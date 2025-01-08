@@ -3,9 +3,9 @@
 namespace App\Domain\Strava\Activity;
 
 use App\Domain\Nominatim\Location;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
-use App\Domain\Strava\SportType;
 use App\Infrastructure\Eventing\EventBus;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;

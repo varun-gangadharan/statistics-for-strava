@@ -6,6 +6,7 @@ use App\Domain\Measurement\Length\Kilometer;
 use App\Domain\Measurement\Length\Meter;
 use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\Activity;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\Challenge\Challenge;

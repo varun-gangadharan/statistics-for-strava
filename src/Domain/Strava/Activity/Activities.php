@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Activity;
 
+use App\Domain\Strava\Activity\SportType\SportType;
+use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Week;
-use App\Domain\Strava\SportType;
 use App\Infrastructure\ValueObject\Collection;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;

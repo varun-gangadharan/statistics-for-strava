@@ -7,8 +7,8 @@ namespace App\Tests\Domain\Strava\Activity;
 use App\Domain\Nominatim\Location;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\SportType;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
 final class ActivityBuilder

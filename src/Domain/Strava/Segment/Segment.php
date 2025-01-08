@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Segment;
 
 use App\Domain\Measurement\Length\Kilometer;
+use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffort;
-use App\Domain\Strava\SportType;
 use App\Infrastructure\ValueObject\String\Name;
 use Doctrine\ORM\Mapping as ORM;
 
