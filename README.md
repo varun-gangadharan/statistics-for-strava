@@ -19,7 +19,7 @@ Strava Statistics is a self-hosted web app designed to provide you with better s
 
 ## 📸 Showcase
 
-https://github.com/user-attachments/assets/7fd9262d-744f-44dc-9c17-6730b1cfc383
+https://github.com/user-attachments/assets/a865f2f6-7f65-428b-9f00-1a8ff3e625c0
 
 ## ⚠️ Disclaimer
 
