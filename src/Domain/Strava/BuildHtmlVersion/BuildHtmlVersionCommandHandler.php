@@ -8,7 +8,7 @@ use App\Domain\Strava\Activity\ActivityHeatmapChartBuilder;
 use App\Domain\Strava\Activity\ActivityIntensity;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityTotals;
-use App\Domain\Strava\Activity\ActivityType;
+use App\Domain\Strava\Activity\ActivityTypeRepository;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStats;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsChartsBuilder;
 use App\Domain\Strava\Activity\DistanceBreakdown;
@@ -18,6 +18,7 @@ use App\Domain\Strava\Activity\Eddington\EddingtonHistoryChartBuilder;
 use App\Domain\Strava\Activity\HeartRateDistributionChartBuilder;
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\PowerDistributionChartBuilder;
+use App\Domain\Strava\Activity\SportType\SportTypeRepository;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\ActivityStreamRepository;
@@ -61,7 +62,7 @@ use Twig\Environment;
 
 final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 {
-    private const string APP_VERSION = 'v0.3.1';
+    private const string APP_VERSION = 'v0.3.2';
 
     public function __construct(
         private ActivityRepository $activityRepository,
@@ -76,6 +77,8 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         private SegmentRepository $segmentRepository,
         private SegmentEffortRepository $segmentEffortRepository,
         private FtpRepository $ftpRepository,
+        private SportTypeRepository $sportTypeRepository,
+        private ActivityTypeRepository $activityTypeRepository,
         private ActivityIntensity $activityIntensity,
         private UnitSystem $unitSystem,
         private Environment $twig,
@@ -92,11 +95,13 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $athlete = $this->athleteRepository->find();
         $allActivities = $this->activityRepository->findAll();
+        $importedSportTypes = $this->sportTypeRepository->findAll();
+        $importedActivityTypes = $this->activityTypeRepository->findAll();
         $activitiesPerActivityType = [];
-        foreach (ActivityType::cases() as $activityType) {
+        foreach ($importedActivityTypes as $activityType) {
             $activitiesPerActivityType[$activityType->value] = $allActivities->filterOnActivityType($activityType);
         }
-        $importedSportTypes = $allActivities->getSportTypes();
+
         $allChallenges = $this->challengeRepository->findAll();
         $allGear = $this->gearRepository->findAll();
         $allImages = $this->imageRepository->findAll();
@@ -105,7 +110,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
 
         $command->getOutput()->writeln('  => Calculating Eddington');
         $eddingtonPerActivityType = [];
-        foreach (ActivityType::cases() as $activityType) {
+        foreach ($importedActivityTypes as $activityType) {
             if (!$activityType->supportsEddington()) {
                 continue;
             }
@@ -195,7 +200,7 @@ final readonly class BuildHtmlVersionCommandHandler implements CommandHandler
         $distanceBreakdowns = [];
         $yearlyDistanceCharts = [];
         $yearlyStatistics = [];
-        foreach (ActivityType::cases() as $activityType) {
+        foreach ($importedActivityTypes as $activityType) {
             if ($activitiesPerActivityType[$activityType->value]->isEmpty()) {
                 continue;
             }

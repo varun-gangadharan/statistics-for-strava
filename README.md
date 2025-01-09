@@ -72,6 +72,7 @@ STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
 # Sport types to import. Leave empty to import all sport types
+# With this list you can also decide the order the sport types will be rendered in.
 # A full list of allowed options is available on https://github.com/robiningelbrecht/strava-statistics/wiki/Supported-sport-types/
 SPORT_TYPES_TO_IMPORT='[]'
 # Your birthday. Needed to calculate heart rate zones.

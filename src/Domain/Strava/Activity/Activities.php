@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity;
 
 use App\Domain\Strava\Activity\SportType\SportType;
-use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Calendar\Week;
 use App\Infrastructure\ValueObject\Collection;
@@ -93,16 +92,5 @@ final class Activities extends Collection
         }
 
         return $years;
-    }
-
-    public function getSportTypes(): SportTypes
-    {
-        $uniqueSportTypes = [];
-        foreach ($this as $activity) {
-            $sportType = $activity->getSportType();
-            $uniqueSportTypes[$sportType->value] = $sportType;
-        }
-
-        return SportTypes::fromArray(array_values($uniqueSportTypes));
     }
 }
