@@ -10,15 +10,17 @@ final readonly class DbalSportTypeRepository implements SportTypeRepository
 {
     public function __construct(
         private Connection $connection,
+        private SportTypesToImport $sportTypesToImport,
     ) {
     }
 
     public function findAll(): SportTypes
     {
         $orderByStatement = [];
-        foreach (SportType::cases() as $index => $sportType) {
+        foreach ($this->sportTypesToImport as $index => $sportType) {
             $orderByStatement[] = sprintf('WHEN "%s" THEN %d', $sportType->value, $index);
         }
+        $orderByStatement[] = 'ELSE 9999';
 
         return SportTypes::fromArray(array_map(
             fn (string $sportType) => SportType::from($sportType),
