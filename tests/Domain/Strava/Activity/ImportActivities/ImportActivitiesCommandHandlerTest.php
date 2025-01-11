@@ -179,6 +179,12 @@ class ImportActivitiesCommandHandlerTest extends ContainerTestCase
         $output = new SpyOutput();
         $this->strava->setMaxNumberOfCallsBeforeTriggering429(1000);
 
+        $this->getContainer()->get(ActivityRepository::class)->add(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed(2))
+                ->build()
+        );
+
         $this->importActivitiesCommandHandler->handle(new ImportActivities($output));
 
         $this->assertMatchesTextSnapshot($output);
@@ -188,7 +194,7 @@ class ImportActivitiesCommandHandlerTest extends ContainerTestCase
         );
 
         $this->assertCount(
-            1,
+            2,
             $this->getContainer()->get(ActivityRepository::class)->findAll()->toArray()
         );
     }

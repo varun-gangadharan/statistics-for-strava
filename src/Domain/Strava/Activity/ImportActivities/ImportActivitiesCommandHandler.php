@@ -152,11 +152,18 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
 
                     $this->activityRepository->add($activity);
                     unset($activityIdsToDelete[(string) $activity->getId()]);
+
                     $command->getOutput()->writeln(sprintf(
                         '  => Imported activity "%s - %s"',
                         $activity->getName(),
                         $activity->getStartDate()->format('d-m-Y'))
                     );
+
+                    $this->numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+                    if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
+                        // Stop importing activities, we reached the max number to process for this batch.
+                        break;
+                    }
                 } catch (ClientException|RequestException $exception) {
                     $this->stravaDataImportStatus->markActivityImportAsUncompleted();
 
@@ -177,12 +184,6 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
 
                     return;
                 }
-            }
-
-            $this->numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
-            if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
-                // Stop importing activities, we reached the max number to process for this batch.
-                break;
             }
         }
 
