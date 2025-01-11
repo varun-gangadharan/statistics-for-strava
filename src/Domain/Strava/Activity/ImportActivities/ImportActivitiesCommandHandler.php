@@ -52,8 +52,13 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             $allActivityIds->map(fn (ActivityId $activityId) => (string) $activityId),
             $allActivityIds->toArray(),
         );
+        $stravaActivities = $this->strava->getActivities();
 
-        foreach ($this->strava->getActivities() as $stravaActivity) {
+        $command->getOutput()->writeln(
+            sprintf('Status: %d out of %d activities imported', count($allActivityIds), count($stravaActivities))
+        );
+
+        foreach ($stravaActivities as $stravaActivity) {
             if (!$sportType = SportType::tryFrom($stravaActivity['sport_type'])) {
                 $command->getOutput()->writeln(sprintf(
                     '  => Sport type "%s" not supported yet. <a href="https://github.com/robiningelbrecht/strava-statistics/issues/new?assignees=robiningelbrecht&labels=new+feature&projects=&template=feature_request.md&title=Add+support+for+sport+type+%s>Open a new GitHub issue</a> to if you want support for this sport type',
