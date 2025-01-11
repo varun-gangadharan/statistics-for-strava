@@ -2,14 +2,14 @@
 
 namespace App\Tests\Domain\Strava\Activity;
 
-use App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport;
+use App\Domain\Strava\Activity\NumberOfNewActivitiesToProcessPerImport;
 use PHPUnit\Framework\TestCase;
 
-class NumberOfActivitiesToProcessPerImportTest extends TestCase
+class NumberOfNewActivitiesToProcessPerImportTest extends TestCase
 {
     public function testMaxNumberOfActivitiesProcessed(): void
     {
-        $numberOfActivitiesToProcessPerImport = NumberOfActivitiesToProcessPerImport::fromInt(2);
+        $numberOfActivitiesToProcessPerImport = NumberOfNewActivitiesToProcessPerImport::fromInt(2);
 
         $this->assertFalse(
             $numberOfActivitiesToProcessPerImport->maxNumberProcessed()
@@ -26,8 +26,8 @@ class NumberOfActivitiesToProcessPerImportTest extends TestCase
 
     public function testItShouldThrow(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('NumberOfActivitiesToProcessPerImport must be greater than 0'));
+        $this->expectExceptionObject(new \InvalidArgumentException('NumberOfNewActivitiesToProcessPerImport must be greater than 0'));
 
-        NumberOfActivitiesToProcessPerImport::fromInt(0);
+        NumberOfNewActivitiesToProcessPerImport::fromInt(0);
     }
 }

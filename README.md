@@ -69,10 +69,10 @@ STRAVA_CLIENT_SECRET=YOUR_CLIENT_SECRET
 # The refresh of your Strava app.
 STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
 # Strava API has rate limits (https://github.com/robiningelbrecht/strava-statistics/wiki),
-# to make sure we don't hit the rate limit, we want to cap the number of activities process 
-# per import. Considering there's a 1000 request per day limit and importing one activity can
-# take up to 3 API call, 250 should be a safe number.
-NUMBER_OF_ACTIVITIES_TO_PROCESS_PER_IMPORT=250
+# to make sure we don't hit the rate limit, we want to cap the number of new activities processed
+# per import. Considering there's a 1000 request per day limit and importing one new activity can
+# take up to 3 API calls, 250 should be a safe number.
+NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT=250
 
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric

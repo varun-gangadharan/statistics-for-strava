@@ -7,7 +7,7 @@ use App\Domain\Strava\Activity\ActivitiesToSkipDuringImport;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
-use App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport;
+use App\Domain\Strava\Activity\NumberOfNewActivitiesToProcessPerImport;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\SportType\SportTypesToImport;
 use App\Domain\Strava\Gear\GearId;
@@ -37,7 +37,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private SportTypesToImport $sportTypesToImport,
         private ActivitiesToSkipDuringImport $activitiesToSkipDuringImport,
         private StravaDataImportStatus $stravaDataImportStatus,
-        private NumberOfActivitiesToProcessPerImport $numberOfActivitiesToProcessPerImport,
+        private NumberOfNewActivitiesToProcessPerImport $numberOfNewActivitiesToProcessPerImport,
         private UuidFactory $uuidFactory,
     ) {
     }
@@ -159,8 +159,8 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                         $activity->getStartDate()->format('d-m-Y'))
                     );
 
-                    $this->numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
-                    if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
+                    $this->numberOfNewActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+                    if ($this->numberOfNewActivitiesToProcessPerImport->maxNumberProcessed()) {
                         // Stop importing activities, we reached the max number to process for this batch.
                         break;
                     }
@@ -188,7 +188,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         }
 
         $this->stravaDataImportStatus->markActivityImportAsCompleted();
-        if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
+        if ($this->numberOfNewActivitiesToProcessPerImport->maxNumberProcessed()) {
             // Shortcut the process here to make sure no activities are deleted yet.
             return;
         }
