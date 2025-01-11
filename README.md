@@ -128,12 +128,6 @@ docker compose exec app bin/console app:strava:build-files
 
 Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) before opening new issues. The question you have might be answered over there.
 
-## 🧐 Some things to consider
-
-* Because of technical (Strava) limitations, not all Strava challenges can be imported. Only the visible ones on your public profile can be imported
-  (please be sure that your profile is public, otherwise this won't work)
-* You can only build the files once all data from Strava was imported
-
 ## 💡 Feature request?
 
 For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose)
