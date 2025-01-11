@@ -7,11 +7,20 @@ use PHPUnit\Framework\TestCase;
 
 class NumberOfActivitiesToProcessPerImportTest extends TestCase
 {
-    public function testGetValue(): void
+    public function testMaxNumberOfActivitiesProcessed(): void
     {
-        $this->assertEquals(
-            10,
-            NumberOfActivitiesToProcessPerImport::fromInt(10)->getValue(),
+        $numberOfActivitiesToProcessPerImport = NumberOfActivitiesToProcessPerImport::fromInt(2);
+
+        $this->assertFalse(
+            $numberOfActivitiesToProcessPerImport->maxNumberProcessed()
+        );
+        $numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+        $this->assertFalse(
+            $numberOfActivitiesToProcessPerImport->maxNumberProcessed()
+        );
+        $numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+        $this->assertTrue(
+            $numberOfActivitiesToProcessPerImport->maxNumberProcessed()
         );
     }
 

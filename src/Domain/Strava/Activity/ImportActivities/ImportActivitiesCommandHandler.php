@@ -7,6 +7,7 @@ use App\Domain\Strava\Activity\ActivitiesToSkipDuringImport;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\SportType\SportTypesToImport;
 use App\Domain\Strava\Gear\GearId;
@@ -36,6 +37,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private SportTypesToImport $sportTypesToImport,
         private ActivitiesToSkipDuringImport $activitiesToSkipDuringImport,
         private StravaDataImportStatus $stravaDataImportStatus,
+        private NumberOfActivitiesToProcessPerImport $numberOfActivitiesToProcessPerImport,
         private UuidFactory $uuidFactory,
     ) {
     }
@@ -176,9 +178,19 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     return;
                 }
             }
+
+            $this->numberOfActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+            if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
+                // Stop importing activities, we reached the max number to process for this batch.
+                break;
+            }
         }
 
         $this->stravaDataImportStatus->markActivityImportAsCompleted();
+        if ($this->numberOfActivitiesToProcessPerImport->maxNumberProcessed()) {
+            // Shortcut the process here to make sure no activities are deleted yet.
+            return;
+        }
         if (empty($activityIdsToDelete)) {
             return;
         }

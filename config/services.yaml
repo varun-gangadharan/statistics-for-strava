@@ -80,7 +80,7 @@ services:
         arguments: [ '%env(json:SPORT_TYPES_TO_IMPORT)%' ]
 
     App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport:
-        factory: [ 'App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport', from ]
+        factory: [ 'App\Domain\Strava\Activity\NumberOfActivitiesToProcessPerImport', fromInt ]
         arguments: [ '%env(int:NUMBER_OF_ACTIVITIES_TO_PROCESS_PER_IMPORT)%' ]
 
     App\Domain\Strava\Activity\ActivitiesToSkipDuringImport:
