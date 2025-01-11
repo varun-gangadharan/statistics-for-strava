@@ -108,6 +108,8 @@ Strava does not allow to fetch all your completed challenges and trophies, but t
 * Make sure you save the source code to the file `./storage/files/strava-challenge-history.html`
 * On the next import, all your challenges will be imported
 
+__Note__: Only the visible challenges on your public profile can be imported (please be sure that your profile is public, otherwise this won't work)
+
 ## ⚡️Import and build statistics
 
 ```bash
