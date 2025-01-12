@@ -6,7 +6,7 @@ namespace App\Infrastructure\ValueObject\String;
 
 use Respect\Validation\Validator as v;
 
-final readonly class Url extends NonEmptyStringLiteral
+readonly class Url extends NonEmptyStringLiteral
 {
     #[\Override]
     protected function validate(string $value): void

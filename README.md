@@ -89,6 +89,9 @@ FTP_VALUES='{
     "YYYY-MM-DD": 198,
     "YYYY-MM-DD": 220
 }'
+# Full URL with ntfy topic included. This topic will be used to notify you when a new HTML build has run.
+# Leave empty to disable notifications.
+NTFY_URL=''
 # An array of activity ids to skip during import. 
 # This allows you to not import specific activities.
 # ACTIVITIES_TO_SKIP_DURING_IMPORT='["123456", "654321"]'
