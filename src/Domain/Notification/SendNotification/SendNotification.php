@@ -27,7 +27,7 @@ final class SendNotification extends DomainCommand
     }
 
     /**
-     * @readonly array<string>
+     * @return array<string>
      */
     public function getTags(): array
     {
