@@ -8,6 +8,7 @@ parameters:
     env(SPORT_TYPES_TO_IMPORT): '[]'
     env(ACTIVITIES_TO_SKIP_DURING_IMPORT): '[]'
     env(NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT): 250
+    env(NTFY_URL): ''
 
 services:
     # default configuration for services in *this* file
@@ -52,6 +53,10 @@ services:
     App\Infrastructure\ValueObject\String\PlatformEnvironment:
         factory: [ App\Infrastructure\ValueObject\String\PlatformEnvironment, 'from' ]
         arguments: ['%env(resolve:APP_ENV)%']
+
+    App\Infrastructure\Notification\Ntfy\NtfyUrl:
+        factory: [ App\Infrastructure\Notification\Ntfy\NtfyUrl, 'fromOptionalString' ]
+        arguments: ['%env(string:NTFY_URL)%']
 
     League\Flysystem\FilesystemOperator: '@default.storage'
 
