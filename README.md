@@ -68,6 +68,11 @@ STRAVA_CLIENT_ID=YOUR_CLIENT_ID
 STRAVA_CLIENT_SECRET=YOUR_CLIENT_SECRET
 # The refresh of your Strava app.
 STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
+# Strava API has rate limits (https://github.com/robiningelbrecht/strava-statistics/wiki),
+# to make sure we don't hit the rate limit, we want to cap the number of new activities processed
+# per import. Considering there's a 1000 request per day limit and importing one new activity can
+# take up to 3 API calls, 250 should be a safe number.
+NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT=250
 
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
@@ -106,6 +111,8 @@ Strava does not allow to fetch all your completed challenges and trophies, but t
 * Make sure you save the source code to the file `./storage/files/strava-challenge-history.html`
 * On the next import, all your challenges will be imported
 
+__Note__: Only the visible challenges on your public profile can be imported (please be sure that your profile is public, otherwise this won't work)
+
 ## ⚡️Import and build statistics
 
 ```bash
@@ -125,12 +132,6 @@ docker compose exec app bin/console app:strava:build-files
 ## 📚 Wiki
 
 Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) before opening new issues. The question you have might be answered over there.
-
-## 🧐 Some things to consider
-
-* Because of technical (Strava) limitations, not all Strava challenges can be imported. Only the visible ones on your public profile can be imported
-  (please be sure that your profile is public, otherwise this won't work)
-* You can only build the files once all data from Strava was imported
 
 ## 💡 Feature request?
 

@@ -7,6 +7,7 @@ use App\Domain\Strava\Activity\ActivitiesToSkipDuringImport;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\NumberOfNewActivitiesToProcessPerImport;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\SportType\SportTypesToImport;
 use App\Domain\Strava\Gear\GearId;
@@ -36,6 +37,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         private SportTypesToImport $sportTypesToImport,
         private ActivitiesToSkipDuringImport $activitiesToSkipDuringImport,
         private StravaDataImportStatus $stravaDataImportStatus,
+        private NumberOfNewActivitiesToProcessPerImport $numberOfNewActivitiesToProcessPerImport,
         private UuidFactory $uuidFactory,
     ) {
     }
@@ -50,8 +52,13 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
             $allActivityIds->map(fn (ActivityId $activityId) => (string) $activityId),
             $allActivityIds->toArray(),
         );
+        $stravaActivities = $this->strava->getActivities();
 
-        foreach ($this->strava->getActivities() as $stravaActivity) {
+        $command->getOutput()->writeln(
+            sprintf('Status: %d out of %d activities imported', count($allActivityIds), count($stravaActivities))
+        );
+
+        foreach ($stravaActivities as $stravaActivity) {
             if (!$sportType = SportType::tryFrom($stravaActivity['sport_type'])) {
                 $command->getOutput()->writeln(sprintf(
                     '  => Sport type "%s" not supported yet. <a href="https://github.com/robiningelbrecht/strava-statistics/issues/new?assignees=robiningelbrecht&labels=new+feature&projects=&template=feature_request.md&title=Add+support+for+sport+type+%s>Open a new GitHub issue</a> to if you want support for this sport type',
@@ -150,11 +157,18 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
 
                     $this->activityRepository->add($activity);
                     unset($activityIdsToDelete[(string) $activity->getId()]);
+
                     $command->getOutput()->writeln(sprintf(
                         '  => Imported activity "%s - %s"',
                         $activity->getName(),
                         $activity->getStartDate()->format('d-m-Y'))
                     );
+
+                    $this->numberOfNewActivitiesToProcessPerImport->increaseNumberOfProcessedActivities();
+                    if ($this->numberOfNewActivitiesToProcessPerImport->maxNumberProcessed()) {
+                        // Stop importing activities, we reached the max number to process for this batch.
+                        break;
+                    }
                 } catch (ClientException|RequestException $exception) {
                     $this->stravaDataImportStatus->markActivityImportAsUncompleted();
 
@@ -179,6 +193,10 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         }
 
         $this->stravaDataImportStatus->markActivityImportAsCompleted();
+        if ($this->numberOfNewActivitiesToProcessPerImport->maxNumberProcessed()) {
+            // Shortcut the process here to make sure no activities are deleted yet.
+            return;
+        }
         if (empty($activityIdsToDelete)) {
             return;
         }
