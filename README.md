@@ -28,6 +28,10 @@ https://github.com/user-attachments/assets/a865f2f6-7f65-428b-9f00-1a8ff3e625c0
 * 🔄 __Stay up-to-date__: Make sure you're running the latest version for the best experience.
 * 🤓 __Check the release notes__: Always check the release notes to verify if there are any breaking changes.
 
+## 📚 Wiki
+
+Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) before opening new issues. The question you have might be answered over there.
+
 ## 🪄 Prerequisites
 
 You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
@@ -128,10 +132,6 @@ You can configure a crontab on your host system:
 0 18 * * * docker compose exec app bin/console app:strava:import-data && 
 docker compose exec app bin/console app:strava:build-files
 ```
-
-## 📚 Wiki
-
-Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) before opening new issues. The question you have might be answered over there.
 
 ## 💡 Feature request?
 
