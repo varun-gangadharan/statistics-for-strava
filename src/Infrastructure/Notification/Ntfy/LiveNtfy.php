@@ -12,7 +12,7 @@ final readonly class LiveNtfy implements Ntfy
 {
     public function __construct(
         private Client $client,
-        private NtfyUrl $ntfyUrl,
+        private ?NtfyUrl $ntfyUrl,
     ) {
     }
 
@@ -21,10 +21,14 @@ final readonly class LiveNtfy implements Ntfy
      */
     public function sendNotification(
         string $title,
-        string $notification,
-        Url $click,
+        string $message,
         array $tags,
+        ?Url $click,
+        ?Url $icon,
     ): void {
+        if (!$this->ntfyUrl) {
+            return;
+        }
         $this->client->request(
             'POST',
             (string) $this->ntfyUrl,
@@ -34,10 +38,9 @@ final readonly class LiveNtfy implements Ntfy
                     'Title' => $title,
                     'Tags' => implode(',', $tags),
                     'Click' => (string) $click,
+                    'Icon' => (string) $icon,
                 ],
-                RequestOptions::BODY => [
-                    'content' => $notification,
-                ],
+                RequestOptions::BODY => $message,
             ]
         );
     }

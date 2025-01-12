@@ -13,8 +13,9 @@ interface Ntfy
      */
     public function sendNotification(
         string $title,
-        string $notification,
-        Url $click,
+        string $message,
         array $tags,
+        ?Url $click,
+        ?Url $icon,
     ): void;
 }
