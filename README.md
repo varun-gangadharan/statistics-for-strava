@@ -15,11 +15,34 @@
 
 ---
 
-Strava Statistics is a self-hosted web app designed to provide you with better stats
+<h4 align="center">Strava Statistics is a self-hosted web app designed to provide you with better stats.</h4>
+
+<p align="center">
+  <a href="#showcase">Showcase</a> •
+  <a href="#disclaimer">Disclaimer</a> •
+  <a href="#wiki">Wiki</a> •
+  <a href="#prerequisites">Prerequisites</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#import-and-build-statistics">Import and build statistics</a> •
+  <a href="#periodic-imports">Periodic imports</a>
+</p>
+
 
 ## 📸 Showcase
 
 https://github.com/user-attachments/assets/a865f2f6-7f65-428b-9f00-1a8ff3e625c0
+
+### Key Features
+
+* Dashboard with various stats and charts
+* Detailed list of all your activities
+* Monthly stats with calendar view
+* Gear stats
+* Eddington for biking and running activities
+* Detailed list of your segments and corresponding efforts
+* Heatmap
+* History of completed Strava challenges
+* History of activity photos
 
 ## ⚠️ Disclaimer
 
