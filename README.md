@@ -178,4 +178,4 @@ docker compose exec app bin/console app:strava:build-files
 
 ## 💡 Feature request?
 
-For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose)
+For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose). Before you do, please read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki). The question you have might be answered over there.
