@@ -69,9 +69,24 @@ You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
 
 ## 🛠️ Installation 
 
-Start off by showing some ❤️ and give this repo a star.
+> [!NOTE]
+> To run this application, you'll need [Docker](https://docs.docker.com/engine/install/) with [docker-compose](https://docs.docker.com/compose/install/).
 
-To run this application, you'll need [Docker](https://docs.docker.com/engine/install/) with [docker-compose](https://docs.docker.com/compose/install/).
+Start off by showing some ❤️ and give this repo a star. Then from your command line:
+
+```bash
+# Create a new directory
+> mkdir strava-statistics
+> cd strava-statistics
+
+# Create docker-compose.yml and copy the example contents into it
+> touch docker-compose.yml
+> nano docker-compose.yml
+
+# Create .env and copy the example contents into it. Configure as you like
+> touch .env
+> nano .env
+```
 
 ### docker-compose.yml
 
@@ -133,7 +148,10 @@ NTFY_URL=''
 
 ### Import all challenges and trophies
 
-Strava does not allow to fetch all your completed challenges and trophies, but there's a little workaround if you'd like to import those:
+> [!NOTE]
+> Strava does not allow to fetch all your completed challenges and trophies
+
+There's a little workaround if you'd still like to import your complete challenge and trophy history:
 * Navigate to https://www.strava.com/athletes/[YOUR_ATHLETE_ID]/trophy-case
 * Open the page's source code and copy everything
   ![Trophy case source code](public/assets/images/readme/trophy-case-source-code.png)
