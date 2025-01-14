@@ -180,27 +180,6 @@ docker compose exec app bin/console app:strava:build-files
 
 For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose)
 
-## 💻 Local development
-
-If you want to add features or fix bugs yourself, you can do this by setting up the project on your local machine.
-Just clone this git repository and you should be good to go.
-
-The project can be run in a single `Docker` container which uses PHP.
-There's also a `Make` file to... make things easier:
-
-```bash
-# Run a docker-compose command.
-make dc cmd="run"
-
-# Run "composer" command in the php-cli container.
-make composer arg="install"
-
-# Run an app console command
-make console arg="app:some:command"
-
-# Run the test suite.
-make phpunit
-
 # Run PHPStan
 make phpstan
 ```
