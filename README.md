@@ -18,13 +18,13 @@
 <h4 align="center">Strava Statistics is a self-hosted web app designed to provide you with better stats.</h4>
 
 <p align="center">
-  <a href="#showcase">Showcase</a> •
-  <a href="#disclaimer">Disclaimer</a> •
-  <a href="#wiki">Wiki</a> •
-  <a href="#prerequisites">Prerequisites</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#import-and-build-statistics">Import and build statistics</a> •
-  <a href="#periodic-imports">Periodic imports</a>
+  <a href="#-showcase">Showcase</a> •
+  <a href="#-disclaimer">Disclaimer</a> •
+  <a href="#-wiki">Wiki</a> •
+  <a href="#-prerequisites">Prerequisites</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-import-and-build-statistics">Import and build statistics</a> •
+  <a href="#-periodic-imports">Periodic imports</a>
 </p>
 
 
