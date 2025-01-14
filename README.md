@@ -70,6 +70,7 @@ You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
 ## 🛠️ Installation 
 
 Start off by showing some ❤️ and give this repo a star.
+
 To run this application, you'll need [Docker](https://docs.docker.com/engine/install/) with [docker-compose](https://docs.docker.com/compose/install/).
 
 ### docker-compose.yml
