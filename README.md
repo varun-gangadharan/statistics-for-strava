@@ -179,9 +179,3 @@ docker compose exec app bin/console app:strava:build-files
 ## 💡 Feature request?
 
 For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose)
-
-# Run PHPStan
-make phpstan
-```
-
-For other useful `Make` commands, check [Makefile](Makefile)
