@@ -19,11 +19,11 @@
 
 <p align="center">
   <a href="#-showcase">Showcase</a> •
-  <a href="#-disclaimer">Disclaimer</a> •
+  <a href="#%EF%B8%8F-disclaimer">Disclaimer</a> •
   <a href="#-wiki">Wiki</a> •
   <a href="#-prerequisites">Prerequisites</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-import-and-build-statistics">Import and build statistics</a> •
+  <a href="#%EF%B8%8F-installation">Installation</a> •
+  <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
   <a href="#-periodic-imports">Periodic imports</a>
 </p>
 
@@ -69,7 +69,8 @@ You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
 
 ## 🛠️ Installation 
 
-Start off by showing some ❤️ and give this repo a star ;)
+Start off by showing some ❤️ and give this repo a star.
+To run this application, you'll need [Docker](https://docs.docker.com/engine/install/) with [docker-compose](https://docs.docker.com/compose/install/).
 
 ### docker-compose.yml
 
