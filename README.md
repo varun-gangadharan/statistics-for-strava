@@ -177,12 +177,7 @@ docker compose exec app bin/console app:strava:build-files
 
 ## ⏰ Periodic imports
 
-You can configure a crontab on your host system:
-
-```bash
-0 18 * * * docker compose exec app bin/console app:strava:import-data && 
-docker compose exec app bin/console app:strava:build-files
-```
+The wiki explains [how to schedule imports](https://github.com/robiningelbrecht/strava-statistics/wiki/Scheduling-automatic-imports)
 
 ## 💡 Feature request?
 
