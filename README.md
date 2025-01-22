@@ -24,7 +24,7 @@
   <a href="#-prerequisites">Prerequisites</a> •
   <a href="#%EF%B8%8F-installation">Installation</a> •
   <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
-  <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a>
+  <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a> •
   <a href="#-periodic-imports">Periodic imports</a>
 </p>
 
