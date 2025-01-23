@@ -119,7 +119,7 @@ STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
 # take up to 3 API calls, 250 should be a safe number.
 NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT=250
 
-# Allowed options: en_US or nl_BE
+# Allowed options: en_US, fr_FR or nl_BE
 LOCALE=en_US
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
