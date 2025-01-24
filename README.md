@@ -24,8 +24,7 @@
   <a href="#-prerequisites">Prerequisites</a> •
   <a href="#%EF%B8%8F-installation">Installation</a> •
   <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
-  <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a> •
-  <a href="#-periodic-imports">Periodic imports</a>
+  <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a>
 </p>
 
 
@@ -181,10 +180,6 @@ There's a little workaround if you'd still like to import these:
 docker compose exec app bin/console app:strava:import-data
 docker compose exec app bin/console app:strava:build-files
 ```
-
-## ⏰ Periodic imports
-
-The wiki explains [how to schedule imports](https://github.com/robiningelbrecht/strava-statistics/wiki/Scheduling-automatic-imports)
 
 ## 🗺️ Locales and translations
 
