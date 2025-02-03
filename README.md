@@ -15,6 +15,10 @@
 
 ---
 
+<p align="center">
+  <a href="https://www.buymeacoffee.com/ingelbrecht" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;" ></a>
+</p>
+
 <h4 align="center">Strava Statistics is a self-hosted web app designed to provide you with better stats.</h4>
 
 <p align="center">
@@ -26,7 +30,6 @@
   <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
   <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a>
 </p>
-
 
 ## 📸 Showcase
 
