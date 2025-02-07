@@ -1,5 +1,5 @@
 ---
-name: Help / Question
+name: Help / question
 about: Ask for help
 title: ''
 labels: question / help
