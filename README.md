@@ -46,6 +46,7 @@ https://github.com/user-attachments/assets/a865f2f6-7f65-428b-9f00-1a8ff3e625c0
 * Heatmap
 * History of completed Strava challenges
 * History of activity photos
+* User badge
 
 ## ⚠️ Disclaimer
 
