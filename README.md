@@ -83,8 +83,8 @@ Start off by showing some ❤️ and give this repo a star. Then from your comma
 
 ```bash
 # Create a new directory
-> mkdir strava-statistics
-> cd strava-statistics
+> mkdir statistics-for-strava
+> cd statistics-for-strava
 
 # Create docker-compose.yml and copy the example contents into it
 > touch docker-compose.yml
