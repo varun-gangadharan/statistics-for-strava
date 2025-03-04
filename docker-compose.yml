@@ -17,7 +17,7 @@ services:
         build:
             context: ./
             dockerfile: docker/app/Dockerfile
-        container_name: 'sstatistics-for-strava-app'
+        container_name: 'statistics-for-strava-app'
         volumes:
             - ./build:/var/www/build
             - ./storage/database:/var/www/storage/database
