@@ -180,8 +180,9 @@ ZWIFT_RACING_SCORE=
 # Optional, full URL with ntfy topic included. This topic will be used to notify you when a new HTML build has run.
 # Leave empty to disable notifications.
 NTFY_URL=''
-# An array of activity ids to skip during import. 
+# Optional, an array of activity ids to skip during import. 
 # This allows you to skip specific activities during import.
+# ACTIVITIES_TO_SKIP_DURING_IMPORT='["123456789", "987654321"]'
 ACTIVITIES_TO_SKIP_DURING_IMPORT='[]'
 
 # The UID and GID to create/own files managed by strava-statistics
