@@ -4,17 +4,19 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    env(UNIT_SYSTEM): 'metric'
+    env(MANIFEST_APP_URL): 'http://localhost:8080/'
     env(SPORT_TYPES_TO_IMPORT): '[]'
     env(ACTIVITY_VISIBILITIES_TO_IMPORT): '[]'
     env(ACTIVITIES_TO_SKIP_DURING_IMPORT): '[]'
     env(NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT): 250
-    env(NTFY_URL): ''
+    env(FTP_HISTORY):
+    env(ATHLETE_WEIGHT_HISTORY):
+    env(LOCALE): 'en_US'
+    env(UNIT_SYSTEM): 'metric'
     env(TIME_FORMAT): 24
     env(DATE_FORMAT): 'DAY-MONTH-YEAR'
-    env(LOCALE): 'en_US'
-    env(MANIFEST_APP_URL): 'http://localhost:8080/'
     env(PROFILE_PICTURE_URL): ''
+    env(NTFY_URL): ''
     env(ZWIFT_LEVEL):
     env(ZWIFT_RACING_SCORE):
 
@@ -130,13 +132,13 @@ services:
         factory: [ 'App\Domain\Strava\Activity\ActivitiesToSkipDuringImport', from ]
         arguments: [ '%env(json:ACTIVITIES_TO_SKIP_DURING_IMPORT)%' ]
 
-    App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightsFromEnvFile:
-        factory: [ 'App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightsFromEnvFile', fromString ]
-        arguments: [ '%env(string:ATHLETE_WEIGHTS)%',  '@App\Infrastructure\ValueObject\Measurement\UnitSystem']
+    App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightHistoryFromEnvFile:
+        factory: [ 'App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightHistoryFromEnvFile', fromString ]
+        arguments: [ '%env(string:fallback:ATHLETE_WEIGHT_HISTORY:ATHLETE_WEIGHTS)%',  '@App\Infrastructure\ValueObject\Measurement\UnitSystem']
 
-    App\Domain\Strava\Ftp\ImportFtp\FtpValuesFromEnvFile:
-        factory: [ 'App\Domain\Strava\Ftp\ImportFtp\FtpValuesFromEnvFile', fromString ]
-        arguments: [ '%env(string:FTP_VALUES)%' ]
+    App\Domain\Strava\Ftp\ImportFtp\FtpHistoryFromEnvFile:
+        factory: [ 'App\Domain\Strava\Ftp\ImportFtp\FtpHistoryFromEnvFile', fromString ]
+        arguments: [ '%env(string:fallback:FTP_HISTORY:FTP_VALUES)%' ]
 
     App\Domain\Zwift\ZwiftLevel:
         factory: [ 'App\Domain\Zwift\ZwiftLevel', fromOptionalString ]

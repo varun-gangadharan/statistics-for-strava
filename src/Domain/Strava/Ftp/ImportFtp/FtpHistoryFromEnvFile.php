@@ -10,7 +10,7 @@ use App\Domain\Strava\Ftp\FtpValue;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final readonly class FtpValuesFromEnvFile
+final readonly class FtpHistoryFromEnvFile
 {
     private Ftps $ftps;
 
@@ -29,7 +29,7 @@ final readonly class FtpValuesFromEnvFile
                     ftp: FtpValue::fromInt($ftpValue)
                 ));
             } catch (\DateMalformedStringException) {
-                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set in FTP_VALUES in .env file', $setOn));
+                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set in FTP_HISTORY in .env file', $setOn));
             }
         }
     }
@@ -46,7 +46,7 @@ final readonly class FtpValuesFromEnvFile
                 Json::decode($values)
             );
         } catch (\JsonException) {
-            throw new \InvalidArgumentException('Invalid FTP_VALUES detected in .env file. Make sure the string is valid JSON');
+            throw new \InvalidArgumentException('Invalid FTP_HISTORY detected in .env file. Make sure the string is valid JSON');
         }
     }
 }

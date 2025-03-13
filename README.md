@@ -166,17 +166,17 @@ ACTIVITIES_TO_SKIP_DURING_IMPORT='[]'
 ATHLETE_BIRTHDAY=YYYY-MM-DD
 # History of weight (in kg or pounds, depending on UNIT_SYSTEM). Needed to calculate relative w/kg.
 # Check https://github.com/robiningelbrecht/strava-statistics/wiki for more info.
-ATHLETE_WEIGHTS='{
+ATHLETE_WEIGHT_HISTORY='{
     "YYYY-MM-DD": 100,
     "YYYY-MM-DD": 200
 }'
 # Optional, history of FTP. Needed to calculate activity stress level.
 # Check https://github.com/robiningelbrecht/strava-statistics/wiki for more info. Example:
-# FTP_VALUES='{
+# FTP_HISTORY='{
 #    "2024-10-03": 198,
 #    "2025-01-10": 220
 #}'
-FTP_VALUES='[]'
+FTP_HISTORY='[]'
 # Optional, a link to your profile picture. Will be used to display in the nav bar and link to your Strava profile.
 # Leave empty to disable this feature.
 PROFILE_PICTURE_URL=''
