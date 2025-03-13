@@ -12,7 +12,7 @@ use App\Infrastructure\ValueObject\Measurement\Mass\Pound;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final readonly class AthleteWeightsFromEnvFile
+final readonly class AthleteWeightHistoryFromEnvFile
 {
     private AthleteWeights $weights;
 
@@ -37,7 +37,7 @@ final readonly class AthleteWeightsFromEnvFile
                     weightInGrams: $weightInGrams,
                 ));
             } catch (\DateMalformedStringException) {
-                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set in ATHLETE_WEIGHTS in .env file', $on));
+                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set in ATHLETE_WEIGHT_HISTORY in .env file', $on));
             }
         }
     }
@@ -55,7 +55,7 @@ final readonly class AthleteWeightsFromEnvFile
                 unitSystem: $unitSystem
             );
         } catch (\JsonException) {
-            throw new \InvalidArgumentException('Invalid ATHLETE_WEIGHTS detected in .env file. Make sure the string is valid JSON');
+            throw new \InvalidArgumentException('Invalid ATHLETE_WEIGHT_HISTORY detected in .env file. Make sure the string is valid JSON');
         }
     }
 }
