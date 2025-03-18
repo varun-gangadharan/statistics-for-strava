@@ -51,7 +51,7 @@ https://github.com/user-attachments/assets/9aaaafd9-bc8f-4e1d-bb9d-45d3c661a080
 * Heatmap
 * History of completed Strava challenges
 * History of activity photos
-* User badge
+* User badges
 
 ## ⚠️ Disclaimer
 
@@ -211,6 +211,9 @@ There's a little workaround if you'd still like to import these:
   ![Trophy case source code](public/assets/images/readme/trophy-case-source-code.png)
 * Make sure you save the source code to the file `./storage/files/strava-challenge-history.html`
 * On the next import, all your challenges will be imported
+
+> [!WARNING]
+> Make sure that you save the source code in English. The app can only handle this export in English for now
 
 ## ⚡️Import and build statistics
 
