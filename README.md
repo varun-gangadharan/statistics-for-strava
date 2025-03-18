@@ -213,7 +213,8 @@ There's a little workaround if you'd still like to import these:
 * On the next import, all your challenges will be imported
 
 > [!WARNING]
-> Make sure that you save the source code in English. The app can only handle this export in English for now
+> Make sure before you save the source code, your Strava account is set to be translated in English.
+> The app can only handle this export in English for now.
 
 ## ⚡️Import and build statistics
 
