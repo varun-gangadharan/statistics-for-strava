@@ -96,6 +96,20 @@ final readonly class DistanceOverTimePerGearChart
             ],
             'legend' => [
                 'selected' => $selectedSeries,
+                'type' => 'scroll',
+                'pageButtonItemGap' => 2,
+                'pageIconSize' => 10,
+            ],
+            'dataZoom' => [
+                [
+                    'type' => 'inside',
+                    'start' => 0,
+                    'end' => 100,
+                    'brushSelect' => true,
+                    'zoomLock' => false,
+                ],
+                [
+                ],
             ],
             'xAxis' => [
                 [
