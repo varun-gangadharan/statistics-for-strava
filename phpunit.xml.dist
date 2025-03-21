@@ -9,6 +9,11 @@
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerNotices="true"
          failOnRisky="true"
+         failOnWarning="true"
+         failOnIncomplete="true"
+         failOnNotice="true"
+         failOnSkipped="true"
+         cacheDirectory=".phpunit.cache"
 >
     <php>
         <ini name="display_errors" value="1" />
