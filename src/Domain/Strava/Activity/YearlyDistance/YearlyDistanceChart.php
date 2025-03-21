@@ -151,6 +151,7 @@ final readonly class YearlyDistanceChart
                     'end' => 100,
                     'brushSelect' => true,
                     'zoomLock' => false,
+                    'zoomOnMouseWheel' => false,
                 ],
                 [
                 ],

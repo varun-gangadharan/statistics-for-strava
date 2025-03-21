@@ -107,6 +107,7 @@ final readonly class DistanceOverTimePerGearChart
                     'end' => 100,
                     'brushSelect' => true,
                     'zoomLock' => false,
+                    'zoomOnMouseWheel' => false,
                 ],
                 [
                 ],
