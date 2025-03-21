@@ -44,11 +44,13 @@ class BuildManifestCommandHandlerTest extends ContainerTestCase
 
         $this->assertStringContainsString(
             '[APP_HOST]',
-            $manifestContents
+            $manifestContents,
+            'The manifest.json file should contain the [APP_HOST] placeholder. You probably need to run "git checkout origin/master -- public/manifest.json"'
         );
         $this->assertStringContainsString(
             '[APP_NAME]',
-            $manifestContents
+            $manifestContents,
+            'The manifest.json file should contain the [APP_NAME] placeholder. You probably need to run "git checkout origin/master -- public/manifest.json"'
         );
     }
 
