@@ -205,6 +205,7 @@ Workout: Workout
 Year: Year
 'Yearly distances': 'Yearly distances'
 Yoga: Yoga
+"You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": '""You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that''s {percentage} of all countries 🌍'
 'Your Strava badge': 'Your Strava badge'
 'Your Zwift badge': 'Your Zwift badge'
 'Your badge(s)': 'Your badge(s)'
