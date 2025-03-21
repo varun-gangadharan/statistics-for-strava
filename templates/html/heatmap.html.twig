@@ -11,7 +11,7 @@
 {% block content %}
     {% autoescape false %}
         <div class="grid grid-cols-1 gap-y-2 heatmap-wrapper">
-            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+            <div class="lg:flex items-center justify-between gap-x-[2rem] p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
                 <form class="flex flex-col gap-y-2" autocomplete="off">
                     <div class="flex flex-col sm:flex-row gap-2">
                         {% if sportTypes|length > 0 %}
@@ -69,6 +69,13 @@
                         <a href="#" class="hidden text-strava-orange underline" data-heatmap-reset>{{ "clear"|trans }}</a>
                     </div>
                 </form>
+                <div class="mt-2 lg:mt-0 text-gray-700 text-xs">
+                    {% set percentage = '<span class="font-bold">' ~ (numberOfCountriesWithWorkouts / 195 * 100)|formatNumber(0) ~ '%</span>' %}
+                    {{ "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍"|trans({
+                        '{numberOfCountriesWithWorkouts}': numberOfCountriesWithWorkouts,
+                        '{percentage}': percentage
+                    }) }}
+                </div>
             </div>
             <!-- HEATMAP -->
             <div id="heatmap" data-leaflet-routes='{{ routes }}' class="grid grid-cols-1 h-[calc(100vh-245px)]"></div>

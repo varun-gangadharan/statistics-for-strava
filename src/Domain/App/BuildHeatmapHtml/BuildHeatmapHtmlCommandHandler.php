@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\App\BuildHeatmapHtml;
 
+use App\Domain\Strava\Activity\Route\Route;
 use App\Domain\Strava\Activity\Route\RouteRepository;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
@@ -38,6 +39,9 @@ final readonly class BuildHeatmapHtmlCommandHandler implements CommandHandler
                 'sportTypes' => $importedSportTypes->filter(
                     fn (SportType $sportType) => $sportType->supportsReverseGeocoding()
                 ),
+                'numberOfCountriesWithWorkouts' => count(array_unique($routes->map(
+                    fn (Route $route) => $route->getLocation()->getCountryCode()
+                ))),
             ]),
         );
     }
