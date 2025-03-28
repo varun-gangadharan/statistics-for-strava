@@ -5,9 +5,9 @@
 <h1 align="center">Statistics for Strava</h1>
 
 <p align="center">
-<a href="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/ci.yml"><img src="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-<a href="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/docker-image.yml"><img src="https://github.com/robiningelbrecht/strava-statistics/actions/workflows/docker-image.yml/badge.svg" alt="Publish Docker image"></a>
-<a href="https://raw.githubusercontent.com/robiningelbrecht/strava-statistics/refs/heads/master/LICENSE"><img src="https://img.shields.io/github/license/robiningelbrecht/strava-statistics?color=428f7e&logo=open%20source%20initiative&logoColor=white" alt="License"></a>
+<a href="https://github.com/robiningelbrecht/statistics-for-strava/actions/workflows/ci.yml"><img src="https://github.com/robiningelbrecht/statistics-for-strava/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+<a href="https://github.com/robiningelbrecht/statistics-for-strava/actions/workflows/docker-image.yml"><img src="https://github.com/robiningelbrecht/statistics-for-strava/actions/workflows/docker-image.yml/badge.svg" alt="Publish Docker image"></a>
+<a href="https://raw.githubusercontent.com/robiningelbrecht/statistics-for-strava/refs/heads/master/LICENSE"><img src="https://img.shields.io/github/license/robiningelbrecht/statistics-for-strava?color=428f7e&logo=open%20source%20initiative&logoColor=white" alt="License"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/image-size/robiningelbrecht/strava-statistics" alt="Docker Image Size"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/pulls/robiningelbrecht/strava-statistics" alt="Docker pulls"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/v/robiningelbrecht/strava-statistics?sort=semver" alt="Docker version"></a>
@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/9aaaafd9-bc8f-4e1d-bb9d-45d3c661a080
 
 ## 📚 Wiki
 
-Read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki) before opening new issues. The question you have might be answered over there.
+Read [the wiki](https://github.com/robiningelbrecht/statistics-for-strava/wiki) before opening new issues. The question you have might be answered over there.
 
 ## 🪄 Prerequisites
 
@@ -129,7 +129,7 @@ STRAVA_CLIENT_ID=YOUR_CLIENT_ID
 STRAVA_CLIENT_SECRET=YOUR_CLIENT_SECRET
 # The refresh of your Strava app.
 STRAVA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
-# Strava API has rate limits (https://github.com/robiningelbrecht/strava-statistics/wiki),
+# Strava API has rate limits (https://github.com/robiningelbrecht/statistics-for-strava/wiki),
 # to make sure we don't hit the rate limit, we want to cap the number of new activities processed
 # per import. Considering there's a 1000 request per day limit and importing one new activity can
 # take up to 3 API calls, 250 should be a safe number.
@@ -154,7 +154,7 @@ TIME_FORMAT=24
 DATE_FORMAT=DAY-MONTH-YEAR
 # Sport types to import. Leave empty to import all sport types
 # With this list you can also decide the order the sport types will be rendered in.
-# A full list of allowed options is available on https://github.com/robiningelbrecht/strava-statistics/wiki/Supported-sport-types/
+# A full list of allowed options is available on https://github.com/robiningelbrecht/statistics-for-strava/wiki/Supported-sport-types/
 SPORT_TYPES_TO_IMPORT='[]'
 # Activity visibilities to import. Leave empty to import all visibilities
 # This list can be combined with SPORT_TYPES_TO_IMPORT.
@@ -171,7 +171,7 @@ ACTIVITIES_TO_SKIP_DURING_IMPORT='[]'
 # Your birthday. Needed to calculate heart rate zones.
 ATHLETE_BIRTHDAY=YYYY-MM-DD
 # History of weight (in kg or pounds, depending on UNIT_SYSTEM). Needed to calculate relative w/kg.
-# Check https://github.com/robiningelbrecht/strava-statistics/wiki for more info.
+# Check https://github.com/robiningelbrecht/statistics-for-strava/wiki for more info.
 ATHLETE_WEIGHT_HISTORY='{
     "YYYY-MM-DD": 100,
     "YYYY-MM-DD": 200
@@ -185,7 +185,7 @@ MAX_HEART_RATE_FORMULA='fox'
 #    "2025-01-10": 193
 # }'
 # Optional, history of FTP. Needed to calculate activity stress level.
-# Check https://github.com/robiningelbrecht/strava-statistics/wiki for more info. Example:
+# Check https://github.com/robiningelbrecht/statistics-for-strava/wiki for more info. Example:
 # FTP_HISTORY='{
 #    "2024-10-03": 198,
 #    "2025-01-10": 220
@@ -202,7 +202,7 @@ ZWIFT_RACING_SCORE=
 # Leave empty to disable notifications.
 NTFY_URL=''
 
-# The UID and GID to create/own files managed by strava-statistics
+# The UID and GID to create/own files managed by statistics-for-strava
 # May only be necessary on Linux hosts, see File Permissions in Wiki
 #PUID=
 #PGID=
@@ -246,10 +246,10 @@ Currently, the app is translated to:
 * 🇵🇹 Portuguese (thanks to [@jcnmsg](https://github.com/jcnmsg))
 * 🇨🇳 Simplified Chinese (thanks to [@c0j0s](https://github.com/c0j0s))
 
-If you want to see a new locale added, please  [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose). 
+If you want to see a new locale added, please  [open a new issue](https://github.com/robiningelbrecht/statistics-for-strava/issues/new/choose). 
 Only do this if you are willing to help on the actual translation 🙃.
 
 ## 💡 Feature request?
 
-For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/strava-statistics/issues/new/choose). 
-Before you do, please read [the wiki](https://github.com/robiningelbrecht/strava-statistics/wiki). The question you have might be answered over there.
+For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/statistics-for-strava/issues/new/choose). 
+Before you do, please read [the wiki](https://github.com/robiningelbrecht/statistics-for-strava/wiki). The question you have might be answered over there.
