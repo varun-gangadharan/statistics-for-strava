@@ -1,0 +1,38 @@
+# Set to true to enable the gear maintenance feature
+enabled: false
+# Prefix for the hashtags used in the Strava activity title
+hashtag-prefix: 'sfs-'
+components:
+  # Unique identifier for the component
+  - id: some-cool-chain
+    # Label for the component
+    label: 'Some cool chain'
+    # List of gear ids this component is attached to
+    attached-to:
+      - 'bike-one-gear-id'
+      - 'bike-two-gear-id'
+    # Tag to be added to the Strava activity title. Must be combined with the hashtag-prefix
+    # Example: #sfs-chain
+    tag: 'chain'
+    # A list of maintenance tasks for this component
+    maintenance:
+      # Label for the maintenance task
+      - label: Lube
+        # Tag to be added to the Strava activity title.
+        # Must be combined with the hashtag-prefix and the component tag
+        # Example: #sfs-chain-lubed
+        tag: lubed
+        # Interval for the maintenance task
+        interval:
+          value: 500
+          unit: km
+      - label: Clean
+        tag: cleaned
+        interval:
+          value: 200
+          unit: hours
+      - label: Replace
+        tag: replaced
+        interval:
+          value: 500
+          unit: days
