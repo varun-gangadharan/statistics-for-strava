@@ -1,14 +1,14 @@
 # Set to true to enable the gear maintenance feature
 enabled: false
 # Prefix for the hashtags used in the Strava activity title
-hashtag-prefix: 'sfs-'
+hashtagPrefix: 'sfs-'
 components:
   # Unique identifier for the component
   - id: some-cool-chain
     # Label for the component
     label: 'Some cool chain'
     # List of gear ids this component is attached to
-    attached-to:
+    attachedTo:
       - 'bike-one-gear-id'
       - 'bike-two-gear-id'
     # Tag to be added to the Strava activity title. Must be combined with the hashtag-prefix
