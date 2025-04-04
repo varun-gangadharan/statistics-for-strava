@@ -4,36 +4,30 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Gear\Maintenance;
 
-use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\ValueObject\String\Name;
 
-final readonly class GearComponent
+final readonly class MaintenanceTask
 {
-    private MaintenanceTasks $maintenanceTasks;
-
     private function __construct(
         private Tag $tag,
         private Name $label,
-        private GearIds $attachedTo,
+        private int $intervalValue,
+        private IntervalUnit $intervalUnit,
     ) {
-        $this->maintenanceTasks = MaintenanceTasks::empty();
     }
 
     public static function create(
         Tag $tag,
         Name $label,
-        GearIds $attachedTo,
+        int $intervalValue,
+        IntervalUnit $intervalUnit,
     ): self {
         return new self(
             tag: $tag,
             label: $label,
-            attachedTo: $attachedTo,
+            intervalValue: $intervalValue,
+            intervalUnit: $intervalUnit,
         );
-    }
-
-    public function addMaintenanceTask(MaintenanceTask $task): void
-    {
-        $this->maintenanceTasks->add($task);
     }
 
     public function getTag(): Tag
@@ -46,13 +40,13 @@ final readonly class GearComponent
         return $this->label;
     }
 
-    public function getAttachedTo(): GearIds
+    public function getIntervalValue(): int
     {
-        return $this->attachedTo;
+        return $this->intervalValue;
     }
 
-    public function getMaintenanceTasks(): MaintenanceTasks
+    public function getIntervalUnit(): IntervalUnit
     {
-        return $this->maintenanceTasks;
+        return $this->intervalUnit;
     }
 }

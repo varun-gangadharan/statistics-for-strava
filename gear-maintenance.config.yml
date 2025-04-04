@@ -3,28 +3,29 @@ enabled: false
 # Prefix for the hashtags used in the Strava activity title
 hashtagPrefix: 'sfs-'
 components:
-  # Unique identifier for the component. Must be unique across all components.
-  - id: some-cool-chain
+  # Tag to be added to the Strava activity title.
+  # Will be combined with the hashtag-prefix and must be unique across all components.
+  # Example: #sfs-chain
+  - tag: 'chain'
     # Label for the component
     label: 'Some cool chain'
     # List of gear ids this component is attached to
     attachedTo:
       - 'bike-one-gear-id'
       - 'bike-two-gear-id'
-    # Tag to be added to the Strava activity title. Must be combined with the hashtag-prefix
-    # Example: #sfs-chain
-    tag: 'chain'
     # A list of maintenance tasks for this component
     maintenance:
-      # Label for the maintenance task
-      - label: Lube
-        # Tag to be added to the Strava activity title.
-        # Must be combined with the hashtag-prefix and the component tag
-        # Example: #sfs-chain-lubed
-        tag: lubed
+      # Tag to be added to the Strava activity title.
+      # Will be combined with the hashtag-prefix and the component tag.
+      # Must be unique across all tasks in the component.
+      # Example: #sfs-chain-lubed
+      - tag: lubed
+        # Label for the maintenance task
+        label: Lube
         # Interval for the maintenance task
         interval:
           value: 500
+          # Possible values: km, mi, hours, days, weeks, months
           unit: km
       - label: Clean
         tag: cleaned
