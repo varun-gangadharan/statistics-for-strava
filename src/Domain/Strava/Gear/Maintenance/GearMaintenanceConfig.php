@@ -31,15 +31,13 @@ final readonly class GearMaintenanceConfig
         }
         $config = Yaml::parse($ymlContent);
 
-        if (!array_key_exists('enabled', $config)) {
-            throw new InvalidGearMaintenanceConfig('"enabled" property is required');
+        foreach (['enabled', 'hashtagPrefix', 'components'] as $requiredKey) {
+            if (array_key_exists($requiredKey, $config)) {
+                continue;
+            }
+            throw new InvalidGearMaintenanceConfig(sprintf('"%s" property is required', $requiredKey));
         }
-        if (empty($config['hashtagPrefix'])) {
-            throw new InvalidGearMaintenanceConfig('"hashtagPrefix" property is required');
-        }
-        if (empty($config['components'])) {
-            throw new InvalidGearMaintenanceConfig('"components" property cannot be empty');
-        }
+
         if (!is_array($config['components'])) {
             throw new InvalidGearMaintenanceConfig('"components" property must be an array');
         }
@@ -50,20 +48,15 @@ final readonly class GearMaintenanceConfig
         );
 
         foreach ($config['components'] as $component) {
-            if (!array_key_exists('tag', $component)) {
-                throw new InvalidGearMaintenanceConfig('"tag" property is required for each component');
+            foreach (['tag', 'label', 'attachedTo', 'maintenance'] as $requiredKey) {
+                if (array_key_exists($requiredKey, $component)) {
+                    continue;
+                }
+                throw new InvalidGearMaintenanceConfig(sprintf('"%s" property is required for each component', $requiredKey));
             }
-            if (!array_key_exists('label', $component)) {
-                throw new InvalidGearMaintenanceConfig('"label" property is required for each component');
-            }
-            if (empty($component['attachedTo'])) {
-                throw new InvalidGearMaintenanceConfig('"attachedTo" property is required for each component');
-            }
+
             if (!is_array($component['attachedTo'])) {
                 throw new InvalidGearMaintenanceConfig('"attachedTo" property must be an array');
-            }
-            if (empty($component['maintenance'])) {
-                throw new InvalidGearMaintenanceConfig('You need at least one maintenance task for each component');
             }
             if (!is_array($component['maintenance'])) {
                 throw new InvalidGearMaintenanceConfig('"maintenance" property must be an array');
@@ -79,14 +72,11 @@ final readonly class GearMaintenanceConfig
             );
 
             foreach ($component['maintenance'] as $task) {
-                if (empty($task['tag'])) {
-                    throw new InvalidGearMaintenanceConfig('"tag" property is required for each maintenance task');
-                }
-                if (empty($task['label'])) {
-                    throw new InvalidGearMaintenanceConfig('"label" property is required for each maintenance task');
-                }
-                if (empty($task['interval'])) {
-                    throw new InvalidGearMaintenanceConfig('"interval" property is required for each maintenance task');
+                foreach (['tag', 'label', 'interval'] as $requiredKey) {
+                    if (array_key_exists($requiredKey, $task)) {
+                        continue;
+                    }
+                    throw new InvalidGearMaintenanceConfig(sprintf('"%s" property is required for each maintenance task', $requiredKey));
                 }
                 if (empty($task['interval']['value']) || empty($task['interval']['unit'])) {
                     throw new InvalidGearMaintenanceConfig('"interval" property must have "value" and "unit" properties');
