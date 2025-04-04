@@ -3,7 +3,7 @@ enabled: false
 # Prefix for the hashtags used in the Strava activity title
 hashtagPrefix: 'sfs-'
 components:
-  # Unique identifier for the component
+  # Unique identifier for the component. Must be unique across all components.
   - id: some-cool-chain
     # Label for the component
     label: 'Some cool chain'
