@@ -22,7 +22,7 @@ class DebugGearMaintenanceConsoleCommandTest extends ConsoleCommandTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertMatchesTextSnapshot($commandTester->getDisplay());
+        $this->assertMatchesTextSnapshot(trim($commandTester->getDisplay(true), PHP_EOL));
     }
 
     #[\Override]
