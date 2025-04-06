@@ -6,10 +6,13 @@ use App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig;
 use App\Domain\Strava\Gear\Maintenance\InvalidGearMaintenanceConfig;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Spatie\Snapshots\MatchesSnapshots;
 use Symfony\Component\Yaml\Yaml;
 
 class GearMaintenanceConfigTest extends TestCase
 {
+    use MatchesSnapshots;
+
     public function testFromYmlStringWhenEmpty(): void
     {
         $this->assertEquals(
@@ -20,6 +23,14 @@ class GearMaintenanceConfigTest extends TestCase
         $this->assertEquals(
             'The gear maintenance feature is disabled.',
             (string) GearMaintenanceConfig::fromYmlString(''),
+        );
+    }
+
+    public function testToString(): void
+    {
+        $yml = Yaml::dump(self::getValidYmlString());
+        $this->assertMatchesTextSnapshot(
+            (string) GearMaintenanceConfig::fromYmlString($yml)
         );
     }
 
@@ -56,6 +67,10 @@ class GearMaintenanceConfigTest extends TestCase
         yield '"components" is not an array' => [Yaml::dump($yml), '"components" property must be an array'];
 
         $yml = self::getValidYmlString();
+        $yml['components'] = [];
+        yield '"components" is empty' => [Yaml::dump($yml), 'You must configure at least one component'];
+
+        $yml = self::getValidYmlString();
         unset($yml['components'][0]['tag']);
         yield 'missing "components[tag]" key' => [Yaml::dump($yml), '"tag" property is required for each component'];
 
@@ -80,6 +95,10 @@ class GearMaintenanceConfigTest extends TestCase
         yield '"components[maintenance]" is not an array' => [Yaml::dump($yml), '"maintenance" property must be an array'];
 
         $yml = self::getValidYmlString();
+        $yml['components'][0]['maintenance'] = [];
+        yield '"components[maintenance]" is empty' => [Yaml::dump($yml), 'No maintenance tasks configured for component "chain"'];
+
+        $yml = self::getValidYmlString();
         $yml['components'][0]['imgSrc'] = [];
         yield '"components[imgSrc]" is not an string' => [Yaml::dump($yml), '"imgSrc" property must be a string'];
 
@@ -102,6 +121,10 @@ class GearMaintenanceConfigTest extends TestCase
         $yml = self::getValidYmlString();
         unset($yml['components'][0]['maintenance'][0]['interval']['unit']);
         yield 'missing "components[maintenance][interval][unit]" key' => [Yaml::dump($yml), '"interval" property must have "value" and "unit" properties'];
+
+        $yml = self::getValidYmlString();
+        $yml['components'][0]['maintenance'][0]['interval']['unit'] = 'lol';
+        yield 'invalid "components[maintenance][interval][unit]"' => [Yaml::dump($yml), 'invalid interval unit "lol"'];
 
         $yml = self::getValidYmlString();
         $yml['components'][0]['maintenance'][0]['tag'] = 'lubed';
@@ -129,7 +152,7 @@ class GearMaintenanceConfigTest extends TestCase
     private static function getValidYmlString(): array
     {
         return Yaml::parse(<<<YML
-enabled: false
+enabled: true
 hashtagPrefix: 'sfs'
 components:
   - tag: 'chain'

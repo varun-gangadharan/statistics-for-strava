@@ -54,6 +54,10 @@ final readonly class GearMaintenanceConfig implements \Stringable
             throw new InvalidGearMaintenanceConfig('"components" property must be an array');
         }
 
+        if (empty($config['components'])) {
+            throw new InvalidGearMaintenanceConfig('You must configure at least one component');
+        }
+
         $gearMaintenanceConfig = new self(
             isFeatureEnabled: $config['enabled'],
             hashtagPrefix: HashtagPrefix::fromString($config['hashtagPrefix']),
@@ -72,6 +76,9 @@ final readonly class GearMaintenanceConfig implements \Stringable
             }
             if (!is_array($component['maintenance'])) {
                 throw new InvalidGearMaintenanceConfig('"maintenance" property must be an array');
+            }
+            if (empty($component['maintenance'])) {
+                throw new InvalidGearMaintenanceConfig(sprintf('No maintenance tasks configured for component "%s"', $component['tag']));
             }
             if (!is_null($component['imgSrc']) && !is_string($component['imgSrc'])) {
                 throw new InvalidGearMaintenanceConfig('"imgSrc" property must be a string');
@@ -163,6 +170,11 @@ final readonly class GearMaintenanceConfig implements \Stringable
         return $this->gearComponents;
     }
 
+    public function getGearOptions(): GearOptions
+    {
+        return $this->gearOptions;
+    }
+
     public function isFeatureEnabled(): bool
     {
         return $this->isFeatureEnabled;
@@ -174,6 +186,30 @@ final readonly class GearMaintenanceConfig implements \Stringable
             return 'The gear maintenance feature is disabled.';
         }
 
-        return '';
+        $string[] = 'You enabled the gear maintenance feature with the following configuration:';
+        $string[] = sprintf('Hashtag prefix: %s', $this->getHashtagPrefix());
+        $string[] = sprintf('You added %d components:', count($this->getGearComponents()));
+        foreach ($this->getGearComponents() as $gearComponent) {
+            $string[] = sprintf('  - Tag: %s%s', $this->getHashtagPrefix(), $gearComponent->getTag());
+            $string[] = sprintf('    Label: %s', $gearComponent->getLabel());
+            $string[] = sprintf('    Attached to: %s', implode(', ', $gearComponent->getAttachedTo()->map(fn (GearId $gearId) => $gearId->toUnprefixedString())));
+            $string[] = sprintf('    Image: %s', $gearComponent->getImgSrc());
+            $string[] = '    Maintenance tasks:';
+            foreach ($gearComponent->getMaintenanceTasks() as $maintenanceTask) {
+                $string[] = sprintf('      - Tag: %s%s-%s', $this->getHashtagPrefix(), $gearComponent->getTag(), $maintenanceTask->getTag());
+                $string[] = sprintf('        Label: %s', $maintenanceTask->getLabel());
+                $string[] = sprintf('        Interval: %d %s', $maintenanceTask->getIntervalValue(), $maintenanceTask->getIntervalUnit()->value);
+            }
+        }
+        if ($gearOptions = $this->getGearOptions()) {
+            $string[] = 'You configured following gear:';
+            foreach ($gearOptions->getOptions() as $gearOption) {
+                [$gearId, $imgSrc] = $gearOption;
+                $string[] = sprintf('  - Gear ID: %s', $gearId->toUnprefixedString());
+                $string[] = sprintf('    Image: %s', $imgSrc);
+            }
+        }
+
+        return implode(PHP_EOL, $string);
     }
 }

@@ -19,4 +19,9 @@ final readonly class HashtagPrefix extends NonEmptyStringLiteral
             throw new \InvalidArgumentException(sprintf('HashtagPrefix %s can not to end with -', $value));
         }
     }
+
+    public function __toString(): string
+    {
+        return sprintf('#%s-', parent::__toString());
+    }
 }
