@@ -1,0 +1,10 @@
+
+Statistics for Strava
+=====================
+
+ Please copy all this output into the description of the bug ticket
+
+ [WARNING] Do not forget to redact sensitive information                                                                
+
+
+The gear maintenance feature is disabled.

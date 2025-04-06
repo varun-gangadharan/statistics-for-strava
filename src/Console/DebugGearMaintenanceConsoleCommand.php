@@ -29,7 +29,7 @@ final class DebugGearMaintenanceConsoleCommand extends Command
 
         $io->newLine();
 
-        $io->writeln((string) $this->gearMaintenanceConfig->isFeatureEnabled());
+        $io->writeln((string) $this->gearMaintenanceConfig);
 
         return Command::SUCCESS;
     }
