@@ -201,9 +201,9 @@ final readonly class GearMaintenanceConfig implements \Stringable
                 $string[] = sprintf('        Interval: %d %s', $maintenanceTask->getIntervalValue(), $maintenanceTask->getIntervalUnit()->value);
             }
         }
-        if ($gearOptions = $this->getGearOptions()) {
+        if (!$this->getGearOptions()->isEmpty()) {
             $string[] = 'You configured following gear:';
-            foreach ($gearOptions->getOptions() as $gearOption) {
+            foreach ($this->getGearOptions()->getOptions() as $gearOption) {
                 [$gearId, $imgSrc] = $gearOption;
                 $string[] = sprintf('  - Gear ID: %s', $gearId->toUnprefixedString());
                 $string[] = sprintf('    Image: %s', $imgSrc);

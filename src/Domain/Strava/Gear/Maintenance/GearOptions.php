@@ -20,6 +20,11 @@ final class GearOptions
         return new self();
     }
 
+    public function isEmpty(): bool
+    {
+        return empty($this->options);
+    }
+
     public function add(GearId $gearId, string $imgSrc): void
     {
         $this->options[] = [$gearId, $imgSrc];
