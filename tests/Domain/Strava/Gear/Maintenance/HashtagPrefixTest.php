@@ -9,10 +9,10 @@ class HashtagPrefixTest extends TestCase
 {
     public function testItShouldWork(): void
     {
-        $hashtagPrefix = HashtagPrefix::fromString('test-');
+        $hashtagPrefix = HashtagPrefix::fromString('test');
 
         $this->assertEquals(
-            'test-',
+            'test',
             (string) $hashtagPrefix
         );
     }
@@ -24,10 +24,10 @@ class HashtagPrefixTest extends TestCase
         HashtagPrefix::fromString('#test');
     }
 
-    public function testItShouldThrowWhenNotEndsWithHyphen(): void
+    public function testItShouldThrowWhenEndsWithHyphen(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('HashtagPrefix test needs to end with -'));
+        $this->expectExceptionObject(new \InvalidArgumentException('HashtagPrefix test- can not to end with -'));
 
-        HashtagPrefix::fromString('test');
+        HashtagPrefix::fromString('test-');
     }
 }

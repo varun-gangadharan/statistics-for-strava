@@ -10,17 +10,17 @@ use League\Flysystem\UnableToReadFile;
 
 final readonly class GearMaintenanceConfigFileReader
 {
-    public const string CONFIG_FILE_NAME = 'gear-maintenance.config.yml';
+    public const string CONFIG_FILE_NAME = 'config.yml';
 
     public function __construct(
-        private FilesystemOperator $defaultStorage,
+        private FilesystemOperator $gearMaintenanceStorage,
     ) {
     }
 
     public function read(): ?string
     {
         try {
-            return $this->defaultStorage->read(self::CONFIG_FILE_NAME);
+            return $this->gearMaintenanceStorage->read(self::CONFIG_FILE_NAME);
         } catch (FilesystemException|UnableToReadFile) {
         }
 

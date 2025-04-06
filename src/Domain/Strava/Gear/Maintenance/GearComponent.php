@@ -15,6 +15,7 @@ final readonly class GearComponent
         private Tag $tag,
         private Name $label,
         private GearIds $attachedTo,
+        private ?string $imgSrc,
     ) {
         $this->maintenanceTasks = MaintenanceTasks::empty();
     }
@@ -23,11 +24,13 @@ final readonly class GearComponent
         Tag $tag,
         Name $label,
         GearIds $attachedTo,
+        ?string $imgSrc,
     ): self {
         return new self(
             tag: $tag,
             label: $label,
             attachedTo: $attachedTo,
+            imgSrc: $imgSrc,
         );
     }
 
@@ -49,6 +52,11 @@ final readonly class GearComponent
     public function getAttachedTo(): GearIds
     {
         return $this->attachedTo;
+    }
+
+    public function getImgSrc(): ?string
+    {
+        return $this->imgSrc;
     }
 
     public function getMaintenanceTasks(): MaintenanceTasks

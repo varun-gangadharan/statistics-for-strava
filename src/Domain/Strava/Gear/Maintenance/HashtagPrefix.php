@@ -15,8 +15,8 @@ final readonly class HashtagPrefix extends NonEmptyStringLiteral
         if (str_starts_with($value, '#')) {
             throw new \InvalidArgumentException(sprintf('HashtagPrefix %s can not start with #', $value));
         }
-        if (!str_ends_with($value, '-')) {
-            throw new \InvalidArgumentException(sprintf('HashtagPrefix %s needs to end with -', $value));
+        if (str_ends_with($value, '-')) {
+            throw new \InvalidArgumentException(sprintf('HashtagPrefix %s can not to end with -', $value));
         }
     }
 }

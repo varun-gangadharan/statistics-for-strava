@@ -28,7 +28,8 @@ final class DebugGearMaintenanceConsoleCommand extends Command
         $io->warning('Do not forget to redact sensitive information');
 
         $io->newLine();
-        $this->gearMaintenanceConfig->isFeatureEnabled();
+
+        $io->writeln((string) $this->gearMaintenanceConfig->isFeatureEnabled());
 
         return Command::SUCCESS;
     }

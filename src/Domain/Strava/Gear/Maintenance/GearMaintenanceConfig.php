@@ -7,31 +7,43 @@ namespace App\Domain\Strava\Gear\Maintenance;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\ValueObject\String\Name;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-final readonly class GearMaintenanceConfig
+final readonly class GearMaintenanceConfig implements \Stringable
 {
     private GearComponents $gearComponents;
+    private GearOptions $gearOptions;
 
     private function __construct(
         private bool $isFeatureEnabled,
         private HashtagPrefix $hashtagPrefix,
     ) {
         $this->gearComponents = GearComponents::empty();
+        $this->gearOptions = GearOptions::empty();
     }
 
     public static function fromYmlString(
         ?string $ymlContent,
     ): self {
-        if (is_null($ymlContent)) {
+        if (is_null($ymlContent) || '' === trim($ymlContent)) {
             return new self(
                 isFeatureEnabled: false,
-                hashtagPrefix: HashtagPrefix::fromString('dummy-'),
+                hashtagPrefix: HashtagPrefix::fromString('dummy'),
             );
         }
-        $config = Yaml::parse($ymlContent);
 
-        foreach (['enabled', 'hashtagPrefix', 'components'] as $requiredKey) {
+        try {
+            $config = Yaml::parse($ymlContent);
+        } catch (ParseException $e) {
+            throw new InvalidGearMaintenanceConfig($e->getMessage());
+        }
+
+        if (!is_array($config)) {
+            throw new InvalidGearMaintenanceConfig('YML expected to be an array');
+        }
+
+        foreach (['enabled', 'hashtagPrefix', 'components', 'gears'] as $requiredKey) {
             if (array_key_exists($requiredKey, $config)) {
                 continue;
             }
@@ -61,14 +73,18 @@ final readonly class GearMaintenanceConfig
             if (!is_array($component['maintenance'])) {
                 throw new InvalidGearMaintenanceConfig('"maintenance" property must be an array');
             }
+            if (!is_null($component['imgSrc']) && !is_string($component['imgSrc'])) {
+                throw new InvalidGearMaintenanceConfig('"imgSrc" property must be a string');
+            }
 
             $gearComponent = GearComponent::create(
                 tag: Tag::fromString($component['tag']),
                 label: Name::fromString($component['label']),
                 attachedTo: GearIds::fromArray(array_map(
-                    fn (string $gearId) => GearId::fromString($gearId),
+                    fn (string $gearId) => GearId::fromUnprefixed($gearId),
                     $component['attachedTo']
                 )),
+                imgSrc: $component['imgSrc'] ?? null,
             );
 
             foreach ($component['maintenance'] as $task) {
@@ -107,12 +123,34 @@ final readonly class GearMaintenanceConfig
             throw new InvalidGearMaintenanceConfig(sprintf('duplicate component tags found: %s', implode(', ', $duplicates)));
         }
 
+        if (!empty($config['gears']) && !is_array($config['gears'])) {
+            throw new InvalidGearMaintenanceConfig('"gears" property must be an array');
+        }
+
+        foreach ($config['gears'] ?: [] as $gear) {
+            if (empty($gear['gearId'])) {
+                throw new InvalidGearMaintenanceConfig('"gearId" property is required for each gear');
+            }
+            if (empty($gear['imgSrc'])) {
+                throw new InvalidGearMaintenanceConfig('"imgSrc" property is required for each gear');
+            }
+            $gearMaintenanceConfig->addGearOption(
+                gearId: GearId::fromUnprefixed($gear['gearId']),
+                imgSrc: $gear['imgSrc'],
+            );
+        }
+
         return $gearMaintenanceConfig;
     }
 
     private function addComponent(GearComponent $component): void
     {
         $this->gearComponents->add($component);
+    }
+
+    private function addGearOption(GearId $gearId, string $imgSrc): void
+    {
+        $this->gearOptions->add($gearId, $imgSrc);
     }
 
     public function getHashtagPrefix(): HashtagPrefix
@@ -128,5 +166,14 @@ final readonly class GearMaintenanceConfig
     public function isFeatureEnabled(): bool
     {
         return $this->isFeatureEnabled;
+    }
+
+    public function __toString(): string
+    {
+        if (!$this->isFeatureEnabled()) {
+            return 'The gear maintenance feature is disabled.';
+        }
+
+        return '';
     }
 }
