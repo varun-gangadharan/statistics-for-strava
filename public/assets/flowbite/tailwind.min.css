@@ -2971,6 +2971,20 @@
       background-color: var(--color-gray-50);
     }
   }
+  .group-hover\:fill-\[\#111827\] {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        fill: #111827;
+      }
+    }
+  }
+  .group-hover\:fill-\[\#FFDD04\] {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        fill: #FFDD04;
+      }
+    }
+  }
   .group-hover\:text-gray-900 {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
