@@ -23,7 +23,8 @@ Challenges: 挑战
 'Climb a total of 2000m': 总共攀登2000米
 'Climb a total of 7500m': 总共攀登7500米
 'Close modal': 关闭模态框
-Commute: 通勤
+Commutes: 通勤
+'Commutes only': 仅通勤
 'Complete a 10 km run.': 完成10公里跑步。
 'Complete a 100km ride': 完成100公里骑行
 'Complete a 5 km run.': 完成5公里跑步。
@@ -40,6 +41,7 @@ Distance: 距离
 'Distance in {unit}': '以{unit}为单位的距离'
 'Distance over time per gear': 每个装备随时间变化的距离
 'Distance per month per gear': 每个装备每月的距离
+Distribution: 分布
 'Driving your car for {amountOfKmDrivingACar} km': '驾车行驶{amountOfKmDrivingACar}公里'
 'E-Bike Rides': 电动自行车骑行
 'E-Mountain Bike Rides': 电动山地车骑行
@@ -54,7 +56,6 @@ Evening: 晚上
 Favourite: 收藏夹
 Feb: 二月
 'Filter on KOM segments': 筛选KOM路段
-'Filter on commutes only': 筛选通勤
 'Filter on country': 按国家筛选
 'Filter on gear': 按装备筛选
 'Filter on sport type': 按运动类型筛选
@@ -96,12 +97,14 @@ Kayaking: 皮划艇
 'Latest start time': 最晚开始时间
 'Loading data...': 加载数据中...
 Loading...: 加载中...
+'Long run': 'Long run'
 'Longest workout': 最长锻炼
 Low: 低
 Mar: 三月
 Max: 最大
 May: 五月
 Medium: 中等
+Metrics: Metrics
 'Mind & Body Sports': 心灵与身体运动
 Mon: 周一
 Monday: 星期一
@@ -114,7 +117,6 @@ Morning: 早晨
 'Mountain Bike Rides': 山地车骑行
 'Moving time': 移动时间
 Night: 夜晚
-'No': 否
 'No activities': 没有活动
 'Nordic Ski': 北欧滑雪
 Nov: 十一月
@@ -130,6 +132,7 @@ Power: 功率
 'Power distribution': 功率分布
 'Powered by Strava': 由Strava提供支持
 'Prev year': 去年
+Race: 比赛
 'Racing Score': 赛车成绩
 'Racquet & Paddle Sports': 球拍和桨类运动
 'Racquet Ball': 壁球
@@ -212,9 +215,9 @@ Wheelchair: 轮椅
 'Wind Surf': 风帆冲浪
 'Winter Sports': 冬季运动
 Workout: 锻炼
+'Workout type': 'Workout type'
 Year: 年
 'Yearly distances': 每年距离
-'Yes': 是
 Yoga: 瑜伽
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": "您记录了{numberOfCountriesWithWorkouts}个不同国家/地区的锻炼情况，占所有国家/地区的百分之 {percentage} 🌍"
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': '你的通勤减少了{amountOfCarbonSaved}的碳排放 🥳。这相当于'

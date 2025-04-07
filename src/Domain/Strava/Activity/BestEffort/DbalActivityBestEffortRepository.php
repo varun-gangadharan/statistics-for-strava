@@ -33,14 +33,30 @@ final readonly class DbalActivityBestEffortRepository extends DbalRepository imp
         $sql = 'WITH BestEfforts AS (
                     SELECT distanceInMeter, MIN(timeInSeconds) AS bestTime, sportType
                     FROM ActivityBestEffort
-                    WHERE sportType IN(:sportTypes)
+                    WHERE sportType IN (:sportTypes)
                     GROUP BY distanceInMeter, sportType
+                ),
+                RankedEfforts AS (
+                    SELECT 
+                        a.activityId, 
+                        a.sportType, 
+                        a.distanceInMeter, 
+                        a.timeInSeconds,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY a.distanceInMeter, a.sportType 
+                            ORDER BY a.activityId
+                        ) AS rowNumber
+                    FROM ActivityBestEffort a
+                    JOIN BestEfforts b 
+                        ON a.distanceInMeter = b.distanceInMeter
+                    AND a.timeInSeconds = b.bestTime
+                    AND a.sportType = b.sportType
+                    WHERE a.sportType IN (:sportTypes)
                 )
-                SELECT a.activityId, a.sportType, a.distanceInMeter, a.timeInSeconds
-                FROM ActivityBestEffort a
-                INNER JOIN BestEfforts b ON a.distanceInMeter = b.distanceInMeter AND a.timeInSeconds = b.bestTime AND a.sportType = b.sportType
-                WHERE a.sportType IN(:sportTypes)
-                ORDER BY a.distanceInMeter ASC';
+                SELECT activityId, sportType, distanceInMeter, timeInSeconds
+                FROM RankedEfforts
+                WHERE rowNumber = 1
+                ORDER BY distanceInMeter ASC';
 
         return ActivityBestEfforts::fromArray(array_map(
             fn (array $result) => ActivityBestEffort::fromState(
@@ -78,17 +94,19 @@ final readonly class DbalActivityBestEffortRepository extends DbalRepository imp
 
         return ActivityIds::fromArray(array_map(
             fn (string $activityId) => ActivityId::fromString($activityId),
-            $this->connection->executeQuery($sql, [
-                'timeStreamType' => StreamType::TIME->value,
-                'distanceStreamType' => StreamType::DISTANCE->value,
-                'sportTypes' => array_map(
-                    fn (SportType $sportType) => $sportType->value,
-                    SportType::cases()
-                ),
-            ],
+            $this->connection->executeQuery($sql,
+                [
+                    'timeStreamType' => StreamType::TIME->value,
+                    'distanceStreamType' => StreamType::DISTANCE->value,
+                    'sportTypes' => array_map(
+                        fn (SportType $sportType) => $sportType->value,
+                        array_filter(SportType::cases(), fn (SportType $sportType) => $sportType->supportsBestEffortsStats())
+                    ),
+                ],
                 [
                     'sportTypes' => ArrayParameterType::STRING,
-                ])->fetchFirstColumn()
+                ]
+            )->fetchFirstColumn()
         ));
     }
 }

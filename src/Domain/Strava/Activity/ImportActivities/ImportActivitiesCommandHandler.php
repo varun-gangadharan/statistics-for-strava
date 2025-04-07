@@ -76,7 +76,7 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
         foreach ($stravaActivities as $stravaActivity) {
             if (!$sportType = SportType::tryFrom($stravaActivity['sport_type'])) {
                 $command->getOutput()->writeln(sprintf(
-                    '  => Sport type "%s" not supported yet. <a href="https://github.com/robiningelbrecht/strava-statistics/issues/new?assignees=robiningelbrecht&labels=new+feature&projects=&template=feature_request.md&title=Add+support+for+sport+type+%s>Open a new GitHub issue</a> to if you want support for this sport type',
+                    '  => Sport type "%s" not supported yet. <a href="https://github.com/robiningelbrecht/statistics-for-strava/issues/new?assignees=robiningelbrecht&labels=new+feature&projects=&template=feature_request.md&title=Add+support+for+sport+type+%s>Open a new GitHub issue</a> to if you want support for this sport type',
                     $stravaActivity['sport_type'],
                     $stravaActivity['sport_type']));
                 continue;
@@ -123,6 +123,10 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                         $gearId,
                         $gearId ? $allGears->getByGearId($gearId)?->getName() : null
                     );
+
+                if (array_key_exists('commute', $stravaActivity)) {
+                    $activity->updateCommute($stravaActivity['commute']);
+                }
 
                 if (!$activity->getLocation() && $sportType->supportsReverseGeocoding()
                     && $activity->getStartingCoordinate()) {

@@ -26,7 +26,7 @@
   <a href="#%EF%B8%8F-installation">Installation</a> •
   <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
   <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a> •
-  <a href="https://discord.gg/Nag7cebP">Discord</a>
+  <a href="https://discord.gg/p4zpZyCHNc">Discord</a>
 </p>
 
 <p align="center">
@@ -106,6 +106,7 @@ services:
       - ./build:/var/www/build
       - ./storage/database:/var/www/storage/database
       - ./storage/files:/var/www/storage/files
+      - ./storage/gear-maintenance:/var/www/storage/gear-maintenance
     env_file: ./.env
     ports:
       - 8080:8080

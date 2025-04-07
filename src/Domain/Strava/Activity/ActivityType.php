@@ -75,14 +75,6 @@ enum ActivityType: string implements TranslatableInterface
         return ActivityType::OTHER !== $this;
     }
 
-    public function supportsHeartRateOverTimeChart(): bool
-    {
-        return match ($this) {
-            self::RUN, self::WALK => true,
-            default => false,
-        };
-    }
-
     public function supportsPowerDistributionChart(): bool
     {
         return match ($this) {
@@ -103,6 +95,14 @@ enum ActivityType: string implements TranslatableInterface
     {
         return match ($this) {
             self::RUN, self::RIDE, self::WALK, self::WATER_SPORTS, self::SKATING => true,
+            default => false,
+        };
+    }
+
+    public function supportsCombinedStreamCalculation(): bool
+    {
+        return match ($this) {
+            self::RIDE, self::RUN, self::WALK => true,
             default => false,
         };
     }
