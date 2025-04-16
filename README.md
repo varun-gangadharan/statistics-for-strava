@@ -260,14 +260,14 @@ Before you do, please read [the wiki](https://github.com/robiningelbrecht/statis
 Run the following commands to setup the project on your local machine
 
 ```bash
-git clone git@github.com:your-name/your-fork.git
-make composer arg="install"
-make up
+> git clone git@github.com:your-name/your-fork.git
+> make composer arg="install"
+> make up
 ```
 
 Everytime you make changes to the app, you need to build the html files again
 
 ```bash
-make console arg=“app:strava:build-files
+> make console arg=“app:strava:build-files
 ```
 
