@@ -32,7 +32,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         $render = [
             'now' => $now,
             'availableRewindYears' => $availableRewindYears,
-            'activeRewindYear' => $availableRewindYears?->getFirst(),
+            'activeRewindYear' => $availableRewindYears->getFirst(),
             'rewindItems' => [
                 RewindItem::from(
                     icon: 'calendar',
