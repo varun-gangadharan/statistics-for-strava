@@ -238,7 +238,7 @@ Yoga: Yoga
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": 'Vous avez enregistré des entraînements dans {numberOfCountriesWithWorkouts} pays différents, soit {percentage} de tous les pays 🌍'
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': 'Vous avez réduit vos émissions de carbone de {amountOfCarbonSaved} en utilisant votre trajet domicile-travail 🥳. Cela équivaut à'
 'Your Strava badge': 'Votre badge Strava'
-"Your Strava {year} rewind will be available on the 24th of\n                    December.": "Your Strava {year} rewind will be available on the 24th of\n                    December."
+'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': 'Votre badge Zwift'
 'Your badge(s)': 'Vos badge(s)'
 'Zone 1 (recovery)': 'Zone 1 (récupération)'
