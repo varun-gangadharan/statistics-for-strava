@@ -52,7 +52,7 @@
                 {% for imagePath in activity.getLocalImagePaths() %}
                     <div>
                         <img class="h-auto max-w-full rounded-lg lazy"
-                             src="{{ renderComponent('placeholder-image') }}" data-src="{{ imagePath }}"
+                             src="{{ renderComponent('placeholder-image') }}" data-src="/{{ imagePath }}"
                              alt="Activity image"/>
                     </div>
                 {% endfor %}
