@@ -91,7 +91,7 @@ final class BuildAppConsoleCommand extends Command
         $output->writeln('  => Building heatmap.html');
         $this->commandBus->dispatch(new BuildHeatmapHtml($now));
         $output->writeln('  => Building rewind.html');
-        $this->commandBus->dispatch(new BuildRewindHtml());
+        $this->commandBus->dispatch(new BuildRewindHtml($now));
         $output->writeln('  => Building challenges.html');
         $this->commandBus->dispatch(new BuildChallengesHtml($now));
         $output->writeln('  => Building photos.html');

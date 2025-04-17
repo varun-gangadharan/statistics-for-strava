@@ -37,7 +37,7 @@
                     </svg>
                     <span class="sr-only">{{ "Toggle sidebar"|trans }}</span>
                 </button>
-                <a href="#" data-router-navigate="dashboard" class="flex items-center justify-between mr-4">
+                <a href="#" data-router-navigate="/dashboard" class="flex items-center justify-between mr-4">
                     <img src="assets/images/logo.svg" class="rounded-full mr-3 h-8" alt="Statistics for Strava Logo"/>
                     <div>
                         <div class="text-lg md:text-2xl font-semibold whitespace-nowrap">{{ "Statistics for Strava"|trans }}</div>
@@ -91,7 +91,7 @@
         <div class="max-h-[calc(100vh-160px)] overflow-y-auto py-5 px-3 h-full bg-white divide-y divide-gray-100">
             <ul class="space-y-2 mb-2">
                 <li>
-                    <a href="#" data-router-navigate="dashboard"
+                    <a href="#" data-router-navigate="/dashboard"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg aria-hidden="true"
                              class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -103,7 +103,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="activities"
+                    <a href="#" data-router-navigate="/activities"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -115,7 +115,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="monthly-stats"
+                    <a href="#" data-router-navigate="/monthly-stats"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -142,19 +142,19 @@
                     </button>
                     <ul id="dropdown-gear-menu" class="hidden py-2 space-y-2">
                         <li>
-                            <a href="#" data-router-navigate="gear-stats" data-router-sub-menu class="flex items-center w-full p-2 text-gray-900 font-medium transition duration-75 rounded-lg pl-11 hover:bg-gray-100 aria-selected:bg-gray-100">
+                            <a href="#" data-router-navigate="/gear-stats" data-router-sub-menu class="flex items-center w-full p-2 text-gray-900 font-medium transition duration-75 rounded-lg pl-11 hover:bg-gray-100 aria-selected:bg-gray-100">
                                 {{ "Stats"|trans }}
                             </a>
                         </li>
                         <li>
-                            <a href="#" data-router-navigate="gear-maintenance" data-router-sub-menu class="flex items-center w-full p-2 text-gray-900 font-medium transition duration-75 rounded-lg pl-11 hover:bg-gray-100 aria-selected:bg-gray-100">
+                            <a href="#" data-router-navigate="/gear/maintenance" data-router-sub-menu class="flex items-center w-full p-2 text-gray-900 font-medium transition duration-75 rounded-lg pl-11 hover:bg-gray-100 aria-selected:bg-gray-100">
                                 {{ "Maintenance"|trans }}
                             </a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="eddington"
+                    <a href="#" data-router-navigate="/eddington"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
@@ -168,7 +168,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="segments"
+                    <a href="#" data-router-navigate="/segments"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
@@ -182,7 +182,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="heatmap"
+                    <a href="#" data-router-navigate="/heatmap"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -199,7 +199,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="rewind"
+                    <a href="#" data-router-navigate="/rewind"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"  xml:space="preserve"><g><path fill="currentColor" d="M256,0C114.838,0,0,114.838,0,256c0,141.155,114.838,256,256,256c141.163,0,256-114.845,256-256
 		C512,114.838,397.163,0,256,0z M256,466.052c-115.998,0-210.052-94.054-210.052-210.052S140.002,45.94,256,45.94
@@ -212,7 +212,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="challenges"
+                    <a href="#" data-router-navigate="/challenges"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -227,7 +227,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" data-router-navigate="photos"
+                    <a href="#" data-router-navigate="/photos"
                        class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 aria-selected:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
                              aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
