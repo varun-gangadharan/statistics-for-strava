@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Rewind\RewindItem;
+use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command;
 use App\Infrastructure\CQRS\CommandHandler;
-use App\Infrastructure\ValueObject\Time\Year;
-use App\Infrastructure\ValueObject\Time\Years;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -16,6 +15,7 @@ use Twig\Environment;
 final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 {
     public function __construct(
+        private RewindRepository $rewindRepository,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
@@ -26,13 +26,13 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
     {
         assert($command instanceof BuildRewindHtml);
 
-        // @TODO: fetch all years available for rewind
-        $availableRewindYears = Years::fromArray([Year::fromInt(2024), Year::fromInt(2023)]);
+        $now = $command->getCurrentDateTime();
+        $availableRewindYears = $this->rewindRepository->getAvailableRewindYears($now);
 
-        $render = $this->twig->load('html/rewind/rewind.html.twig')->render([
-            'now' => $command->getCurrentDateTime(),
+        $render = [
+            'now' => $now,
             'availableRewindYears' => $availableRewindYears,
-            'activeRewindYear' => Year::fromInt(2024),
+            'activeRewindYear' => $availableRewindYears?->getFirst(),
             'rewindItems' => [
                 RewindItem::from(
                     icon: 'calendar',
@@ -125,17 +125,18 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     content: ''
                 ),
             ],
-        ]);
+        ];
 
         $this->buildStorage->write(
             'rewind.html',
-            $render,
+            $this->twig->load('html/rewind/rewind.html.twig')->render($render),
         );
 
         foreach ($availableRewindYears as $availableRewindYear) {
+            $render['activeRewindYear'] = $availableRewindYear;
             $this->buildStorage->write(
                 sprintf('rewind/%s.html', $availableRewindYear),
-                $render,
+                $this->twig->load('html/rewind/rewind.html.twig')->render($render),
             );
         }
     }

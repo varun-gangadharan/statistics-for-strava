@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-title" content="Statistiques Strava | Robin Ingelbrecht">
     <meta name="mobile-web-app-capable" content="yes">
     <link href="/manifest.json?0025176c-5652-11ee-923d-02424dd627d5" rel="manifest" crossorigin="">
-    <link rel="icon" type="image/x-icon" href="assets/images/logo.svg">
+    <link rel="icon" type="image/x-icon" href="/assets/images/logo.svg">
     <link href="/assets/flowbite/tailwind.min.css?0025176c-5652-11ee-923d-02424dd627d5" rel="stylesheet">
     <link href="/assets/leaflet/leaflet.css?0025176c-5652-11ee-923d-02424dd627d5" rel="stylesheet">
     <link href="/assets/data-table/clusterize.min.css?0025176c-5652-11ee-923d-02424dd627d5" rel="stylesheet">
@@ -30,7 +30,7 @@
                     <span class="sr-only">Basculer la barre lat&eacute;rale</span>
                 </button>
                 <a href="#" data-router-navigate="/dashboard" class="flex items-center justify-between mr-4">
-                    <img src="assets/images/logo.svg" class="rounded-full mr-3 h-8" alt="Statistics for Strava Logo">
+                    <img src="/assets/images/logo.svg" class="rounded-full mr-3 h-8" alt="Statistics for Strava Logo">
                     <div>
                         <div class="text-lg md:text-2xl font-semibold whitespace-nowrap">Statistiques Strava</div>
                         <div class="text-xs font-normal leading-3 whitespace-nowrap">Propuls&eacute; par Strava</div>
@@ -383,11 +383,11 @@
 <script src="/assets/lightgallery/lightgallery.lg-zoom.min.js?0025176c-5652-11ee-923d-02424dd627d5"></script>
 
 <script type="module">
-    import LeafletMap from "./assets/leaflet/leaflet-map.js";
-    import Heatmap from "./assets/leaflet/heatmap.js";
-    import DataTable from "./assets/data-table/data-table.js";
-    import Router from "./assets/router.js";
-    import {resolveEchartsCallbacks} from "./assets/utils.js";
+    import LeafletMap from "/assets/leaflet/leaflet-map.js";
+    import Heatmap from "/assets/leaflet/heatmap.js";
+    import DataTable from "/assets/data-table/data-table.js";
+    import Router from "/assets/router.js";
+    import {resolveEchartsCallbacks} from "/assets/utils.js";
 
     // Boot router.
     const router = Router(document.querySelector("main"));
