@@ -8,6 +8,7 @@ Afternoon: Après-midi
 'All time': 'Tout temps'
 'Alpine Ski': 'Ski alpin'
 Apr: Avr
+Attention: Attention
 Aug: Aoû
 Avg: Moy
 'Back Country Ski': 'Ski de randonnée'
@@ -145,6 +146,7 @@ Race: Course
 'Racing Score': 'Score de course'
 'Racquet & Paddle Sports': 'Sports de raquette & paddle'
 'Racquet Ball': Racquetball
+Rewind: Rewind
 'Ride a total of 1250km': 'Effectuer un total de 1250km'
 'Ride a total of 200km': 'Effectuer un total de 200km'
 'Ride a total of 600km': 'Effectuer un total de 600km'
@@ -236,6 +238,7 @@ Yoga: Yoga
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": 'Vous avez enregistré des entraînements dans {numberOfCountriesWithWorkouts} pays différents, soit {percentage} de tous les pays 🌍'
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': 'Vous avez réduit vos émissions de carbone de {amountOfCarbonSaved} en utilisant votre trajet domicile-travail 🥳. Cela équivaut à'
 'Your Strava badge': 'Votre badge Strava'
+"Your Strava {year} rewind will be available on the 24th of\n                    December.": "Your Strava {year} rewind will be available on the 24th of\n                    December."
 'Your Zwift badge': 'Votre badge Zwift'
 'Your badge(s)': 'Vos badge(s)'
 'Zone 1 (recovery)': 'Zone 1 (récupération)'

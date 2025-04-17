@@ -8,6 +8,7 @@ Afternoon: 下午
 'All time': 所有时间
 'Alpine Ski': 高山滑雪
 Apr: 四月
+Attention: Attention
 Aug: 八月
 Avg: 平均
 'Back Country Ski': 越野滑雪
@@ -145,6 +146,7 @@ Race: 比赛
 'Racing Score': 赛车成绩
 'Racquet & Paddle Sports': 球拍和桨类运动
 'Racquet Ball': 壁球
+Rewind: Rewind
 'Ride a total of 1250km': 骑行总计1250公里
 'Ride a total of 200km': 骑行总计200公里
 'Ride a total of 600km': 骑行总计600公里
@@ -236,6 +238,7 @@ Yoga: 瑜伽
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": '您记录了{numberOfCountriesWithWorkouts}个不同国家/地区的锻炼情况，占所有国家/地区的百分之 {percentage} 🌍'
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': '你的通勤减少了{amountOfCarbonSaved}的碳排放 🥳。这相当于'
 'Your Strava badge': Strava徽章
+"Your Strava {year} rewind will be available on the 24th of\n                    December.": "Your Strava {year} rewind will be available on the 24th of\n                    December."
 'Your Zwift badge': Zwift徽章
 'Your badge(s)': 徽章
 'Zone 1 (recovery)': 区域1（恢复）

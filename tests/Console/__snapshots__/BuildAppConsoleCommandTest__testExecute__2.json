@@ -64,6 +64,10 @@
         }
     },
     {
+        "commandName": "App\\Domain\\App\\BuildRewindHtml\\BuildRewindHtml",
+        "payload": []
+    },
+    {
         "commandName": "App\\Domain\\App\\BuildChallengesHtml\\BuildChallengesHtml",
         "payload": {
             "now": "2023-10-17 16:15:04"
