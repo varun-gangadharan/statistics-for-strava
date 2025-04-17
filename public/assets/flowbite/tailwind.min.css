@@ -1083,9 +1083,6 @@
   .ms-3 {
     margin-inline-start: calc(var(--spacing) * 3);
   }
-  .ms-6 {
-    margin-inline-start: calc(var(--spacing) * 6);
-  }
   .ms-auto {
     margin-inline-start: auto;
   }
@@ -1442,9 +1439,6 @@
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
   }
-  .mb-2\.5 {
-    margin-bottom: calc(var(--spacing) * 2.5);
-  }
   .mb-3 {
     margin-bottom: calc(var(--spacing) * 3);
   }
@@ -1453,9 +1447,6 @@
   }
   .mb-5 {
     margin-bottom: calc(var(--spacing) * 5);
-  }
-  .mb-10 {
-    margin-bottom: calc(var(--spacing) * 10);
   }
   .apexcharts-xaxistooltip {
     .apexcharts-canvas & {
@@ -1574,14 +1565,8 @@
   .h-52 {
     height: calc(var(--spacing) * 52);
   }
-  .h-56 {
-    height: calc(var(--spacing) * 56);
-  }
   .h-64 {
     height: calc(var(--spacing) * 64);
-  }
-  .h-72 {
-    height: calc(var(--spacing) * 72);
   }
   .h-80 {
     height: calc(var(--spacing) * 80);
@@ -1756,9 +1741,6 @@
   .w-16 {
     width: calc(var(--spacing) * 16);
   }
-  .w-32 {
-    width: calc(var(--spacing) * 32);
-  }
   .w-36 {
     width: calc(var(--spacing) * 36);
   }
@@ -1830,9 +1812,6 @@
   }
   .max-w-full {
     max-width: 100%;
-  }
-  .max-w-sm {
-    max-width: var(--container-sm);
   }
   .datatable-input {
     .datatable-wrapper .datatable-search & {
@@ -1999,9 +1978,6 @@
   }
   .flex-wrap {
     flex-wrap: wrap;
-  }
-  .items-baseline {
-    align-items: baseline;
   }
   .items-center {
     align-items: center;
