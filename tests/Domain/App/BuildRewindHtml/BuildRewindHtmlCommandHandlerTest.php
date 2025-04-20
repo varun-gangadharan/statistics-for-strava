@@ -10,6 +10,8 @@ class BuildRewindHtmlCommandHandlerTest extends BuildAppFilesTestCase
 {
     public function testHandle(): void
     {
+        $this->provideFullTestSet();
+
         $this->commandBus->dispatch(new BuildRewindHtml(SerializableDateTime::fromString('2025-10-01T00:00:00+00:00')));
         $this->assertFileSystemWrites($this->getContainer()->get('build.storage'));
     }
