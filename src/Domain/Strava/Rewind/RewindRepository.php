@@ -16,4 +16,6 @@ interface RewindRepository
      * @return array<string, int>
      */
     public function findMovingLevelGroupedByDay(Year $year): array;
+
+    public function countActivities(Year $year): int;
 }

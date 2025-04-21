@@ -1020,9 +1020,6 @@
   .z-100 {
     z-index: 100;
   }
-  .z-1000 {
-    z-index: 1000;
-  }
   .z-1001 {
     z-index: 1001;
   }
@@ -1777,9 +1774,6 @@
   .w-\[23rem\] {
     width: 23rem;
   }
-  .w-\[35rem\] {
-    width: 35rem;
-  }
   .w-\[200px\] {
     width: 200px;
   }
@@ -1957,9 +1951,6 @@
   }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3483,6 +3474,11 @@
   .lg\:order-2 {
     @media (width >= 64rem) {
       order: 2;
+    }
+  }
+  .lg\:col-span-2 {
+    @media (width >= 64rem) {
+      grid-column: span 2 / span 2;
     }
   }
   .lg\:mt-0 {

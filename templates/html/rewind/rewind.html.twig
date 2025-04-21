@@ -65,9 +65,9 @@
                 </div>
             {% endif %}
         </div>
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {% for item in rewindItems %}
-                <div class="col-span-{{ item.getColSpan() }} p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+                <div class="{{ loop.first ? 'lg:col-span-2': '' }} p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
                     <h5 class="flex items-center gap-x-0.5 text-lg font-medium text-gray-900">
                         {% include 'html/rewind/svg/svg-' ~ item.getIcon() ~ '.html.twig' %}
                         <span class="block">{{ item.getTitle() }}</span>

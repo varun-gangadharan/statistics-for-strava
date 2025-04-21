@@ -131,6 +131,43 @@ class DbalRewindRepositoryTest extends ContainerTestCase
         );
     }
 
+    public function testCountActivities(): void
+    {
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('1'))
+                ->withStartDateTime(SerializableDateTime::fromString('2025-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('2'))
+                ->withStartDateTime(SerializableDateTime::fromString('2023-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('3'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('4'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
+                ->build(),
+            []
+        ));
+
+        $this->assertEquals(
+            2,
+            $this->rewindRepository->countActivities(Year::fromInt(2024))
+        );
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

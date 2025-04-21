@@ -40,7 +40,10 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     RewindItem::from(
                         icon: 'calendar',
                         title: $this->translator->trans('Daily activities'),
-                        subTitle: null,
+                        subTitle: $this->translator->trans('{numberOfActivities} of activities in {year}', [
+                            '{numberOfActivities}' => $this->rewindRepository->countActivities($availableRewindYear),
+                            '{year}' => $availableRewindYear,
+                        ]),
                         content: $this->twig->render('html/rewind/items/rewind-daily-activities.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
                                 movingLevelsGroupedByDay: $this->rewindRepository->findMovingLevelGroupedByDay($availableRewindYear),
@@ -48,7 +51,6 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                                 translator: $this->translator,
                             )->build()),
                         ]),
-                        colSpan: 2
                     ),
                     RewindItem::from(
                         icon: 'tools',

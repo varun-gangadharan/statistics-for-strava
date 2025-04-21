@@ -56,4 +56,20 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
             ]
         )->fetchAllKeyValue();
     }
+
+    public function countActivities(Year $year): int
+    {
+        $query = <<<SQL
+            SELECT COUNT(*)
+            FROM Activity
+            WHERE strftime('%Y',startDateTime) = :year
+        SQL;
+
+        return (int) $this->connection->executeQuery(
+            $query,
+            [
+                'year' => (string) $year,
+            ]
+        )->fetchOne();
+    }
 }
