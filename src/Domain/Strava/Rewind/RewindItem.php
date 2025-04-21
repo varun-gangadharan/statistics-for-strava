@@ -11,6 +11,7 @@ final readonly class RewindItem
         private string $title,
         private ?string $subTitle,
         private string $content,
+        private int $colSpan,
     ) {
     }
 
@@ -19,12 +20,14 @@ final readonly class RewindItem
         string $title,
         ?string $subTitle,
         string $content,
+        int $colSpan = 1,
     ): self {
         return new self(
             icon: $icon,
             title: $title,
             subTitle: $subTitle,
-            content: $content
+            content: $content,
+            colSpan: $colSpan
         );
     }
 
@@ -46,5 +49,10 @@ final readonly class RewindItem
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    public function getColSpan(): int
+    {
+        return $this->colSpan;
     }
 }

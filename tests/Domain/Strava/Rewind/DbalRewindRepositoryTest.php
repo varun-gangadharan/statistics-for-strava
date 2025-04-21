@@ -17,7 +17,7 @@ class DbalRewindRepositoryTest extends ContainerTestCase
 {
     private RewindRepository $rewindRepository;
 
-    public function testGetAvailableRewindYears(): void
+    public function testFindAvailableRewindYears(): void
     {
         $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
@@ -50,11 +50,11 @@ class DbalRewindRepositoryTest extends ContainerTestCase
 
         $this->assertEquals(
             Years::fromArray([Year::fromInt(2024), Year::fromInt(2023)]),
-            $this->rewindRepository->getAvailableRewindYears(SerializableDateTime::fromString('2025-01-01 00:00:00'))
+            $this->rewindRepository->findAvailableRewindYears(SerializableDateTime::fromString('2025-01-01 00:00:00'))
         );
     }
 
-    public function testGetAvailableRewindYearsWhenAfterCutOffDate(): void
+    public function testFindAvailableRewindYearsWhenAfterCutOffDate(): void
     {
         $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
@@ -87,7 +87,47 @@ class DbalRewindRepositoryTest extends ContainerTestCase
 
         $this->assertEquals(
             Years::fromArray([Year::fromInt(2025), Year::fromInt(2024), Year::fromInt(2023)]),
-            $this->rewindRepository->getAvailableRewindYears(SerializableDateTime::fromString('2024-12-25 00:00:00'))
+            $this->rewindRepository->findAvailableRewindYears(SerializableDateTime::fromString('2024-12-25 00:00:00'))
+        );
+    }
+
+    public function testFindMovingLevelGroupedByDay(): void
+    {
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('1'))
+                ->withStartDateTime(SerializableDateTime::fromString('2025-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('2'))
+                ->withStartDateTime(SerializableDateTime::fromString('2023-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('3'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('4'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
+                ->build(),
+            []
+        ));
+
+        $this->assertEquals(
+            [
+                '2024-01-01' => 1,
+                '2024-01-03' => 1,
+            ],
+            $this->rewindRepository->findMovingLevelGroupedByDay(Year::fromInt(2024))
         );
     }
 

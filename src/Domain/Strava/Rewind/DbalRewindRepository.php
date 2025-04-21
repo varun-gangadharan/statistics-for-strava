@@ -11,7 +11,7 @@ use App\Infrastructure\ValueObject\Time\Years;
 
 final readonly class DbalRewindRepository extends DbalRepository implements RewindRepository
 {
-    public function getAvailableRewindYears(SerializableDateTime $now): Years
+    public function findAvailableRewindYears(SerializableDateTime $now): Years
     {
         $currentYear = $now->getYear();
         if (RewindCutOffDate::fromYear(Year::fromInt($currentYear))->isBefore($now)) {
@@ -31,5 +31,29 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
             static fn (int $year): Year => Year::fromInt((int) $year),
             $years
         ));
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function findMovingLevelGroupedByDay(Year $year): array
+    {
+        $query = <<<SQL
+            SELECT
+                strftime('%Y-%m-%d', startDateTime) AS date,
+                MAX(MIN(CAST(Activity.movingTimeInSeconds / 1000 AS INTEGER), 4), 1) AS level
+            FROM Activity
+            WHERE strftime('%Y',startDateTime) = :year
+            GROUP BY date
+            ORDER BY date DESC
+
+        SQL;
+
+        return $this->connection->executeQuery(
+            $query,
+            [
+                'year' => (string) $year,
+            ]
+        )->fetchAllKeyValue();
     }
 }

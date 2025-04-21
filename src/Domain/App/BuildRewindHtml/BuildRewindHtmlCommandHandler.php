@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\App\BuildRewindHtml;
 
+use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\RewindItem;
 use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command;
 use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\Serialization\Json;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -27,7 +29,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         assert($command instanceof BuildRewindHtml);
 
         $now = $command->getCurrentDateTime();
-        $availableRewindYears = $this->rewindRepository->getAvailableRewindYears($now);
+        $availableRewindYears = $this->rewindRepository->findAvailableRewindYears($now);
 
         foreach ($availableRewindYears as $availableRewindYear) {
             $render = [
@@ -39,7 +41,14 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'calendar',
                         title: $this->translator->trans('Daily activities'),
                         subTitle: null,
-                        content: ''
+                        content: $this->twig->render('html/rewind/items/rewind-daily-activities.html.twig', [
+                            'chart' => Json::encode(DailyActivitiesChart::create(
+                                movingLevelsGroupedByDay: $this->rewindRepository->findMovingLevelGroupedByDay($availableRewindYear),
+                                year: $availableRewindYear,
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
+                        colSpan: 2
                     ),
                     RewindItem::from(
                         icon: 'tools',
