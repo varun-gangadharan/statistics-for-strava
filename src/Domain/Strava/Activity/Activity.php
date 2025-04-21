@@ -466,6 +466,11 @@ final class Activity
         return $this->movingTimeInSeconds;
     }
 
+    public function getMovingTimeInHours(): float
+    {
+        return round($this->movingTimeInSeconds / 3600, 1);
+    }
+
     public function updateMovingTimeInSeconds(int $movingTimeInSeconds): self
     {
         $this->movingTimeInSeconds = $movingTimeInSeconds;

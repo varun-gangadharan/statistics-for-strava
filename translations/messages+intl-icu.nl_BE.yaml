@@ -48,7 +48,6 @@ Distance: Afstand
 'Distance in {unit}': 'Afstand in {unit}'
 'Distance over time per gear': 'Afstand in tijd per gear'
 'Distance per month per gear': 'Afstand per maand per gear'
-'Distance ranges': 'Distance ranges'
 Distribution: Distribution
 'Driving your car for {amountOfKmDrivingACar} km': 'Driving your car for {amountOfKmDrivingACar} km'
 'E-Bike Rides': 'E-Bike Ritten'
@@ -137,7 +136,6 @@ Night: Nacht
 'Nordic Ski': 'Nordic Ski'
 Nov: Nov
 'Number of activities per month': 'Number of activities per month'
-'Number of activities within a distance range': 'Number of activities within a distance range'
 Oct: Okt
 'One of your gear maitenance tasks is due': 'One of your gear maitenance tasks is due'
 Other: Other
@@ -216,6 +214,7 @@ Tennis: Tennis
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 'Deze kaart toont de dagelijkse trainingsintensiteit van het afgelopen jaar. De trainingsintensiteit voor een activiteit wordt berekend op basis van verschillende meetgegevens.'
 Thu: Do
 Thursday: Donderdag
+Time: Time
 'Time / week': 'Tijd / week'
 'Times completed': 'Aantal keer voltooid'
 To: Tot
@@ -275,6 +274,7 @@ age: leeftijd
 and: and
 bpm: bpm
 clear: clear
+hrs: hrs
 intensity: intensity
 intensityFactor: intensityFactor
 'max gradient': 'max gradient'

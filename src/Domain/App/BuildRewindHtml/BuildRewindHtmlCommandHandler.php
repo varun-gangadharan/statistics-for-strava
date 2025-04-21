@@ -36,6 +36,9 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {
+            $longestActivity = $this->rewindRepository->findLongestActivity($availableRewindYear);
+            $leafletMap = $longestActivity->getLeafletMap();
+
             $render = [
                 'now' => $now,
                 'availableRewindYears' => $availableRewindYears,
@@ -68,16 +71,16 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         ]),
                     ),
                     RewindItem::from(
-                        icon: 'ruler',
-                        title: $this->translator->trans('Distance ranges'),
-                        subTitle: $this->translator->trans('Number of activities within a distance range'),
-                        content: ''
-                    ),
-                    RewindItem::from(
                         icon: 'trophy',
                         title: $this->translator->trans('Biggest activity'),
-                        subTitle: 'TODO: Name of the activity',
-                        content: ''
+                        subTitle: $longestActivity->getName(),
+                        content: $this->twig->render('html/rewind/rewind-biggest-activity.html.twig', [
+                            'activity' => $longestActivity,
+                            'leaflet' => $leafletMap ? [
+                                'routes' => [$longestActivity->getPolyline()],
+                                'map' => $leafletMap,
+                            ] : null,
+                        ])
                     ),
                     RewindItem::from(
                         icon: 'medal',

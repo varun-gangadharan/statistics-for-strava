@@ -48,7 +48,6 @@ Distance: 距离
 'Distance in {unit}': '以{unit}为单位的距离'
 'Distance over time per gear': 每个装备随时间变化的距离
 'Distance per month per gear': 每个装备每月的距离
-'Distance ranges': 'Distance ranges'
 Distribution: 分布
 'Driving your car for {amountOfKmDrivingACar} km': '驾车行驶{amountOfKmDrivingACar}公里'
 'E-Bike Rides': 电动自行车骑行
@@ -137,7 +136,6 @@ Night: 夜晚
 'Nordic Ski': 北欧滑雪
 Nov: 十一月
 'Number of activities per month': 'Number of activities per month'
-'Number of activities within a distance range': 'Number of activities within a distance range'
 Oct: 十月
 'One of your gear maitenance tasks is due': 'One of your gear maitenance tasks is due'
 Other: 其他
@@ -216,6 +214,7 @@ Tennis: 网球
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 这张地图显示了过去一年的每日训练强度。活动的训练强度是基于多个指标计算的。
 Thu: 周四
 Thursday: 星期四
+Time: Time
 'Time / week': 每周时间
 'Times completed': 完成次数
 To: 到
@@ -275,6 +274,7 @@ age: 年龄
 and: 和
 bpm: 拍子数
 clear: 清除
+hrs: hrs
 intensity: 强度
 intensityFactor: 强度因子
 'max gradient': 最大坡度
