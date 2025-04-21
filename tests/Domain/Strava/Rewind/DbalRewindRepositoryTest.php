@@ -5,6 +5,7 @@ namespace App\Tests\Domain\Strava\Rewind;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
+use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Rewind\DbalRewindRepository;
 use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
@@ -165,6 +166,57 @@ class DbalRewindRepositoryTest extends ContainerTestCase
         $this->assertEquals(
             2,
             $this->rewindRepository->countActivities(Year::fromInt(2024))
+        );
+    }
+
+    public function testFindMovingTimePerGear(): void
+    {
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('1'))
+                ->withStartDateTime(SerializableDateTime::fromString('2025-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('2'))
+                ->withGearId(GearId::fromUnprefixed('3'))
+                ->withStartDateTime(SerializableDateTime::fromString('2023-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('3'))
+                ->withGearId(GearId::fromUnprefixed('2'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-01 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('4'))
+                ->withGearId(GearId::fromUnprefixed('5'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
+                ->build(),
+            []
+        ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('8'))
+                ->withGearId(GearId::fromUnprefixed('5'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
+                ->build(),
+            []
+        ));
+
+        $this->assertEquals(
+            [
+                'gear-2' => 10,
+                'gear-5' => 20,
+            ],
+            $this->rewindRepository->findMovingTimePerGear(Year::fromInt(2024))
         );
     }
 

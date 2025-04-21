@@ -46,7 +46,27 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
             WHERE strftime('%Y',startDateTime) = :year
             GROUP BY date
             ORDER BY date DESC
+        SQL;
 
+        return $this->connection->executeQuery(
+            $query,
+            [
+                'year' => (string) $year,
+            ]
+        )->fetchAllKeyValue();
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function findMovingTimePerGear(Year $year): array
+    {
+        $query = <<<SQL
+            SELECT gearId, SUM(movingTimeInSeconds) as movingTimeInSeconds
+            FROM Activity
+            WHERE strftime('%Y',startDateTime) = :year
+            AND gearId IS NOT NULL
+            GROUP BY gearId
         SQL;
 
         return $this->connection->executeQuery(

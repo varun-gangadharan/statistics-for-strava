@@ -17,5 +17,10 @@ interface RewindRepository
      */
     public function findMovingLevelGroupedByDay(Year $year): array;
 
+    /**
+     * @return array<string, int>
+     */
+    public function findMovingTimePerGear(Year $year): array;
+
     public function countActivities(Year $year): int;
 }
