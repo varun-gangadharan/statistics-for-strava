@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\App\BuildRewindHtml;
 
+use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
+use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\RewindItem;
 use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command;
@@ -18,6 +20,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 {
     public function __construct(
         private RewindRepository $rewindRepository,
+        private GearRepository $gearRepository,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
@@ -30,6 +33,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 
         $now = $command->getCurrentDateTime();
         $availableRewindYears = $this->rewindRepository->findAvailableRewindYears($now);
+        $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {
             $render = [
@@ -44,7 +48,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                             '{numberOfActivities}' => $this->rewindRepository->countActivities($availableRewindYear),
                             '{year}' => $availableRewindYear,
                         ]),
-                        content: $this->twig->render('html/rewind/items/rewind-daily-activities.html.twig', [
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
                                 movingLevelsGroupedByDay: $this->rewindRepository->findMovingLevelGroupedByDay($availableRewindYear),
                                 year: $availableRewindYear,
@@ -56,7 +60,12 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'tools',
                         title: $this->translator->trans('Gear'),
                         subTitle: $this->translator->trans('Total hours spent using gear'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(GearUsageChart::create(
+                                movingTimePerGear: $this->rewindRepository->findMovingTimePerGear($availableRewindYear),
+                                gears: $gears,
+                            )->build()),
+                        ]),
                     ),
                     RewindItem::from(
                         icon: 'ruler',

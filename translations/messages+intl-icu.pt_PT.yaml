@@ -294,6 +294,7 @@ workouts: treinos
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} resultados com base nos teus filtros ativos'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} percursos com base nos teus filtros ativos'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'

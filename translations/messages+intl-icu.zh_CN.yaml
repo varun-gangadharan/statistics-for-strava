@@ -294,6 +294,7 @@ workouts: 锻炼
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults}个结果符合筛选条件'
 '{numberOfResults} routes based on your active filters': '{numberOfResults}条路线符合筛选条件'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade}份意大利面条'

@@ -294,6 +294,7 @@ workouts: Trainingseinheiten
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} Ergebnisse basierend auf deinen aktiven Filtern'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} Routen basierend auf deinen aktiven Filtern'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'
