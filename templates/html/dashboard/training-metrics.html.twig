@@ -1,0 +1,230 @@
+{% extends "html/base.html.twig" %}
+
+{% block content %}
+    {% autoescape false %}
+        <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-xs sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">
+                    {{ "Training Load Analysis (4 months history + 1 month projection)"|trans }}
+                </h3>
+                <a href="#" data-router-navigate="dashboard" class="inline-flex items-center p-2 text-sm font-medium rounded-lg text-blue-600 hover:bg-gray-100">
+                    {{ "Back to Dashboard"|trans }}
+                </a>
+            </div>
+            <div class="h-100" data-echarts-options='{{ trainingLoadChart }}'></div>
+            
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- CTL Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "CTL (Fitness)"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-ctl" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-ctl" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation."|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold">{{ currentCtl }}</div>
+                    <div class="text-sm text-gray-500">{{ "42-day fitness trend"|trans }}</div>
+                </div>
+                
+                <!-- ATL Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "ATL (Fatigue)"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-atl" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-atl" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Acute Training Load (Fatigue) - 7-day exponentially weighted average of your daily training load. Represents short-term fatigue."|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold">{{ currentAtl }}</div>
+                    <div class="text-sm text-gray-500">{{ "7-day fatigue level"|trans }}</div>
+                </div>
+                
+                <!-- TSB Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "TSB (Form)"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-tsb" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-tsb" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Training Stress Balance (Form) - Difference between fitness (CTL) and fatigue (ATL). Indicates your readiness to perform."|trans }}</p>
+                                <p>{{ "-5 to +5: Optimal form for performance"|trans }}</p>
+                                <p>{{ "> +5: Fresh but may lack fitness"|trans }}</p>
+                                <p>{{ "< -5: Fatigued"|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ currentTsb }}</div>
+                    <div class="text-sm text-gray-500">
+                        {% if currentTsb > 5 %}
+                            {{ "Fresh - reduced training load"|trans }}
+                        {% elseif currentTsb < -5 %}
+                            {{ "Fatigued - high training stress"|trans }}
+                        {% else %}
+                            {{ "Optimal form for performance"|trans }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- A:C Ratio Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "A:C Ratio"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-ac" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-ac" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Acute:Chronic Ratio - Ratio of ATL to CTL. Indicates injury risk."|trans }}</p>
+                                <p>{{ "0.8-1.3: Safe training zone"|trans }}</p>
+                                <p>{{ "> 1.3: Increased injury risk"|trans }}</p>
+                                <p>{{ "< 0.8: Potential detraining"|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold {{ acRatio > 1.3 ? 'text-red-500' : (acRatio < 0.8 ? 'text-yellow-500' : 'text-green-500') }}">{{ acRatio }}</div>
+                    <div class="text-sm text-gray-500">
+                        {% if acRatio > 1.3 %}
+                            {{ "High risk - reduce volume"|trans }}
+                        {% elseif acRatio < 0.8 %}
+                            {{ "Low stress - potential detraining"|trans }}
+                        {% else %}
+                            {{ "Optimal training range"|trans }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Rest Days Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "Rest Days"|trans }}</h4>
+                    </div>
+                    <div class="text-2xl font-bold">{{ restDaysLastWeek }} / 7</div>
+                    <div class="text-sm text-gray-500">{{ "Rest days in last 7 days"|trans }}</div>
+                </div>
+                
+                <!-- Training Monotony Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "Monotony"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-monotony" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-monotony" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Training Monotony - Ratio of average daily load to standard deviation. Indicates training variety."|trans }}</p>
+                                <p>{{ "< 1.5: Good variety in training"|trans }}</p>
+                                <p>{{ "> 2.0: High monotony, increased risk"|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold {{ monotony > 2.0 ? 'text-red-500' : (monotony > 1.5 ? 'text-yellow-500' : 'text-green-500') }}">{{ monotony }}</div>
+                    <div class="text-sm text-gray-500">
+                        {% if monotony > 2.0 %}
+                            {{ "High monotony - increase variety"|trans }}
+                        {% elseif monotony > 1.5 %}
+                            {{ "Moderate monotony"|trans }}
+                        {% else %}
+                            {{ "Good training variety"|trans }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Weekly Strain Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "Weekly Strain"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-strain" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-strain" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Weekly Strain - Product of weekly training load and monotony. Overall training stress."|trans }}</p>
+                                <p>{{ "Individual thresholds vary based on fitness level."|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold">{{ strain }}</div>
+                    <div class="text-sm text-gray-500">{{ "Overall weekly training stress"|trans }}</div>
+                </div>
+                
+                <!-- TRIMP Card -->
+                <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-md font-semibold">{{ "Weekly TRIMP"|trans }}</h4>
+                        <button class="ml-2" data-popover-target="popover-trimp" data-popover-placement="right" type="button">
+                            <svg class="w-4 h-4 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div data-popover id="popover-trimp" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
+                            <div class="p-3 space-y-2">
+                                <p>{{ "Training Impulse - Heart rate-based load metric that accounts for intensity and duration."|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold">{{ weeklyTrimp }}</div>
+                    <div class="text-sm text-gray-500">{{ "Last 7 days training load"|trans }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# Additional charts tabs: HRV, Polarized, Relative Effort, VO2 Max #}
+        <div class="mb-4 border-b border-gray-200">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="trainingMetricsTab" data-tabs="#trainingMetricsTabContent" role="tablist">
+                <li class="mr-2" role="presentation">
+                    <a href="#" data-tabs-target="#trainingMetricsLoad" role="tab" aria-controls="trainingMetricsLoad" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                        {{ "Load"|trans }}
+                    </a>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <a href="#" data-tabs-target="#trainingMetricsHrv" role="tab" aria-controls="trainingMetricsHrv" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                        {{ "HRV"|trans }}
+                    </a>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <a href="#" data-tabs-target="#trainingMetricsPolarized" role="tab" aria-controls="trainingMetricsPolarized" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                        {{ "Polarized Distribution"|trans }}
+                    </a>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <a href="#" data-tabs-target="#trainingMetricsEffort" role="tab" aria-controls="trainingMetricsEffort" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                        {{ "Relative Effort"|trans }}
+                    </a>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <a href="#" data-tabs-target="#trainingMetricsVo2Max" role="tab" aria-controls="trainingMetricsVo2Max" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                        {{ "VO₂ Max Trends"|trans }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="trainingMetricsTabContent">
+            <div id="trainingMetricsLoad" role="tabpanel" aria-labelledby="trainingMetricsLoad-tab">
+                <div class="h-100" data-echarts-options='{{ trainingLoadChart }}'></div>
+            </div>
+            <div id="trainingMetricsHrv" role="tabpanel" aria-labelledby="trainingMetricsHrv-tab">
+                <div class="h-100" data-echarts-options='{{ hrvChart }}'></div>
+            </div>
+            <div id="trainingMetricsPolarized" role="tabpanel" aria-labelledby="trainingMetricsPolarized-tab">
+                <div class="h-100" data-echarts-options='{{ polarizedTrainingDistributionChart }}'></div>
+            </div>
+            <div id="trainingMetricsEffort" role="tabpanel" aria-labelledby="trainingMetricsEffort-tab">
+                <div class="h-100" data-echarts-options='{{ relativeEffortChart }}'></div>
+            </div>
+            <div id="trainingMetricsVo2Max" role="tabpanel" aria-labelledby="trainingMetricsVo2Max-tab">
+                <div class="h-100" data-echarts-options='{{ vo2MaxTrendsChart }}'></div>
+            </div>
+        </div>
+    {% endautoescape %}
+{% endblock %}

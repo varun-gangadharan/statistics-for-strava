@@ -15,6 +15,7 @@ use App\Domain\App\BuildIndexHtml\BuildIndexHtml;
 use App\Domain\App\BuildMonthlyStatsHtml\BuildMonthlyStatsHtml;
 use App\Domain\App\BuildPhotosHtml\BuildPhotosHtml;
 use App\Domain\App\BuildSegmentsHtml\BuildSegmentsHtml;
+use App\Domain\App\BuildTrainingMetricsHtml\BuildTrainingMetricsHtml;
 use App\Domain\App\ConfigureAppLocale\ConfigureAppLocale;
 use App\Domain\Integration\Notification\SendNotification\SendNotification;
 use App\Domain\Manifest\BuildManifest\BuildManifest;
@@ -93,6 +94,8 @@ final class BuildAppConsoleCommand extends Command
         $this->commandBus->dispatch(new BuildChallengesHtml($now));
         $output->writeln('  => Building photos.html');
         $this->commandBus->dispatch(new BuildPhotosHtml());
+        $output->writeln('  => Building training-metrics.html');
+        $this->commandBus->dispatch(new BuildTrainingMetricsHtml(\App\Infrastructure\ValueObject\Time\SerializableDateTime::fromDateTimeImmutable($now)));
         $output->writeln('  => Building badge.svg');
         $this->commandBus->dispatch(new BuildBadgeSvg($now));
 

@@ -1494,6 +1494,9 @@
   .ml-1\.5 {
     margin-left: calc(var(--spacing) * 1.5);
   }
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
+  }
   .ml-3 {
     margin-left: calc(var(--spacing) * 3);
   }
@@ -1570,6 +1573,9 @@
   }
   .h-80 {
     height: calc(var(--spacing) * 80);
+  }
+  .h-100 {
+    height: calc(var(--spacing) * 100);
   }
   .h-\[20rem\] {
     height: 20rem;
@@ -1753,6 +1759,9 @@
   .w-64 {
     width: calc(var(--spacing) * 64);
   }
+  .w-80 {
+    width: calc(var(--spacing) * 80);
+  }
   .w-\[1rem\] {
     width: 1rem;
   }
@@ -1921,6 +1930,9 @@
   }
   .transform-none {
     transform: none;
+  }
+  .animate-pulse {
+    animation: var(--animate-pulse);
   }
   .animate-spin {
     animation: var(--animate-spin);
@@ -2481,6 +2493,9 @@
   .bg-red-50 {
     background-color: var(--color-red-50);
   }
+  .bg-red-500 {
+    background-color: var(--color-red-500);
+  }
   .bg-red-600 {
     background-color: var(--color-red-600);
   }
@@ -2906,6 +2921,9 @@
       color: white;
     }
   }
+  .text-blue-500 {
+    color: var(--color-blue-500);
+  }
   .text-blue-600 {
     color: var(--color-blue-600);
   }
@@ -2942,6 +2960,9 @@
   .text-orange-800 {
     color: var(--color-orange-800);
   }
+  .text-red-500 {
+    color: var(--color-red-500);
+  }
   .text-red-600 {
     color: var(--color-red-600);
   }
@@ -2956,6 +2977,9 @@
   }
   .text-white {
     color: var(--color-white);
+  }
+  .text-yellow-500 {
+    color: var(--color-yellow-500);
   }
   .text-yellow-700 {
     color: var(--color-yellow-700);
@@ -3418,6 +3442,16 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+  .md\:grid-cols-3 {
+    @media (width >= 48rem) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .md\:grid-cols-4 {
+    @media (width >= 48rem) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
   .md\:space-x-2 {
     @media (width >= 48rem) {
       :where(& > :not(:last-child)) {
@@ -3504,6 +3538,11 @@
   .lg\:grid-cols-2 {
     @media (width >= 64rem) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .lg\:grid-cols-4 {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
   .lg\:px-6 {

@@ -25,6 +25,11 @@ enum UnitSystem: string
         }
 
         return Mile::from($value);
+  }
+
+  public function isMetric(): bool
+    {
+        return $this === self::METRIC;
     }
 
     public function distanceSymbol(): string

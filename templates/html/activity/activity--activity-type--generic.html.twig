@@ -290,7 +290,7 @@
         </div>
     </div>
 {% endif %}
-{% if (powerDistributionChart or heartRateDistributionChart) and profileCharts is not empty  %}
+{% if (powerDistributionChart or heartRateDistributionChart or heartRateDriftChart or heartRateVsPaceChart or elevationVsHeartRateChart) %}
 <div class="mb-4 border-b border-gray-200">
     <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="chartsTab" data-tabs="#chartsTabContent" role="tablist">
         <li class="mr-2" role="presentation">
@@ -303,6 +303,13 @@
                 {{ "Distribution"|trans }}
             </a>
         </li>
+        {% if heartRateDriftChart or heartRateVsPaceChart or elevationVsHeartRateChart %}
+        <li class="mr-2" role="presentation">
+            <a href="#" data-tabs-target="#chartsTabAdvanced" role="tab" aria-controls="chartsTabAdvanced" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                {{ "Advanced"|trans }}
+            </a>
+        </li>
+        {% endif %}
     </ul>
 </div>
 {% endif %}
@@ -331,6 +338,35 @@
                         <div class="h-[350px]" data-echarts-options='{{ heartRateDistributionChart }}'></div>
                     </div>
                 {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    
+    {% if heartRateDriftChart or heartRateVsPaceChart or elevationVsHeartRateChart %}
+        <div id="chartsTabAdvanced" role="tabpanel" aria-labelledby="chartsTabAdvanced-tab">
+            <div class="grid grid-cols-1 gap-4">
+                {% if heartRateDriftChart %}
+                    <div>
+                        <h3 class="font-bold mb-1 text-center">{{ "Heart Rate Drift"|trans }}</h3>
+                        <div class="h-[350px]" data-echarts-options='{{ heartRateDriftChart }}'></div>
+                    </div>
+                {% endif %}
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {% if heartRateVsPaceChart %}
+                        <div>
+                            <h3 class="font-bold mb-1 text-center">{{ "Heart Rate vs Pace"|trans }}</h3>
+                            <div class="h-[350px]" data-echarts-options='{{ heartRateVsPaceChart }}'></div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if elevationVsHeartRateChart %}
+                        <div>
+                            <h3 class="font-bold mb-1 text-center">{{ "Elevation vs Heart Rate"|trans }}</h3>
+                            <div class="h-[350px]" data-echarts-options='{{ elevationVsHeartRateChart }}'></div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% endif %}
