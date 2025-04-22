@@ -47,7 +47,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     RewindItem::from(
                         icon: 'calendar',
                         title: $this->translator->trans('Daily activities'),
-                        subTitle: $this->translator->trans('{numberOfActivities} of activities in {year}', [
+                        subTitle: $this->translator->trans('{numberOfActivities} activities in {year}', [
                             '{numberOfActivities}' => $this->rewindRepository->countActivities($availableRewindYear),
                             '{year}' => $availableRewindYear,
                         ]),
@@ -62,7 +62,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     RewindItem::from(
                         icon: 'tools',
                         title: $this->translator->trans('Gear'),
-                        subTitle: $this->translator->trans('Total hours spent using gear'),
+                        subTitle: $this->translator->trans('Total hours spent per gear'),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(GearUsageChart::create(
                                 movingTimePerGear: $this->rewindRepository->findMovingTimePerGear($availableRewindYear),
@@ -72,7 +72,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     ),
                     RewindItem::from(
                         icon: 'trophy',
-                        title: $this->translator->trans('Biggest activity'),
+                        title: $this->translator->trans('Longest activity (h)'),
                         subTitle: $longestActivity->getName(),
                         content: $this->twig->render('html/rewind/rewind-biggest-activity.html.twig', [
                             'activity' => $longestActivity,

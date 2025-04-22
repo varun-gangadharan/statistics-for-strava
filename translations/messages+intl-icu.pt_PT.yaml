@@ -17,7 +17,6 @@ Avg: Média
 Badminton: Badmínton
 Best: Melhor
 'Best Efforts': 'Best Efforts'
-'Biggest activity': 'Biggest activity'
 Cadence: Cadência
 Calories: Calorias
 Canoeing: Canoagem
@@ -111,6 +110,7 @@ Kayaking: Caiaque
 Loading...: 'A carregar...'
 'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
 'Longest streaks': 'Longest streaks'
 'Longest workout': 'Treino mais longo'
 Low: Baixa
@@ -225,8 +225,8 @@ To: Até
 'Total distance per month': 'Total distance per month'
 'Total elevation per month': 'Total elevation per month'
 'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
 'Total hours spent per sport type': 'Total hours spent per sport type'
-'Total hours spent using gear': 'Total hours spent using gear'
 'Total kudos': 'Total de kudos'
 'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': 'Corridas de Trilho'
@@ -294,7 +294,7 @@ workouts: treinos
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
-'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} resultados com base nos teus filtros ativos'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} percursos com base nos teus filtros ativos'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'

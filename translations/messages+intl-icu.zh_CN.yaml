@@ -17,7 +17,6 @@ Avg: 平均
 Badminton: 羽毛球
 Best: 最佳
 'Best Efforts': 最大努力
-'Biggest activity': 'Biggest activity'
 Cadence: 踏频
 Calories: 卡路里
 Canoeing: 划独木舟
@@ -111,6 +110,7 @@ Kayaking: 皮划艇
 Loading...: 加载中...
 'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
 'Longest streaks': 'Longest streaks'
 'Longest workout': 最长锻炼
 Low: 低
@@ -225,8 +225,8 @@ To: 到
 'Total distance per month': 'Total distance per month'
 'Total elevation per month': 'Total elevation per month'
 'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
 'Total hours spent per sport type': 'Total hours spent per sport type'
-'Total hours spent using gear': 'Total hours spent using gear'
 'Total kudos': 总点赞
 'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': 越野跑
@@ -294,7 +294,7 @@ workouts: 锻炼
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
-'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults}个结果符合筛选条件'
 '{numberOfResults} routes based on your active filters': '{numberOfResults}条路线符合筛选条件'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade}份意大利面条'

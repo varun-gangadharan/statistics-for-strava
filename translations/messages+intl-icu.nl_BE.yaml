@@ -17,7 +17,6 @@ Avg: Gem
 Badminton: Badminton
 Best: Beste
 'Best Efforts': 'Best Efforts'
-'Biggest activity': 'Biggest activity'
 Cadence: Cadans
 Calories: Calorieën
 Canoeing: Kanoën
@@ -111,6 +110,7 @@ Kayaking: Kajakken
 Loading...: 'Aan het laden...'
 'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
 'Longest streaks': 'Longest streaks'
 'Longest workout': 'Longest workout'
 Low: Laag
@@ -225,8 +225,8 @@ To: Tot
 'Total distance per month': 'Total distance per month'
 'Total elevation per month': 'Total elevation per month'
 'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
 'Total hours spent per sport type': 'Total hours spent per sport type'
-'Total hours spent using gear': 'Total hours spent using gear'
 'Total kudos': 'Totaal aantal kudos'
 'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': 'Trail Runs'
@@ -294,7 +294,7 @@ workouts: workouts
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
-'{numberOfActivities} of activities in {year}': '{numberOfActivities} of activities in {year}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} results based on your active filters'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} routes based on your active filters'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'
