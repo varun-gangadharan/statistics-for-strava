@@ -53,7 +53,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         ]),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
-                                movingLevelsGroupedByDay: $this->rewindRepository->findMovingLevelGroupedByDay($availableRewindYear),
+                                movingLevelsGroupedByDay: $this->rewindRepository->findMovingTimePerByDay($availableRewindYear),
                                 year: $availableRewindYear,
                                 translator: $this->translator,
                             )->build()),

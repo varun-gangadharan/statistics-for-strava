@@ -93,7 +93,7 @@ class DbalRewindRepositoryTest extends ContainerTestCase
         );
     }
 
-    public function testFindMovingLevelGroupedByDay(): void
+    public function testFindMovingTimePerByDay(): void
     {
         $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
@@ -123,13 +123,20 @@ class DbalRewindRepositoryTest extends ContainerTestCase
                 ->build(),
             []
         ));
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('5'))
+                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
+                ->build(),
+            []
+        ));
 
         $this->assertEquals(
             [
-                '2024-01-01' => 1,
-                '2024-01-03' => 1,
+                '2024-01-01' => 10,
+                '2024-01-03' => 20,
             ],
-            $this->rewindRepository->findMovingLevelGroupedByDay(Year::fromInt(2024))
+            $this->rewindRepository->findMovingTimePerByDay(Year::fromInt(2024))
         );
     }
 

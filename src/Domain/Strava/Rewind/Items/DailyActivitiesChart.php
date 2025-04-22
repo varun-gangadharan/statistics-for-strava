@@ -58,7 +58,8 @@ final readonly class DailyActivitiesChart
                 continue;
             }
 
-            $data[] = [$day, $this->movingLevelsGroupedByDay[$day]];
+            $level = max(min(floor($this->movingLevelsGroupedByDay[$day] / 1000), 4), 1);
+            $data[] = [$day, $level];
         }
 
         return [

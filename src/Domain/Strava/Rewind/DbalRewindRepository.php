@@ -47,12 +47,12 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
     /**
      * @return array<string, int>
      */
-    public function findMovingLevelGroupedByDay(Year $year): array
+    public function findMovingTimePerByDay(Year $year): array
     {
         $query = <<<SQL
             SELECT
                 strftime('%Y-%m-%d', startDateTime) AS date,
-                MAX(MIN(CAST(Activity.movingTimeInSeconds / 1000 AS INTEGER), 4), 1) AS level
+                SUM(movingTimeInSeconds) AS movingTimeInSeconds
             FROM Activity
             WHERE strftime('%Y',startDateTime) = :year
             GROUP BY date
