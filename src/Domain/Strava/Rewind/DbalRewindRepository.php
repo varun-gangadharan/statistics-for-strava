@@ -108,6 +108,28 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
         return $this->activityRepository->find(ActivityId::fromString($activityId));
     }
 
+    /**
+     * @return array<string, int>
+     */
+    public function findPersonalRecordsPerMonth(Year $year): array
+    {
+        $query = <<<SQL
+            SELECT  strftime('%Y-%m-01', startDateTime) AS date,
+                    SUM(JSON_EXTRACT(data, '$.pr_count'))
+            FROM Activity
+            WHERE strftime('%Y',startDateTime) = :year
+            GROUP BY date
+            ORDER BY date DESC
+        SQL;
+
+        return $this->connection->executeQuery(
+            $query,
+            [
+                'year' => (string) $year,
+            ]
+        )->fetchAllKeyValue();
+    }
+
     public function countActivities(Year $year): int
     {
         $query = <<<SQL
