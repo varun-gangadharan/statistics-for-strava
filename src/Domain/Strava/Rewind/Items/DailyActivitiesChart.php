@@ -13,7 +13,7 @@ final readonly class DailyActivitiesChart
 
     private function __construct(
         /** @var array<string, int> */
-        private array $movingLevelsGroupedByDay,
+        private array $movingTimePerDay,
         private Year $year,
         private TranslatorInterface $translator,
     ) {
@@ -22,15 +22,15 @@ final readonly class DailyActivitiesChart
     }
 
     /**
-     * @param array<string, int> $movingLevelsGroupedByDay
+     * @param array<string, int> $movingTimePerDay
      */
     public static function create(
-        array $movingLevelsGroupedByDay,
+        array $movingTimePerDay,
         Year $year,
         TranslatorInterface $translator,
     ): self {
         return new self(
-            movingLevelsGroupedByDay: $movingLevelsGroupedByDay,
+            movingTimePerDay: $movingTimePerDay,
             year: $year,
             translator: $translator,
         );
@@ -52,13 +52,13 @@ final readonly class DailyActivitiesChart
 
         foreach ($period as $dt) {
             $day = $dt->format('Y-m-d');
-            if (!array_key_exists($day, $this->movingLevelsGroupedByDay)) {
+            if (!array_key_exists($day, $this->movingTimePerDay)) {
                 $data[] = [$day, 0];
 
                 continue;
             }
 
-            $level = max(min(floor($this->movingLevelsGroupedByDay[$day] / 1000), 4), 1);
+            $level = max(min(floor($this->movingTimePerDay[$day] / 1000), 4), 1);
             $data[] = [$day, $level];
         }
 

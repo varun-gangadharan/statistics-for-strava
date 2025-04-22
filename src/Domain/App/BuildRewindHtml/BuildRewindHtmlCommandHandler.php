@@ -7,6 +7,7 @@ namespace App\Domain\App\BuildRewindHtml;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
+use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
 use App\Domain\Strava\Rewind\RewindItem;
 use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command;
@@ -53,7 +54,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         ]),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
-                                movingLevelsGroupedByDay: $this->rewindRepository->findMovingTimePerByDay($availableRewindYear),
+                                movingTimePerDay: $this->rewindRepository->findMovingTimePerByDay($availableRewindYear),
                                 year: $availableRewindYear,
                                 translator: $this->translator,
                             )->build()),
@@ -86,7 +87,13 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'medal',
                         title: $this->translator->trans('PRs'),
                         subTitle: $this->translator->trans('PRs achieved per month'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(PersonalRecordsPerMonthChart::create(
+                                personalRecordsPerMonth: $this->rewindRepository->findPersonalRecordsPerMonth($availableRewindYear),
+                                year: $availableRewindYear,
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
                     ),
                     RewindItem::from(
                         icon: 'thumbs-up',
