@@ -75,7 +75,7 @@ class LeafletMapTest extends TestCase
     public function testGetOverlayImageUrl(): void
     {
         $this->assertEquals(
-            'assets/images/maps/zwift-london.jpg',
+            '/assets/images/maps/zwift-london.jpg',
             LeafletMap::ZWIFT_LONDON->getOverlayImageUrl()
         );
 
