@@ -21,7 +21,7 @@ down:
 console:
 	@make dcr cmd="bin/console $(arg)"
 
-console-symfony-profiler:
+console-profiler:
 	# We need to use the app container here, otherwise the profiler can't access the files through web requests.
 	docker compose exec app bin/console --profile -v $(arg)
 

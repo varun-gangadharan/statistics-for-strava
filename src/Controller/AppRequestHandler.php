@@ -17,10 +17,11 @@ final readonly class AppRequestHandler
     public function __construct(
         private FilesystemOperator $buildStorage,
         private Environment $twig,
-    ) {
+    )
+    {
     }
 
-    #[Route(path: '/{wildcard?}', methods: ['GET'])]
+    #[Route(path: '/{wildcard?}', requirements: ['wildcard' => '.*'], methods: ['GET'])]
     public function handle(Request $request): Response
     {
         if ($this->buildStorage->fileExists('index.html')) {
