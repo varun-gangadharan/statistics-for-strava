@@ -54,6 +54,7 @@ final readonly class GearUsageChart
                 'bottom' => '0%',
                 'containLabel' => true,
             ],
+            'center' => ['50%', '50%'],
             'legend' => [
                 'show' => false,
             ],
