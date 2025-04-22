@@ -17,8 +17,7 @@ final readonly class AppRequestHandler
     public function __construct(
         private FilesystemOperator $buildStorage,
         private Environment $twig,
-    )
-    {
+    ) {
     }
 
     #[Route(path: '/{wildcard?}', requirements: ['wildcard' => '.*'], methods: ['GET'])]
