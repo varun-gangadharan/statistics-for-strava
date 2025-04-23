@@ -20,6 +20,7 @@ final readonly class FindSocialsMetricsQueryHandler implements QueryHandler
     {
         assert($query instanceof FindSocialsMetrics);
 
+        /** @var array<string,mixed> $result */
         $result = $this->connection->executeQuery(
             <<<SQL
                 SELECT SUM(kudoCount) as kudoCount, SUM(JSON_EXTRACT(data, '$.comment_count')) as commentCount
