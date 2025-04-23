@@ -275,9 +275,11 @@ age: age
 and: and
 bpm: bpm
 clear: clear
+comments: comments
 hrs: hrs
 intensity: intensity
 intensityFactor: intensityFactor
+kudos: kudos
 'max gradient': 'max gradient'
 maxHeartRate: maxHeartRate
 more: more

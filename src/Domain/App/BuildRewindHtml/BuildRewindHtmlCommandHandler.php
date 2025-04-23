@@ -10,6 +10,7 @@ use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
+use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
@@ -48,6 +49,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
             $leafletMap = $longestActivity->getLeafletMap();
 
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
+            $socialsMetricsResponse = $this->queryBus->ask(new FindSocialsMetrics($availableRewindYear));
 
             $render = [
                 'now' => $now,
@@ -108,7 +110,10 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'thumbs-up',
                         title: $this->translator->trans('Socials'),
                         subTitle: $this->translator->trans('Total kudos and comments received'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-socials.html.twig', [
+                            'kudoCount' => $socialsMetricsResponse->getKudoCount(),
+                            'commentCount' => $socialsMetricsResponse->getCommentCount(),
+                        ])
                     ),
                     RewindItem::from(
                         icon: 'rocket',

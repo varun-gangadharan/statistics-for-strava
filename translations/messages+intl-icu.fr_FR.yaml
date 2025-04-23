@@ -275,9 +275,11 @@ age: âge
 and: et
 bpm: bpm
 clear: réinitialiser
+comments: comments
 hrs: hrs
 intensity: intensité
 intensityFactor: "facteur d'intensité"
+kudos: kudos
 'max gradient': 'pente maximale'
 maxHeartRate: 'fréquence cardiaque max'
 more: more

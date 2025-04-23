@@ -275,9 +275,11 @@ age: 年龄
 and: 和
 bpm: 拍子数
 clear: 清除
+comments: comments
 hrs: hrs
 intensity: 强度
 intensityFactor: 强度因子
+kudos: kudos
 'max gradient': 最大坡度
 maxHeartRate: 最大心率
 more: more
