@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
+use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
+use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYearsResponse;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
@@ -12,6 +14,7 @@ use App\Domain\Strava\Rewind\RewindItem;
 use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
+use App\Infrastructure\CQRS\Query\Bus\QueryBus;
 use App\Infrastructure\Serialization\Json;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -22,6 +25,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
     public function __construct(
         private RewindRepository $rewindRepository,
         private GearRepository $gearRepository,
+        private QueryBus $queryBus,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
@@ -33,7 +37,10 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         assert($command instanceof BuildRewindHtml);
 
         $now = $command->getCurrentDateTime();
-        $availableRewindYears = $this->rewindRepository->findAvailableRewindYears($now);
+        /** @var FindAvailableRewindYearsResponse $response */
+        $response = $this->queryBus->ask(new FindAvailableRewindYears($now));
+        $availableRewindYears = $response->getAvailableRewindYears();
+
         $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {

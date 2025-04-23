@@ -8,9 +8,7 @@ use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Infrastructure\Repository\DbalRepository;
-use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;
-use App\Infrastructure\ValueObject\Time\Years;
 use Doctrine\DBAL\Connection;
 
 final readonly class DbalRewindRepository extends DbalRepository implements RewindRepository
@@ -20,28 +18,6 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
         private ActivityRepository $activityRepository,
     ) {
         parent::__construct($connection);
-    }
-
-    public function findAvailableRewindYears(SerializableDateTime $now): Years
-    {
-        $currentYear = $now->getYear();
-        if (RewindCutOffDate::fromYear(Year::fromInt($currentYear))->isBefore($now)) {
-            $currentYear = 0;
-        }
-
-        $years = $this->connection->executeQuery(
-            'SELECT DISTINCT strftime("%Y",startDateTime) AS year FROM Activity
-             WHERE year != :currentYear 
-             ORDER BY year DESC',
-            [
-                'currentYear' => $currentYear,
-            ]
-        )->fetchFirstColumn();
-
-        return Years::fromArray(array_map(
-            static fn (int $year): Year => Year::fromInt((int) $year),
-            $years
-        ));
     }
 
     /**
