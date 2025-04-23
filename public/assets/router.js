@@ -18,16 +18,25 @@ export default function Router(app) {
         appContent.classList.remove('hidden');
     };
 
+    const determineActiveMenuLink = (url) => {
+        do {
+            const $activeMenuLink = document.querySelector('aside li a[data-router-navigate="' + url + '"]');
+            if ($activeMenuLink) {
+                return $activeMenuLink;
+            }
+
+            url = url.replace(/\/[^\/]*$/, ''); // removes the last path segment
+        } while (url !== '');
+
+        return null;
+    };
+
     const renderContent = async (page, modalId) => {
         if (!menu.hasAttribute('aria-hidden')) {
             // Trigger click event to close mobile nav.
-            mobileNavTriggerEl.dispatchEvent(
-                new MouseEvent('click', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                })
-            );
+            mobileNavTriggerEl.dispatchEvent(new MouseEvent('click', {
+                bubbles: true, cancelable: true, view: window
+            }));
         }
 
         // Show loader.
@@ -47,7 +56,8 @@ export default function Router(app) {
         menuItems.forEach(node => {
             node.setAttribute('aria-selected', 'false')
         });
-        const $activeMenuLink = document.querySelector('aside li a[data-router-navigate="' + page + '"]');
+
+        const $activeMenuLink = determineActiveMenuLink(page);
         $activeMenuLink?.setAttribute('aria-selected', 'true')
         if ($activeMenuLink && $activeMenuLink.hasAttribute('data-router-sub-menu')) {
             // Make sure the sub menu is opened.
@@ -59,16 +69,12 @@ export default function Router(app) {
         registerNavItems(nav);
 
         document.dispatchEvent(new CustomEvent('pageWasLoaded', {
-            bubbles: true,
-            cancelable: false,
-            detail: {
+            bubbles: true, cancelable: false, detail: {
                 modalId: modalId
             }
         }));
         document.dispatchEvent(new CustomEvent('pageWasLoaded.' + page.replace(/^\/+/, '').replace('/', '-'), {
-            bubbles: true,
-            cancelable: false,
-            detail: {
+            bubbles: true, cancelable: false, detail: {
                 modalId: modalId
             }
         }));
@@ -104,8 +110,7 @@ export default function Router(app) {
         const fullRouteWithModal = modal ? route + '#' + modal : route;
 
         window.history.pushState({
-            route: route,
-            modal: modal
+            route: route, modal: modal
         }, "", fullRouteWithModal);
     };
 
@@ -125,13 +130,11 @@ export default function Router(app) {
         registerBrowserBackAndForth();
         renderContent(route, modal);
         window.history.replaceState({
-            route: route,
-            modal: modal
+            route: route, modal: modal
         }, "", route + location.hash);
     }
 
     return {
-        boot,
-        pushCurrentRouteToHistoryState
+        boot, pushCurrentRouteToHistoryState
     };
 }
