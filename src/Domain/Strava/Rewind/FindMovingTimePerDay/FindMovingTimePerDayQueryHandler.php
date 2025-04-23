@@ -20,6 +20,17 @@ final readonly class FindMovingTimePerDayQueryHandler implements QueryHandler
     {
         assert($query instanceof FindMovingTimePerDay);
 
+        $activityCount = (int) $this->connection->executeQuery(
+            <<<SQL
+                SELECT COUNT(*)
+                FROM Activity
+                WHERE strftime('%Y',startDateTime) = :year
+            SQL,
+            [
+                'year' => (string) $query->getYear(),
+            ]
+        )->fetchOne();
+
         return new FindMovingTimePerDayResponse($this->connection->executeQuery(
             <<<SQL
                 SELECT
@@ -33,6 +44,6 @@ final readonly class FindMovingTimePerDayQueryHandler implements QueryHandler
             [
                 'year' => (string) $query->getYear(),
             ]
-        )->fetchAllKeyValue());
+        )->fetchAllKeyValue(), $activityCount);
     }
 }

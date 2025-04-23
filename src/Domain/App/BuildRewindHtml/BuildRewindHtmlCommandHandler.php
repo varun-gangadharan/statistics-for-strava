@@ -6,6 +6,7 @@ namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
+use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
@@ -13,7 +14,6 @@ use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
 use App\Domain\Strava\Rewind\RewindItem;
-use App\Domain\Strava\Rewind\RewindRepository;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\CQRS\Query\Bus\QueryBus;
@@ -25,7 +25,6 @@ use Twig\Environment;
 final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 {
     public function __construct(
-        private RewindRepository $rewindRepository,
         private GearRepository $gearRepository,
         private QueryBus $queryBus,
         private Environment $twig,
@@ -45,8 +44,10 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {
-            $longestActivity = $this->rewindRepository->findLongestActivity($availableRewindYear);
+            $longestActivity = $this->queryBus->ask(new FindLongestActivity($availableRewindYear))->getLongestActivity();
             $leafletMap = $longestActivity->getLeafletMap();
+
+            $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
 
             $render = [
                 'now' => $now,
@@ -57,12 +58,12 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'calendar',
                         title: $this->translator->trans('Daily activities'),
                         subTitle: $this->translator->trans('{numberOfActivities} activities in {year}', [
-                            '{numberOfActivities}' => $this->rewindRepository->countActivities($availableRewindYear),
+                            '{numberOfActivities}' => $findMovingTimePerDayResponse->getTotalActivityCount(),
                             '{year}' => $availableRewindYear,
                         ]),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
-                                movingTimePerDay: $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear))->getMovingTimePerDay(),
+                                movingTimePerDay: $findMovingTimePerDayResponse->getMovingTimePerDay(),
                                 year: $availableRewindYear,
                                 translator: $this->translator,
                             )->build()),

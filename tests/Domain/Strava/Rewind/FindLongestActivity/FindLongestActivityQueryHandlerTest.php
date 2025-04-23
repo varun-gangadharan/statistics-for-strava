@@ -1,61 +1,24 @@
 <?php
 
-namespace App\Tests\Domain\Strava\Rewind;
+namespace App\Tests\Domain\Strava\Rewind\FindLongestActivity;
 
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Rewind\DbalRewindRepository;
-use App\Domain\Strava\Rewind\RewindRepository;
+use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
+use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivityQueryHandler;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;
 use App\Tests\ContainerTestCase;
 use App\Tests\Domain\Strava\Activity\ActivityBuilder;
 
-class DbalRewindRepositoryTest extends ContainerTestCase
+class FindLongestActivityQueryHandlerTest extends ContainerTestCase
 {
-    private RewindRepository $rewindRepository;
+    private FindLongestActivityQueryHandler $queryHandler;
 
-    public function testCountActivities(): void
-    {
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
-            ActivityBuilder::fromDefaults()
-                ->withActivityId(ActivityId::fromUnprefixed('1'))
-                ->withStartDateTime(SerializableDateTime::fromString('2025-01-01 00:00:00'))
-                ->build(),
-            []
-        ));
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
-            ActivityBuilder::fromDefaults()
-                ->withActivityId(ActivityId::fromUnprefixed('2'))
-                ->withStartDateTime(SerializableDateTime::fromString('2023-01-01 00:00:00'))
-                ->build(),
-            []
-        ));
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
-            ActivityBuilder::fromDefaults()
-                ->withActivityId(ActivityId::fromUnprefixed('3'))
-                ->withStartDateTime(SerializableDateTime::fromString('2024-01-01 00:00:00'))
-                ->build(),
-            []
-        ));
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
-            ActivityBuilder::fromDefaults()
-                ->withActivityId(ActivityId::fromUnprefixed('4'))
-                ->withStartDateTime(SerializableDateTime::fromString('2024-01-03 00:00:00'))
-                ->build(),
-            []
-        ));
-
-        $this->assertEquals(
-            2,
-            $this->rewindRepository->countActivities(Year::fromInt(2024))
-        );
-    }
-
-    public function testFindLongestActivity(): void
+    public function testHandle(): void
     {
         $longestActivity = ActivityBuilder::fromDefaults()
             ->withActivityId(ActivityId::fromUnprefixed('0'))
@@ -109,9 +72,12 @@ class DbalRewindRepositoryTest extends ContainerTestCase
             []
         ));
 
+        /** @var \App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivityResponse $response */
+        $response = $this->queryHandler->handle(new FindLongestActivity(Year::fromInt(2024)));
+
         $this->assertEquals(
             $longestActivity,
-            $this->rewindRepository->findLongestActivity(Year::fromInt(2024))
+            $response->getLongestActivity(),
         );
     }
 
@@ -119,7 +85,7 @@ class DbalRewindRepositoryTest extends ContainerTestCase
     {
         parent::setUp();
 
-        $this->rewindRepository = new DbalRewindRepository(
+        $this->queryHandler = new FindLongestActivityQueryHandler(
             $this->getConnection(),
             $this->getContainer()->get(ActivityRepository::class),
         );
