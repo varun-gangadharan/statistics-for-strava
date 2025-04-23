@@ -20,27 +20,6 @@ final readonly class DbalRewindRepository extends DbalRepository implements Rewi
         parent::__construct($connection);
     }
 
-    /**
-     * @return array<string, int>
-     */
-    public function findMovingTimePerGear(Year $year): array
-    {
-        $query = <<<SQL
-            SELECT gearId, SUM(movingTimeInSeconds) as movingTimeInSeconds
-            FROM Activity
-            WHERE strftime('%Y',startDateTime) = :year
-            AND gearId IS NOT NULL
-            GROUP BY gearId
-        SQL;
-
-        return $this->connection->executeQuery(
-            $query,
-            [
-                'year' => (string) $year,
-            ]
-        )->fetchAllKeyValue();
-    }
-
     public function findLongestActivity(Year $year): Activity
     {
         $query = <<<SQL

@@ -7,6 +7,7 @@ namespace App\Domain\App\BuildRewindHtml;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
+use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
@@ -72,7 +73,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         subTitle: $this->translator->trans('Total hours spent per gear'),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(GearUsageChart::create(
-                                movingTimePerGear: $this->rewindRepository->findMovingTimePerGear($availableRewindYear),
+                                movingTimePerGear: $this->queryBus->ask(new FindMovingTimePerGear($availableRewindYear))->getMovingTimePerGear(),
                                 gears: $gears,
                             )->build()),
                         ]),

@@ -9,11 +9,6 @@ use App\Infrastructure\ValueObject\Time\Year;
 
 interface RewindRepository
 {
-    /**
-     * @return array<string, int>
-     */
-    public function findMovingTimePerGear(Year $year): array;
-
     public function findLongestActivity(Year $year): Activity;
 
     /**
