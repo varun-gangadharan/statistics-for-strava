@@ -58,7 +58,7 @@ final readonly class PersonalRecordsPerMonthChart
                 'left' => '0%',
                 'right' => '15px',
                 'bottom' => '0%',
-                'top' => '10px',
+                'top' => '15px',
                 'containLabel' => true,
             ],
             'xAxis' => [
