@@ -12,11 +12,6 @@ interface RewindRepository
     /**
      * @return array<string, int>
      */
-    public function findMovingTimePerByDay(Year $year): array;
-
-    /**
-     * @return array<string, int>
-     */
     public function findMovingTimePerGear(Year $year): array;
 
     public function findLongestActivity(Year $year): Activity;

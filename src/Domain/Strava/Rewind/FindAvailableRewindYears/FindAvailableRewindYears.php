@@ -7,6 +7,9 @@ namespace App\Domain\Strava\Rewind\FindAvailableRewindYears;
 use App\Infrastructure\CQRS\Query\Query;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
+/**
+ * @implements Query<\App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYearsResponse>
+ */
 final readonly class FindAvailableRewindYears implements Query
 {
     public function __construct(

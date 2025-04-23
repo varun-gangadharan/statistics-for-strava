@@ -6,7 +6,7 @@ namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
-use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYearsResponse;
+use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
@@ -37,7 +37,6 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         assert($command instanceof BuildRewindHtml);
 
         $now = $command->getCurrentDateTime();
-        /** @var FindAvailableRewindYearsResponse $response */
         $response = $this->queryBus->ask(new FindAvailableRewindYears($now));
         $availableRewindYears = $response->getAvailableRewindYears();
 
@@ -61,7 +60,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         ]),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(DailyActivitiesChart::create(
-                                movingTimePerDay: $this->rewindRepository->findMovingTimePerByDay($availableRewindYear),
+                                movingTimePerDay: $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear))->getMovingTimePerDay(),
                                 year: $availableRewindYear,
                                 translator: $this->translator,
                             )->build()),

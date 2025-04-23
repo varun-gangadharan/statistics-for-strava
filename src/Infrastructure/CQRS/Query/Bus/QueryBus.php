@@ -9,5 +9,12 @@ use App\Infrastructure\CQRS\Query\Response;
 
 interface QueryBus
 {
+    /**
+     * @template T of Response
+     *
+     * @param Query<T> $query
+     *
+     * @return T
+     */
     public function ask(Query $query): Response;
 }
