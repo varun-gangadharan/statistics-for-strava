@@ -11,10 +11,5 @@ interface RewindRepository
 {
     public function findLongestActivity(Year $year): Activity;
 
-    /**
-     * @return array<string, int>
-     */
-    public function findPersonalRecordsPerMonth(Year $year): array;
-
     public function countActivities(Year $year): int;
 }

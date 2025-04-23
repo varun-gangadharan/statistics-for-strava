@@ -8,6 +8,7 @@ use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
+use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
@@ -96,7 +97,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         subTitle: $this->translator->trans('PRs achieved per month'),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
                             'chart' => Json::encode(PersonalRecordsPerMonthChart::create(
-                                personalRecordsPerMonth: $this->rewindRepository->findPersonalRecordsPerMonth($availableRewindYear),
+                                personalRecordsPerMonth: $this->queryBus->ask(new FindPersonalRecordsPerMonth($availableRewindYear))->getPersonalRecordsPerMonth(),
                                 year: $availableRewindYear,
                                 translator: $this->translator,
                             )->build()),
