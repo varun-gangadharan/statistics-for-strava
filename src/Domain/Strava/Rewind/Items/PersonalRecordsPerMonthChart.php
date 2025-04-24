@@ -12,7 +12,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class PersonalRecordsPerMonthChart
 {
     private function __construct(
-        /** @var array<string, int> */
+        /** @var array<int, array{0: Month, 1: int}> */
         private array $personalRecordsPerMonth,
         private Year $year,
         private TranslatorInterface $translator,
@@ -20,7 +20,7 @@ final readonly class PersonalRecordsPerMonthChart
     }
 
     /**
-     * @param array<string, int> $personalRecordsPerMonth
+     * @param array<int, array{0: Month, 1: int}> $personalRecordsPerMonth
      */
     public static function create(
         array $personalRecordsPerMonth,
@@ -41,11 +41,15 @@ final readonly class PersonalRecordsPerMonthChart
     {
         $data = [];
         $xAxisLabels = [];
+
+        foreach ($this->personalRecordsPerMonth as $personalRecordsPerMonth) {
+            [$month, $personalRecords] = $personalRecordsPerMonth;
+            $data[] = [$month->getMonth() - 1, $personalRecords];
+        }
+
         for ($monthNumber = 1; $monthNumber <= 12; ++$monthNumber) {
-            $monthAsString = sprintf('%s-%02d-01', $this->year, $monthNumber);
-            $month = Month::fromDate(SerializableDateTime::fromString($monthAsString));
+            $month = Month::fromDate(SerializableDateTime::fromString(sprintf('%s-%02d-01', $this->year, $monthNumber)));
             $xAxisLabels[] = $month->getShortLabelWithoutYear();
-            $data[] = $this->personalRecordsPerMonth[$monthAsString] ?? 0;
         }
 
         return [

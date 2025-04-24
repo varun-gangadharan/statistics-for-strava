@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth;
 
+use App\Domain\Strava\Calendar\Month;
 use App\Infrastructure\CQRS\Query\Query;
 use App\Infrastructure\CQRS\Query\QueryHandler;
 use App\Infrastructure\CQRS\Query\Response;
+use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Doctrine\DBAL\Connection;
 
 final readonly class FindPersonalRecordsPerMonthQueryHandler implements QueryHandler
@@ -20,18 +22,26 @@ final readonly class FindPersonalRecordsPerMonthQueryHandler implements QueryHan
     {
         assert($query instanceof FindPersonalRecordsPerMonth);
 
-        return new FindPersonalRecordsPerMonthResponse($this->connection->executeQuery(
+        $results = $this->connection->executeQuery(
             <<<SQL
-                SELECT  strftime('%Y-%m-01', startDateTime) AS date,
-                        SUM(JSON_EXTRACT(data, '$.pr_count'))
+                SELECT  strftime('%Y-%m', startDateTime) AS yearAndMonth,
+                        SUM(JSON_EXTRACT(data, '$.pr_count')) as prCount
                 FROM Activity
                 WHERE strftime('%Y',startDateTime) = :year
-                GROUP BY date
-                ORDER BY date DESC
+                GROUP BY yearAndMonth
+                ORDER BY yearAndMonth DESC
             SQL,
             [
                 'year' => (string) $query->getYear(),
             ]
-        )->fetchAllKeyValue());
+        )->fetchAllAssociative();
+
+        return new FindPersonalRecordsPerMonthResponse(array_map(
+            fn (array $result) => [
+                Month::fromDate(SerializableDateTime::fromString(sprintf('%s-01', $result['yearAndMonth']))),
+                (int) $result['prCount'],
+            ],
+            $results
+        ));
     }
 }

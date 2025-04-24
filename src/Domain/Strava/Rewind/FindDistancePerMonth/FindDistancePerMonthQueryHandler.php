@@ -26,11 +26,11 @@ final readonly class FindDistancePerMonthQueryHandler implements QueryHandler
 
         $results = $this->connection->executeQuery(
             <<<SQL
-                SELECT strftime('%m', startDateTime) AS month, sportType, SUM(distance) as distance
+                SELECT strftime('%Y-%m', startDateTime) AS yearAndMonth, sportType, SUM(distance) as distance
                 FROM Activity
                 WHERE strftime('%Y',startDateTime) = :year
-                GROUP BY sportType, month
-                ORDER BY month ASC, distance DESC 
+                GROUP BY sportType, yearAndMonth
+                ORDER BY yearAndMonth ASC, distance DESC 
             SQL,
             [
                 'year' => (string) $query->getYear(),
@@ -39,7 +39,7 @@ final readonly class FindDistancePerMonthQueryHandler implements QueryHandler
 
         return new FindDistancePerMonthResponse(array_map(
             fn (array $result) => [
-                Month::fromDate(SerializableDateTime::fromString(sprintf('%s-%s-01', $query->getYear(), $result['month']))),
+                Month::fromDate(SerializableDateTime::fromString(sprintf('%s-01', $result['yearAndMonth']))),
                 SportType::from($result['sportType']),
                 Meter::from($result['distance'])->toKilometer(),
             ],

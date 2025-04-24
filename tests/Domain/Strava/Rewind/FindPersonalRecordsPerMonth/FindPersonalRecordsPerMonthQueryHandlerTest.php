@@ -5,6 +5,7 @@ namespace App\Tests\Domain\Strava\Rewind\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
+use App\Domain\Strava\Calendar\Month;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonthQueryHandler;
@@ -78,8 +79,8 @@ class FindPersonalRecordsPerMonthQueryHandlerTest extends ContainerTestCase
         $response = $this->queryHandler->handle(new FindPersonalRecordsPerMonth(Year::fromInt(2024)));
         $this->assertEquals(
             [
-                '2024-03-01' => 3,
-                '2024-01-01' => 5,
+                [Month::fromDate(SerializableDateTime::fromString('2024-03-01')), 3],
+                [Month::fromDate(SerializableDateTime::fromString('2024-01-01')), 5],
             ],
             $response->getPersonalRecordsPerMonth(),
         );
