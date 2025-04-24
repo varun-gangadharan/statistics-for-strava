@@ -30,6 +30,11 @@ final readonly class Year implements \Stringable
         return (string) $this->year;
     }
 
+    public function toInt(): int
+    {
+        return $this->year;
+    }
+
     public function getRange(): DateRange
     {
         return DateRange::fromDates(

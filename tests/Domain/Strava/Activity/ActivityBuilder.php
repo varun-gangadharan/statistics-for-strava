@@ -39,7 +39,7 @@ final class ActivityBuilder
     private int $totalImageCount;
     private ?string $deviceName;
     /** @var array<string> */
-    private readonly array $localImagePaths;
+    private array $localImagePaths;
     private ?string $polyline;
     private ?Location $location;
     private readonly string $weather;
@@ -227,6 +227,20 @@ final class ActivityBuilder
     public function withElevation(Meter $elevation): self
     {
         $this->elevation = $elevation;
+
+        return $this;
+    }
+
+    public function withLocalImagePaths(string ...$localImagePaths): self
+    {
+        $this->localImagePaths = $localImagePaths;
+
+        return $this;
+    }
+
+    public function withoutLocalImagePaths(): self
+    {
+        $this->localImagePaths = [];
 
         return $this;
     }

@@ -1,0 +1,7 @@
+{% autoescape false %}
+    <div class="w-full flex flex-col justify-center items-center gap-y-6 text-center">
+        <a href="{{ image.getActivity().getUrl() }}" target="_blank">
+            <img class="h-auto max-w-full rounded-t-lg lazy" data-src="{{ image.getImageUrl() }}" alt="{{ image.getActivity().getName() }}" src="{{ renderComponent('placeholder-image') }}" />
+        </a>
+    </div>
+{% endautoescape %}

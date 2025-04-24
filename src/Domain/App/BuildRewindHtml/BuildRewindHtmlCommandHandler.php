@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\Image\ImageRepository;
+use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\ActivityCountPerMonthChart;
 use App\Domain\Strava\Rewind\ActivityStartTimesChart;
@@ -31,6 +33,7 @@ use App\Domain\Strava\Rewind\RewindItem;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\CQRS\Query\Bus\QueryBus;
+use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use League\Flysystem\FilesystemOperator;
@@ -42,6 +45,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
     public function __construct(
         private ActivityRepository $activityRepository,
         private GearRepository $gearRepository,
+        private ImageRepository $imageRepository,
         private QueryBus $queryBus,
         private UnitSystem $unitSystem,
         private Environment $twig,
@@ -61,6 +65,15 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {
+            $randomImage = null;
+            try {
+                $randomImage = $this->imageRepository->findRandomFor(
+                    sportTypes: SportTypes::thatSupportImagesForStravaRewind(),
+                    year: $availableRewindYear
+                );
+            } catch (EntityNotFound) {
+            }
+
             $longestActivity = $this->activityRepository->findLongestActivityForYear($availableRewindYear);
             $leafletMap = $longestActivity->getLeafletMap();
 
@@ -231,12 +244,6 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         totalMetricLabel: $this->translator->trans('activities'),
                     ),
                     RewindItem::from(
-                        icon: 'image',
-                        title: $this->translator->trans('Photo'),
-                        subTitle: 'TODO: date of picture',
-                        content: ''
-                    ),
-                    RewindItem::from(
                         icon: 'globe',
                         title: $this->translator->trans('Activity locations'),
                         subTitle: $this->translator->trans('Locations over the globe'),
@@ -244,6 +251,17 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                     ),
                 ],
             ];
+
+            if ($randomImage) {
+                $render['rewindItems'][] = RewindItem::from(
+                    icon: 'image',
+                    title: $this->translator->trans('Photo'),
+                    subTitle: $randomImage->getActivity()->getStartDate()->translatedFormat('M d, Y'),
+                    content: $this->twig->render('html/rewind/rewind-random-image.html.twig', [
+                        'image' => $randomImage,
+                    ]),
+                );
+            }
 
             if ($availableRewindYears->getFirst() == $availableRewindYear) {
                 $this->buildStorage->write(
