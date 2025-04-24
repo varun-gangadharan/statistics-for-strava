@@ -24,7 +24,7 @@ final class ActivityBuilder
     private string $name;
     private readonly string $description;
     private Kilometer $distance;
-    private readonly Meter $elevation;
+    private Meter $elevation;
     private ?Coordinate $startingCoordinate;
     private readonly int $calories;
     private ?int $averagePower;
@@ -220,6 +220,13 @@ final class ActivityBuilder
     public function withDistance(Kilometer $distance): self
     {
         $this->distance = $distance;
+
+        return $this;
+    }
+
+    public function withElevation(Meter $elevation): self
+    {
+        $this->elevation = $elevation;
 
         return $this;
     }
