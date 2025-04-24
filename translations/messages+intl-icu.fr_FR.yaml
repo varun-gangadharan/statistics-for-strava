@@ -55,6 +55,7 @@ Distribution: Distribution
 Eddington: Eddington
 Elev: Elev
 Elevation: Élévation
+'Elevation in {unit}': 'Elevation in {unit}'
 Elliptical: Elliptique
 Evening: Soirée
 'Excludes commutes': 'Trajets domicile-travail exclus'

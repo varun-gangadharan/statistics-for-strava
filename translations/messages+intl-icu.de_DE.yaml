@@ -55,6 +55,7 @@ Distribution: Distribution
 Eddington: Eddington
 Elev: Höhe
 Elevation: Höhenmeter
+'Elevation in {unit}': 'Elevation in {unit}'
 Elliptical: Crosstrainer
 Evening: Abend
 'Excludes commutes': 'Excludes commutes'

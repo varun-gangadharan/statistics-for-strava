@@ -82,7 +82,7 @@
                         </div>
                         {% if item.hasTotalMetric() %}
                             <div class="text-right">
-                                <div class="main">{{ item.getTotalMetric() }}</div>
+                                <div class="main">{{ item.getTotalMetric()|formatNumber(0) }}</div>
                                 <div class="text-sm text-gray-500">
                                     {{ item.getTotalMetricLabel() }}
                                 </div>

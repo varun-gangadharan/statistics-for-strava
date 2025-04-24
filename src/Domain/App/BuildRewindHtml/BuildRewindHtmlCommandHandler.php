@@ -7,6 +7,7 @@ namespace App\Domain\App\BuildRewindHtml;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
+use App\Domain\Strava\Rewind\FindElevationPerMonth\FindElevationPerMonth;
 use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
@@ -14,6 +15,7 @@ use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerM
 use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\DistancePerMonthChart;
+use App\Domain\Strava\Rewind\Items\ElevationPerMonthChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
 use App\Domain\Strava\Rewind\RewindItem;
@@ -55,6 +57,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
             $socialsMetricsResponse = $this->queryBus->ask(new FindSocialsMetrics($availableRewindYear));
             $distancePerMonthResponse = $this->queryBus->ask(new FindDistancePerMonth($availableRewindYear));
+            $elevationPerMonthResponse = $this->queryBus->ask(new FindElevationPerMonth($availableRewindYear));
 
             $render = [
                 'now' => $now,
@@ -139,13 +142,16 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'mountain',
                         title: $this->translator->trans('Elevation'),
                         subTitle: $this->translator->trans('Total elevation per month'),
-                        content: ''
-                    ),
-                    RewindItem::from(
-                        icon: 'muscle',
-                        title: $this->translator->trans('Activity count'),
-                        subTitle: $this->translator->trans('Number of activities per month'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(ElevationPerMonthChart::create(
+                                elevationPerMonth: $elevationPerMonthResponse->getElevationPerMonth(),
+                                year: $availableRewindYear,
+                                unitSystem: $this->unitSystem,
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
+                        totalMetric: $elevationPerMonthResponse->getTotalElevation()->toUnitSystem($this->unitSystem)->toInt(),
+                        totalMetricLabel: $this->unitSystem->elevationSymbol(),
                     ),
                     RewindItem::from(
                         icon: 'watch',
@@ -169,6 +175,12 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'clock',
                         title: $this->translator->trans('Start times'),
                         subTitle: $this->translator->trans('Activity start times'),
+                        content: ''
+                    ),
+                    RewindItem::from(
+                        icon: 'muscle',
+                        title: $this->translator->trans('Activity count'),
+                        subTitle: $this->translator->trans('Number of activities per month'),
                         content: ''
                     ),
                     RewindItem::from(
