@@ -112,7 +112,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             activity: $activity,
             rawData: $rawData
@@ -185,7 +185,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             activity: $activity,
             rawData: $rawData
@@ -197,7 +197,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             activity: $activity,
             rawData: $rawData
@@ -209,7 +209,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             activity: $activity,
             rawData: $rawData
@@ -221,7 +221,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             activity: $activity,
             rawData: $rawData
@@ -555,7 +555,7 @@ trait ProvideTestData
             gearId: GearId::fromUnprefixed('b12659861'),
             gearName: 'Retro Race Bike',
         );
-        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea955a8-53a7-11ee-bb29-9a34a3268d74.jpg', 'files/activities/aeb339e2-53a7-11ee-8ef5-9a34a3268d74.jpg', 'files/activities/aeb9c32a-53a7-11ee-824c-9a34a3268d74.jpg']);
+        $activity->updateLocalImagePaths(['files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg', 'files/activities/aea2d7b4-53a7-11ee-a5e1-9a34a3268d74.jpg']);
         $activityWithRawDataRepository->add(ActivityWithRawData::fromState(
             $activity,
             $rawData
