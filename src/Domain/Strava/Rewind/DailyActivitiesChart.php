@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Strava\Rewind\Items;
+namespace App\Domain\Strava\Rewind;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;
@@ -64,7 +64,7 @@ final readonly class DailyActivitiesChart
 
         return [
             'backgroundColor' => null,
-            'animation' => true,
+            'animation' => false,
             'tooltip' => [
                 'show' => false,
             ],

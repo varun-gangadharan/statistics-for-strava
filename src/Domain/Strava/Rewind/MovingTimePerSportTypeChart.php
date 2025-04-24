@@ -2,30 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Rewind\Items;
+namespace App\Domain\Strava\Rewind;
 
-use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\Gears;
+use App\Domain\Strava\Activity\SportType\SportType;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class MovingTimePerGearChart
+final readonly class MovingTimePerSportTypeChart
 {
     private function __construct(
         /** @var array<string, int> */
-        private array $movingTimePerGear,
-        private Gears $gears,
+        private array $movingTimePerSportType,
+        private TranslatorInterface $translator,
     ) {
     }
 
     /**
-     * @param array<string, int> $movingTimePerGear
+     * @param array<string, int> $movingTimePerSportType
      */
     public static function create(
-        array $movingTimePerGear,
-        Gears $gears,
+        array $movingTimePerSportType,
+        TranslatorInterface $translator,
     ): self {
         return new self(
-            movingTimePerGear: $movingTimePerGear,
-            gears: $gears,
+            movingTimePerSportType: $movingTimePerSportType,
+            translator: $translator,
         );
     }
 
@@ -35,13 +35,10 @@ final readonly class MovingTimePerGearChart
     public function build(): array
     {
         $data = [];
-        foreach ($this->movingTimePerGear as $gearId => $time) {
-            if (!$gear = $this->gears->getByGearId(GearId::fromString($gearId))) {
-                continue;
-            }
+        foreach ($this->movingTimePerSportType as $sportType => $time) {
             $data[] = [
                 'value' => round($time / 3600),
-                'name' => $gear->getName(),
+                'name' => SportType::from($sportType)->trans($this->translator),
             ];
         }
 
@@ -70,10 +67,10 @@ final readonly class MovingTimePerGearChart
                         'borderWidth' => 2,
                     ],
                     'label' => [
-                        'formatter' => "{gear|{b}}\n{sub|{c}h}",
+                        'formatter' => "{sportType|{b}}\n{sub|{c}h}",
                         'lineHeight' => 15,
                         'rich' => [
-                            'gear' => [
+                            'sportType' => [
                                 'fontWeight' => 'bold',
                             ],
                             'sub' => [

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Rewind\Items;
+namespace App\Domain\Strava\Rewind;
 
 use App\Domain\Strava\Calendar\Month;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;

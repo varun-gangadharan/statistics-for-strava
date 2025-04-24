@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
+use App\Domain\Strava\Rewind\ActivityCountPerMonthChart;
+use App\Domain\Strava\Rewind\DailyActivitiesChart;
+use App\Domain\Strava\Rewind\DistancePerMonthChart;
+use App\Domain\Strava\Rewind\ElevationPerMonthChart;
+use App\Domain\Strava\Rewind\FindActiveDays\FindActiveDays;
 use App\Domain\Strava\Rewind\FindActivityCountPerMonth\FindActivityCountPerMonth;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
@@ -16,13 +21,10 @@ use App\Domain\Strava\Rewind\FindMovingTimePerSportType\FindMovingTimePerSportTy
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
 use App\Domain\Strava\Rewind\FindStreaks\FindStreaks;
-use App\Domain\Strava\Rewind\Items\ActivityCountPerMonthChart;
-use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
-use App\Domain\Strava\Rewind\Items\DistancePerMonthChart;
-use App\Domain\Strava\Rewind\Items\ElevationPerMonthChart;
-use App\Domain\Strava\Rewind\Items\MovingTimePerGearChart;
-use App\Domain\Strava\Rewind\Items\MovingTimePerSportTypeChart;
-use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
+use App\Domain\Strava\Rewind\MovingTimePerGearChart;
+use App\Domain\Strava\Rewind\MovingTimePerSportTypeChart;
+use App\Domain\Strava\Rewind\PersonalRecordsPerMonthChart;
+use App\Domain\Strava\Rewind\RestDaysVsActiveDaysChart;
 use App\Domain\Strava\Rewind\RewindItem;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
@@ -65,6 +67,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
             $streaksResponse = $this->queryBus->ask(new FindStreaks($availableRewindYear));
             $distancePerMonthResponse = $this->queryBus->ask(new FindDistancePerMonth($availableRewindYear));
             $elevationPerMonthResponse = $this->queryBus->ask(new FindElevationPerMonth($availableRewindYear));
+            $activeDaysResponse = $this->queryBus->ask(new FindActiveDays($availableRewindYear));
 
             $totalActivityCount = $findMovingTimePerDayResponse->getTotalActivityCount();
 
@@ -189,7 +192,15 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'bed',
                         title: $this->translator->trans('Rest days'),
                         subTitle: $this->translator->trans('Rest days vs. active days'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(RestDaysVsActiveDaysChart::create(
+                                numberOfActiveDays: $activeDaysResponse->getNumberOfActiveDays(),
+                                numberOfRestDays: $availableRewindYear->getNumberOfDays() - $activeDaysResponse->getNumberOfActiveDays(),
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
+                        totalMetric: (int) round(($activeDaysResponse->getNumberOfActiveDays() / $availableRewindYear->getNumberOfDays()) * 100),
+                        totalMetricLabel: '%'
                     ),
                     RewindItem::from(
                         icon: 'clock',
