@@ -278,6 +278,7 @@ and: e
 bpm: bpm
 clear: limpar
 comments: comments
+hours: hours
 hrs: hrs
 intensity: intensidade
 intensityFactor: 'fator de intensidade'

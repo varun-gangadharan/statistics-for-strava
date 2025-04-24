@@ -278,6 +278,7 @@ and: and
 bpm: bpm
 clear: clear
 comments: comments
+hours: hours
 hrs: hrs
 intensity: intensity
 intensityFactor: intensityFactor

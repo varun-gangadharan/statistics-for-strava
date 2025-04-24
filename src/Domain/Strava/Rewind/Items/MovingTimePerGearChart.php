@@ -7,7 +7,7 @@ namespace App\Domain\Strava\Rewind\Items;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\Gears;
 
-final readonly class GearUsageChart
+final readonly class MovingTimePerGearChart
 {
     private function __construct(
         /** @var array<string, int> */

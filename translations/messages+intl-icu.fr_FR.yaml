@@ -278,6 +278,7 @@ and: et
 bpm: bpm
 clear: réinitialiser
 comments: comments
+hours: hours
 hrs: hrs
 intensity: intensité
 intensityFactor: "facteur d'intensité"

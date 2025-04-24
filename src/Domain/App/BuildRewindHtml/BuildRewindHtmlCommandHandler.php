@@ -12,13 +12,15 @@ use App\Domain\Strava\Rewind\FindElevationPerMonth\FindElevationPerMonth;
 use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
+use App\Domain\Strava\Rewind\FindMovingTimePerSportType\FindMovingTimePerSportType;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
 use App\Domain\Strava\Rewind\Items\ActivityCountPerMonthChart;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\DistancePerMonthChart;
 use App\Domain\Strava\Rewind\Items\ElevationPerMonthChart;
-use App\Domain\Strava\Rewind\Items\GearUsageChart;
+use App\Domain\Strava\Rewind\Items\MovingTimePerGearChart;
+use App\Domain\Strava\Rewind\Items\MovingTimePerSportTypeChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
 use App\Domain\Strava\Rewind\RewindItem;
 use App\Infrastructure\CQRS\Command\Command;
@@ -57,6 +59,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
             $leafletMap = $longestActivity->getLeafletMap();
 
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
+            $findMovingTimePerSportTypeResponse = $this->queryBus->ask(new FindMovingTimePerSportType($availableRewindYear));
             $socialsMetricsResponse = $this->queryBus->ask(new FindSocialsMetrics($availableRewindYear));
             $distancePerMonthResponse = $this->queryBus->ask(new FindDistancePerMonth($availableRewindYear));
             $elevationPerMonthResponse = $this->queryBus->ask(new FindElevationPerMonth($availableRewindYear));
@@ -88,7 +91,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         title: $this->translator->trans('Gear'),
                         subTitle: $this->translator->trans('Total hours spent per gear'),
                         content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
-                            'chart' => Json::encode(GearUsageChart::create(
+                            'chart' => Json::encode(MovingTimePerGearChart::create(
                                 movingTimePerGear: $this->queryBus->ask(new FindMovingTimePerGear($availableRewindYear))->getMovingTimePerGear(),
                                 gears: $gears,
                             )->build()),
@@ -161,7 +164,14 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'watch',
                         title: $this->translator->trans('Total hours'),
                         subTitle: $this->translator->trans('Total hours spent per sport type'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(MovingTimePerSportTypeChart::create(
+                                movingTimePerSportType: $findMovingTimePerSportTypeResponse->getMovingTimePerSportType(),
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
+                        totalMetric: (int) round($findMovingTimePerSportTypeResponse->getTotalMovingTime() / 3600),
+                        totalMetricLabel: $this->translator->trans('hours')
                     ),
                     RewindItem::from(
                         icon: 'fire',
