@@ -107,7 +107,7 @@ final readonly class ElevationPerMonthChart
                 ],
             ],
             'grid' => [
-                'left' => '15px',
+                'left' => '20px',
                 'right' => '0%',
                 'bottom' => '0%',
                 'top' => '15px',

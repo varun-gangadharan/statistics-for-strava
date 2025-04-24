@@ -278,6 +278,7 @@ and: et
 bpm: bpm
 clear: réinitialiser
 comments: comments
+days: days
 hours: hours
 hrs: hrs
 intensity: intensité
@@ -285,10 +286,12 @@ intensityFactor: "facteur d'intensité"
 kudos: kudos
 'max gradient': 'pente maximale'
 maxHeartRate: 'fréquence cardiaque max'
+months: months
 more: more
 'more info': "plus d'infos"
 n/a: n/a
 never: never
+weeks: weeks
 workouts: entrainements
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '{amountOfAluminiumCans} canettes en aluminium produites pour des boissons gazeuses'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '{amountOfCapsForPetBottles} bouchons de bouteilles PET produits'

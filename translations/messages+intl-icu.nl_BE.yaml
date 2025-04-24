@@ -278,6 +278,7 @@ and: and
 bpm: bpm
 clear: clear
 comments: comments
+days: days
 hours: hours
 hrs: hrs
 intensity: intensity
@@ -285,10 +286,12 @@ intensityFactor: intensityFactor
 kudos: kudos
 'max gradient': 'max gradient'
 maxHeartRate: maxHeartRate
+months: months
 more: more
 'more info': 'more info'
 n/a: n/a
 never: never
+weeks: weeks
 workouts: workouts
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '{amountOfAluminiumCans} aluminium cans for soft drinks produced'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '{amountOfCapsForPetBottles} caps for PET bottles produced'

@@ -278,6 +278,7 @@ and: 和
 bpm: 拍子数
 clear: 清除
 comments: comments
+days: days
 hours: hours
 hrs: hrs
 intensity: 强度
@@ -285,10 +286,12 @@ intensityFactor: 强度因子
 kudos: kudos
 'max gradient': 最大坡度
 maxHeartRate: 最大心率
+months: months
 more: more
 'more info': 更多信息
 n/a: 不适用
 never: never
+weeks: weeks
 workouts: 锻炼
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '生产了{amountOfAluminiumCans}个软饮料铝罐'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '生产了{amountOfCapsForPetBottles}个PET瓶盖'

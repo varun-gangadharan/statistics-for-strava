@@ -15,6 +15,7 @@ use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\FindMovingTimePerSportType\FindMovingTimePerSportType;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
+use App\Domain\Strava\Rewind\FindStreaks\FindStreaks;
 use App\Domain\Strava\Rewind\Items\ActivityCountPerMonthChart;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\Items\DistancePerMonthChart;
@@ -61,6 +62,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
             $findMovingTimePerSportTypeResponse = $this->queryBus->ask(new FindMovingTimePerSportType($availableRewindYear));
             $socialsMetricsResponse = $this->queryBus->ask(new FindSocialsMetrics($availableRewindYear));
+            $streaksResponse = $this->queryBus->ask(new FindStreaks($availableRewindYear));
             $distancePerMonthResponse = $this->queryBus->ask(new FindDistancePerMonth($availableRewindYear));
             $elevationPerMonthResponse = $this->queryBus->ask(new FindElevationPerMonth($availableRewindYear));
 
@@ -177,7 +179,11 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'fire',
                         title: $this->translator->trans('Streaks'),
                         subTitle: $this->translator->trans('Longest streaks'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-streaks.html.twig', [
+                            'dayStreak' => $streaksResponse->getDayStreak(),
+                            'weekStreak' => $streaksResponse->getWeekStreak(),
+                            'monthStreak' => $streaksResponse->getMonthStreak(),
+                        ])
                     ),
                     RewindItem::from(
                         icon: 'bed',
