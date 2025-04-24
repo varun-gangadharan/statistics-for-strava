@@ -6,11 +6,13 @@ namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\ActivityCountPerMonthChart;
+use App\Domain\Strava\Rewind\ActivityStartTimesChart;
 use App\Domain\Strava\Rewind\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\DistancePerMonthChart;
 use App\Domain\Strava\Rewind\ElevationPerMonthChart;
 use App\Domain\Strava\Rewind\FindActiveDays\FindActiveDays;
 use App\Domain\Strava\Rewind\FindActivityCountPerMonth\FindActivityCountPerMonth;
+use App\Domain\Strava\Rewind\FindActivityStartTimesPerHour\FindActivityStartTimesPerHour;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
 use App\Domain\Strava\Rewind\FindElevationPerMonth\FindElevationPerMonth;
@@ -206,7 +208,12 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'clock',
                         title: $this->translator->trans('Start times'),
                         subTitle: $this->translator->trans('Activity start times'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(ActivityStartTimesChart::create(
+                                activityStartTimes: $this->queryBus->ask(new FindActivityStartTimesPerHour($availableRewindYear))->getActivityStartTimesPerHour(),
+                                translator: $this->translator
+                            )->build()),
+                        ]),
                     ),
                     RewindItem::from(
                         icon: 'muscle',

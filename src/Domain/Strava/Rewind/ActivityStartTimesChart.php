@@ -4,33 +4,27 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Rewind;
 
-use App\Domain\Strava\Calendar\Month;
-use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use App\Infrastructure\ValueObject\Time\Year;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class PersonalRecordsPerMonthChart
+final readonly class ActivityStartTimesChart
 {
     private function __construct(
-        /** @var array<int, array{0: Month, 1: int}> */
-        private array $personalRecordsPerMonth,
-        private Year $year,
+        /** @var array<int, int> */
+        private array $activityStartTimes,
         private TranslatorInterface $translator,
     ) {
     }
 
     /**
-     * @param array<int, array{0: Month, 1: int}> $personalRecordsPerMonth
+     * @param array<int, int> $activityStartTimes
      */
     public static function create(
-        array $personalRecordsPerMonth,
-        Year $year,
+        array $activityStartTimes,
         TranslatorInterface $translator,
     ): self {
         return new self(
-            personalRecordsPerMonth: $personalRecordsPerMonth,
-            year: $year,
-            translator: $translator
+            activityStartTimes: $activityStartTimes,
+            translator: $translator,
         );
     }
 
@@ -42,14 +36,13 @@ final readonly class PersonalRecordsPerMonthChart
         $data = [];
         $xAxisLabels = [];
 
-        foreach ($this->personalRecordsPerMonth as $personalRecordsPerMonth) {
-            [$month, $personalRecords] = $personalRecordsPerMonth;
-            $data[] = [$month->getMonth() - 1, $personalRecords];
+        for ($startTime = 0; $startTime <= 23; ++$startTime) {
+            $xAxisLabels[] = $startTime;
+            $data[] = 0;
         }
 
-        for ($monthNumber = 1; $monthNumber <= 12; ++$monthNumber) {
-            $month = Month::fromDate(SerializableDateTime::fromString(sprintf('%s-%02d-01', $this->year, $monthNumber)));
-            $xAxisLabels[] = $month->getShortLabelWithoutYear();
+        foreach ($this->activityStartTimes as $startTime => $numberOfActivities) {
+            $data[$startTime] = $numberOfActivities;
         }
 
         return [
@@ -57,6 +50,7 @@ final readonly class PersonalRecordsPerMonthChart
             'backgroundColor' => null,
             'tooltip' => [
                 'trigger' => 'axis',
+                'formatter' => '{b}h: {c} '.$this->translator->trans('activities'),
             ],
             'grid' => [
                 'left' => '0%',
@@ -73,6 +67,9 @@ final readonly class PersonalRecordsPerMonthChart
                     'axisTick' => [
                         'show' => false,
                     ],
+                    'axisLabel' => [
+                        'formatter' => '{value}h',
+                    ],
                     'splitLine' => [
                         'show' => false,
                     ],
@@ -86,7 +83,6 @@ final readonly class PersonalRecordsPerMonthChart
             ],
             'series' => [
                 [
-                    'name' => $this->translator->trans('Personal Records'),
                     'color' => [
                         '#E34902',
                     ],
