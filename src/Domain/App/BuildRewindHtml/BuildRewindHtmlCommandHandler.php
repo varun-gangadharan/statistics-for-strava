@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\App\BuildRewindHtml;
 
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\ActivityCountPerMonthChart;
 use App\Domain\Strava\Rewind\ActivityStartTimesChart;
@@ -16,7 +17,6 @@ use App\Domain\Strava\Rewind\FindActivityStartTimesPerHour\FindActivityStartTime
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
 use App\Domain\Strava\Rewind\FindElevationPerMonth\FindElevationPerMonth;
-use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\FindMovingTimePerSportType\FindMovingTimePerSportType;
@@ -40,6 +40,7 @@ use Twig\Environment;
 final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 {
     public function __construct(
+        private ActivityRepository $activityRepository,
         private GearRepository $gearRepository,
         private QueryBus $queryBus,
         private UnitSystem $unitSystem,
@@ -60,7 +61,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
         $gears = $this->gearRepository->findAll();
 
         foreach ($availableRewindYears as $availableRewindYear) {
-            $longestActivity = $this->queryBus->ask(new FindLongestActivity($availableRewindYear))->getLongestActivity();
+            $longestActivity = $this->activityRepository->findLongestActivityForYear($availableRewindYear);
             $leafletMap = $longestActivity->getLeafletMap();
 
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
