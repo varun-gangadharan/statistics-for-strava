@@ -6,12 +6,14 @@ namespace App\Domain\App\BuildRewindHtml;
 
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
+use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
 use App\Domain\Strava\Rewind\FindLongestActivity\FindLongestActivity;
 use App\Domain\Strava\Rewind\FindMovingTimePerDay\FindMovingTimePerDay;
 use App\Domain\Strava\Rewind\FindMovingTimePerGear\FindMovingTimePerGear;
 use App\Domain\Strava\Rewind\FindPersonalRecordsPerMonth\FindPersonalRecordsPerMonth;
 use App\Domain\Strava\Rewind\FindSocialsMetrics\FindSocialsMetrics;
 use App\Domain\Strava\Rewind\Items\DailyActivitiesChart;
+use App\Domain\Strava\Rewind\Items\DistancePerMonthChart;
 use App\Domain\Strava\Rewind\Items\GearUsageChart;
 use App\Domain\Strava\Rewind\Items\PersonalRecordsPerMonthChart;
 use App\Domain\Strava\Rewind\RewindItem;
@@ -19,6 +21,7 @@ use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\CQRS\Query\Bus\QueryBus;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -28,6 +31,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
     public function __construct(
         private GearRepository $gearRepository,
         private QueryBus $queryBus,
+        private UnitSystem $unitSystem,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
@@ -50,6 +54,7 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
 
             $findMovingTimePerDayResponse = $this->queryBus->ask(new FindMovingTimePerDay($availableRewindYear));
             $socialsMetricsResponse = $this->queryBus->ask(new FindSocialsMetrics($availableRewindYear));
+            $distancePerMonthResponse = $this->queryBus->ask(new FindDistancePerMonth($availableRewindYear));
 
             $render = [
                 'now' => $now,
@@ -119,7 +124,16 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'rocket',
                         title: $this->translator->trans('Distance'),
                         subTitle: $this->translator->trans('Total distance per month'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(DistancePerMonthChart::create(
+                                distancePerMonth: $distancePerMonthResponse->getDistancePerMonth(),
+                                year: $availableRewindYear,
+                                unitSystem: $this->unitSystem,
+                                translator: $this->translator,
+                            )->build()),
+                        ]),
+                        totalMetric: $distancePerMonthResponse->getTotalDistance()->toUnitSystem($this->unitSystem)->toInt(),
+                        totalMetricLabel: $this->unitSystem->distanceSymbol(),
                     ),
                     RewindItem::from(
                         icon: 'mountain',

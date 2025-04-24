@@ -14,6 +14,7 @@ final readonly class FindDistancePerMonthResponse implements Response
     public function __construct(
         /** @var array<int, array{0: Month, 1: SportType, 2: Kilometer}> */
         private array $distancePerMonth,
+        private Kilometer $totalDistance,
     ) {
     }
 
@@ -23,5 +24,10 @@ final readonly class FindDistancePerMonthResponse implements Response
     public function getDistancePerMonth(): array
     {
         return $this->distancePerMonth;
+    }
+
+    public function getTotalDistance(): Kilometer
+    {
+        return $this->totalDistance;
     }
 }

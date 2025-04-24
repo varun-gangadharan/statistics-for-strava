@@ -11,6 +11,8 @@ final readonly class RewindItem
         private string $title,
         private ?string $subTitle,
         private string $content,
+        private ?int $totalMetric,
+        private ?string $totalMetricLabel,
     ) {
     }
 
@@ -19,12 +21,16 @@ final readonly class RewindItem
         string $title,
         ?string $subTitle,
         string $content,
+        ?int $totalMetric = null,
+        ?string $totalMetricLabel = null,
     ): self {
         return new self(
             icon: $icon,
             title: $title,
             subTitle: $subTitle,
             content: $content,
+            totalMetric: $totalMetric,
+            totalMetricLabel: $totalMetricLabel,
         );
     }
 
@@ -46,5 +52,20 @@ final readonly class RewindItem
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    public function hasTotalMetric(): bool
+    {
+        return null !== $this->totalMetric && null !== $this->totalMetricLabel;
+    }
+
+    public function getTotalMetric(): ?int
+    {
+        return $this->totalMetric;
+    }
+
+    public function getTotalMetricLabel(): ?string
+    {
+        return $this->totalMetricLabel;
     }
 }
