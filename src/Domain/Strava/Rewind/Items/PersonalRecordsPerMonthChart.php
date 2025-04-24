@@ -49,7 +49,7 @@ final readonly class PersonalRecordsPerMonthChart
         }
 
         return [
-            'animation' => true,
+            'animation' => false,
             'backgroundColor' => null,
             'tooltip' => [
                 'trigger' => 'axis',
