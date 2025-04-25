@@ -51,8 +51,7 @@ final readonly class TrainingLoadChart
             // Get the date range to display (last 4 months)
             $lastDate = end($dates);
             $lastDateObj = SerializableDateTime::fromString($lastDate);
-            $fourMonthsAgo = clone $lastDateObj;
-            $fourMonthsAgo->modify('-4 months');
+            $fourMonthsAgo = $lastDateObj->modify('-4 months');
             $fourMonthsAgoStr = $fourMonthsAgo->format('Y-m-d');
 
             // Filter dates to only show last 4 months
@@ -61,15 +60,13 @@ final readonly class TrainingLoadChart
             });
 
             // Add future month projection
-            $oneMonthLater = clone $lastDateObj;
-            $oneMonthLater->modify('+1 month');
+            $oneMonthLater = $lastDateObj->modify('+1 month');
             $futureDates = [];
-            $currentDate = clone $lastDateObj;
-            $currentDate->modify('+1 day');
+            $currentDate = $lastDateObj;
 
             while ($currentDate <= $oneMonthLater) {
                 $futureDates[] = $currentDate->format('Y-m-d');
-                $currentDate->modify('+1 day');
+                $currentDate = $currentDate->modify('+1 day');
             }
 
             // Use filtered dates for calculations

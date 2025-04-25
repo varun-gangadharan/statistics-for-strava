@@ -94,6 +94,10 @@ final readonly class HeartRateDriftChart
             $averageRatioFirstHalf = array_sum($ratioFirstHalf) / count($ratioFirstHalf);
             $averageRatioSecondHalf = array_sum($ratioSecondHalf) / count($ratioSecondHalf);
 
+            if($averageRatioFirstHalf === 0){
+                return [];
+            }
+
             $decouplingPercentage = (($averageRatioFirstHalf - $averageRatioSecondHalf) / $averageRatioFirstHalf) * 100;
             $decouplingPercentage = round($decouplingPercentage, 1);
         } elseif ($hasSpeed) {

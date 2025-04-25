@@ -215,7 +215,11 @@ final readonly class HeartRateVsPaceChart
         $xMean = $sumX / $n;
         $yMean = $sumY / $n;
 
-        $slope = ($n * $sumXY - $sumX * $sumY) / ($n * $sumXX - $sumX * $sumX);
+        $divideBy = $n * $sumXX - $sumX * $sumX;
+        if($divideBy === 0){
+            return ['slope' => 0, 'intercept' => 0, 'r2' => 0];
+        }
+        $slope = ($n * $sumXY - $sumX * $sumY) / $divideBy;
         $intercept = $yMean - $slope * $xMean;
 
         // Calculate R-squared

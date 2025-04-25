@@ -77,6 +77,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         assert($command instanceof BuildDashboardHtml);
 
         $now = $command->getCurrentDateTime();
+        $athlete = $this->athleteRepository->find();
         $importedActivityTypes = $this->activityTypeRepository->findAll();
         $importedSportTypes = $this->sportTypeRepository->findAll();
         $allActivities = $this->activitiesEnricher->getEnrichedActivities();
@@ -188,7 +189,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $dailyLoadData = [];
 
         // Prepare activity data grouped by date
-        $athlete = $this->athleteRepository->find();
         foreach ($allActivities as $activity) {
             $date = $activity->getStartDate()->format('Y-m-d');
             if (!isset($allActivitiesByDate[$date])) {
@@ -199,8 +199,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             // Calculate TRIMP (Training Impulse) based on duration and heart rate
             if ($activity->getAverageHeartRate() && $activity->getMovingTimeInSeconds() > 0) {
                 // Use the actual athlete age and configured Max Heart Rate formula
-                $activityDate = $activity->getStartDate();
-                $maxHr = $athlete->getMaxHeartRate($activityDate);
+                $maxHr = $athlete->getMaxHeartRate($activity->getStartDate());
 
                 $intensity = $activity->getAverageHeartRate() / $maxHr;
                 $trimp = ($activity->getMovingTimeInSeconds() / 60) * $intensity * 1.92 * exp(1.67 * $intensity);
