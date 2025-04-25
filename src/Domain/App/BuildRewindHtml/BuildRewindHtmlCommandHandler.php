@@ -245,18 +245,19 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         totalMetric: $totalActivityCount,
                         totalMetricLabel: $this->translator->trans('activities'),
                     ),
-                    RewindItem::from(
-                        icon: 'globe',
-                        title: $this->translator->trans('Activity locations'),
-                        subTitle: $this->translator->trans('Locations over the globe'),
-                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
-                            'chart' => Json::encode(ActivityLocationsChart::create(
-                                activityLocations: $this->queryBus->ask(new FindActivityLocations($availableRewindYear))->getActivityLocations(),
-                            )->build()),
-                        ]),
-                    ),
                 ],
             ];
+
+            if ($activityLocations = $this->queryBus->ask(new FindActivityLocations($availableRewindYear))->getActivityLocations()) {
+                $render['rewindItems'][] = RewindItem::from(
+                    icon: 'globe',
+                    title: $this->translator->trans('Activity locations'),
+                    subTitle: $this->translator->trans('Locations over the globe'),
+                    content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                        'chart' => Json::encode(ActivityLocationsChart::create($activityLocations)->build()),
+                    ]),
+                );
+            }
 
             if ($randomImage) {
                 $render['rewindItems'][] = RewindItem::from(
