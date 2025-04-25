@@ -9,12 +9,14 @@ use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Rewind\ActivityCountPerMonthChart;
+use App\Domain\Strava\Rewind\ActivityLocationsChart;
 use App\Domain\Strava\Rewind\ActivityStartTimesChart;
 use App\Domain\Strava\Rewind\DailyActivitiesChart;
 use App\Domain\Strava\Rewind\DistancePerMonthChart;
 use App\Domain\Strava\Rewind\ElevationPerMonthChart;
 use App\Domain\Strava\Rewind\FindActiveDays\FindActiveDays;
 use App\Domain\Strava\Rewind\FindActivityCountPerMonth\FindActivityCountPerMonth;
+use App\Domain\Strava\Rewind\FindActivityLocations\FindActivityLocations;
 use App\Domain\Strava\Rewind\FindActivityStartTimesPerHour\FindActivityStartTimesPerHour;
 use App\Domain\Strava\Rewind\FindAvailableRewindYears\FindAvailableRewindYears;
 use App\Domain\Strava\Rewind\FindDistancePerMonth\FindDistancePerMonth;
@@ -247,7 +249,11 @@ final readonly class BuildRewindHtmlCommandHandler implements CommandHandler
                         icon: 'globe',
                         title: $this->translator->trans('Activity locations'),
                         subTitle: $this->translator->trans('Locations over the globe'),
-                        content: ''
+                        content: $this->twig->render('html/rewind/rewind-chart.html.twig', [
+                            'chart' => Json::encode(ActivityLocationsChart::create(
+                                activityLocations: $this->queryBus->ask(new FindActivityLocations($availableRewindYear))->getActivityLocations(),
+                            )->build()),
+                        ]),
                     ),
                 ],
             ];

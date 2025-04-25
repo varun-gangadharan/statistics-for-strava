@@ -47,7 +47,7 @@ final readonly class RestDaysVsActiveDaysChart
             ],
             'tooltip' => [
                 'trigger' => 'item',
-                'formatter' => '{b}: {c}h',
+                'formatter' => '{b}: {c}',
             ],
             'series' => [
                 [

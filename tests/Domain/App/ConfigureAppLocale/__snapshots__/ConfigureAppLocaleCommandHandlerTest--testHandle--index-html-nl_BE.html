@@ -366,8 +366,12 @@
         const secs = secondsToFormat % 60;
         return `<strong>${minutes}:${secs.toString().padStart(2, '0')}${paceSymbol}`;
     };
+    window.statisticsForStrava.callbacks.symbolSize = function (params) {
+        return (params[2] / 100) * 15 + 5;
+    };
 </script>
 <script src="/assets/echarts/echarts.min.js?0025176c-5652-11ee-923d-02424dd627d5"></script>
+<script src="/assets/echarts/echarts.world.min.js?0025176c-5652-11ee-923d-02424dd627d5"></script>
 <script src="/assets/lazyload.min.js?0025176c-5652-11ee-923d-02424dd627d5"></script>
 <script src="/assets/flowbite/flowbite.js?0025176c-5652-11ee-923d-02424dd627d5"></script>
 <script src="/assets/utils.js?0025176c-5652-11ee-923d-02424dd627d5" type="module"></script>
@@ -453,6 +457,7 @@
             resolveEchartsCallbacks(chartOptions, 'tooltip.formatter');
             resolveEchartsCallbacks(chartOptions, 'tooltip.valueFormatter');
             resolveEchartsCallbacks(chartOptions, 'yAxis.axisLabel.formatter');
+            resolveEchartsCallbacks(chartOptions, 'series.symbolSize');
 
             chart.setOption(chartOptions);
             if (chartNode.hasAttribute('data-echarts-connect')) {
