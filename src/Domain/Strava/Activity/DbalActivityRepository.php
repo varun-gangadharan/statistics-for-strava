@@ -14,6 +14,7 @@ use App\Infrastructure\ValueObject\Geography\Longitude;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use App\Infrastructure\ValueObject\Time\Year;
 use Doctrine\DBAL\Connection;
 
 final class DbalActivityRepository implements ActivityRepository
@@ -37,6 +38,26 @@ final class DbalActivityRepository implements ActivityRepository
 
         if (!$result = $queryBuilder->executeQuery()->fetchAssociative()) {
             throw new EntityNotFound(sprintf('Activity "%s" not found', $activityId));
+        }
+
+        return $this->hydrate($result);
+    }
+
+    public function findLongestActivityForYear(Year $year): Activity
+    {
+        if (!$result = $this->connection->executeQuery(
+            <<<SQL
+                SELECT *
+                FROM Activity
+                WHERE strftime('%Y',startDateTime) = :year
+                ORDER BY movingTimeInSeconds DESC
+                LIMIT 1
+            SQL,
+            [
+                'year' => (string) $year,
+            ]
+        )->fetchAssociative()) {
+            throw new EntityNotFound('Could not determine longest activity');
         }
 
         return $this->hydrate($result);

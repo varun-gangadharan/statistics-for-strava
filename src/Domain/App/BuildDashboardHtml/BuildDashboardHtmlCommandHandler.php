@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildDashboardHtml;
 
 use App\Domain\Strava\Activity\ActivitiesEnricher;
-use App\Domain\Strava\Activity\ActivityHeatmapChart;
 use App\Domain\Strava\Activity\ActivityIntensity;
+use App\Domain\Strava\Activity\ActivityIntensityChart;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\ActivityTypeRepository;
@@ -309,8 +309,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'intro' => $activityTotals,
                 'weeklyDistanceCharts' => $weeklyDistanceTimeCharts,
                 'powerOutputs' => $bestAllTimePowerOutputs,
-                'activityHeatmapChart' => Json::encode(
-                    ActivityHeatmapChart::create(
+                'activityIntensityChart' => Json::encode(
+                    ActivityIntensityChart::create(
                         activities: $allActivities,
                         activityIntensity: $this->activityIntensity,
                         translator: $this->translator,

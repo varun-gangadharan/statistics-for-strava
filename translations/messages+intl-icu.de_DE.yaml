@@ -1,6 +1,10 @@
 '2 days of activity for 4 weeks': '2 Tage Aktivität für 4 Wochen'
+'Active days': 'Active days'
 Activities: Aktivitäten
+'Activity count': 'Activity count'
 'Activity intensity': Aktivitätsintensität
+'Activity locations': 'Activity locations'
+'Activity start times': 'Activity start times'
 'Adaptive & Inclusive Sports': 'Adaptive & inklusive Sportarten'
 Advanced: Fortgeschritten
 Afternoon: Nachmittag
@@ -31,6 +35,7 @@ Commutes: Commutes
 'Complete a half marathon run.': 'Absolviere einen Halbmarathon.'
 Components: Components
 Crossfit: Crossfit
+'Daily activities': 'Daily activities'
 Dashboard: Dashboard
 'Days needed': 'Benötigte Tage'
 'Daytime stats': Tageszeitstatistiken
@@ -51,6 +56,7 @@ Distribution: Distribution
 Eddington: Eddington
 Elev: Höhe
 Elevation: Höhenmeter
+'Elevation in {unit}': 'Elevation in {unit}'
 Elliptical: Crosstrainer
 Evening: Abend
 'Excludes commutes': 'Excludes commutes'
@@ -104,7 +110,10 @@ Kayaking: Kajakfahren
 'Latest start time': 'Späteste Startzeit'
 'Loading data...': 'Daten werden geladen...'
 Loading...: Lädt...
+'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
+'Longest streaks': 'Longest streaks'
 'Longest workout': 'Längstes Training'
 Low: Niedrig
 Maintenance: Maintenance
@@ -128,12 +137,17 @@ Night: Nacht
 'No activities': 'Keine Aktivitäten'
 'Nordic Ski': 'Nordischer Ski'
 Nov: Nov
+'Number of activities per month': 'Number of activities per month'
 Oct: Okt
 'One of your gear maitenance tasks is due': 'One of your gear maitenance tasks is due'
 Other: Andere
 'Outdoor Sports': Outdoor-Sportarten
+PRs: PRs
+'PRs achieved per month': 'PRs achieved per month'
 Pace: Tempo
 'Peak power outputs': Spitzenleistungen
+'Personal Records': 'Personal Records'
+Photo: Photo
 Photos: Fotos
 'Pickle Ball': Pickleball
 Pilates: Pilates
@@ -146,6 +160,9 @@ Race: Race
 'Racing Score': Rennpunktzahl
 'Racquet & Paddle Sports': 'Schläger- & Paddelsportarten'
 'Racquet Ball': Racquetball
+'Rest days': 'Rest days'
+'Rest days vs. active days': 'Rest days vs. active days'
+Rewind: Rewind
 'Ride a total of 1250km': 'Fahre insgesamt 1250km'
 'Ride a total of 200km': 'Fahre insgesamt 200km'
 'Ride a total of 600km': 'Fahre insgesamt 600km'
@@ -171,15 +188,18 @@ Skating: Skaten
 Snowboard: Snowboard
 Snowshoe: Schneeschuhwandern
 Soccer: Fußball
+Socials: Socials
 Source: Source
 Speed: Geschwindigkeit
 Squash: Squash
 'Stair Stepper': Treppensteiger
 'Stand Up Paddling': 'Stand-Up Paddeln'
 'Start slideshow': 'Start slideshow'
+'Start times': 'Start times'
 'Statistics for Strava': 'Statistiken für Strava'
 Stats: Stats
 'Stats per weekday': 'Statistiken pro Wochentag'
+Streaks: Streaks
 Sun: So
 Sunday: Sonntag
 Surfing: Surfen
@@ -197,6 +217,7 @@ Tennis: Tennis
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 'Diese Karte zeigt die tägliche Trainingsintensität für das letzte Jahr. Die Trainingsintensität für eine Aktivität wird auf Basis mehrerer Metriken berechnet.'
 Thu: Do
 Thursday: Donnerstag
+Time: Time
 'Time / week': 'Zeit / Woche'
 'Times completed': 'Male abgeschlossen'
 To: Bis
@@ -204,7 +225,13 @@ To: Bis
 'Toggle sidebar': 'Seitenleiste umschalten'
 'Top 10': 'Top 10'
 'Total carbon saved': 'Insgesamt eingesparter CO2-Ausstoß'
+'Total distance per month': 'Total distance per month'
+'Total elevation per month': 'Total elevation per month'
+'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
+'Total hours spent per sport type': 'Total hours spent per sport type'
 'Total kudos': 'Gesamte Kudos'
+'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': Trail-Läufe
 Trivia: Wissenswertes
 Tue: Di
@@ -237,6 +264,7 @@ Yoga: Yoga
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍"
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to'
 'Your Strava badge': 'Dein Strava-Abzeichen'
+'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': 'Dein Zwift-Abzeichen'
 'Your badge(s)': 'Dein(e) Abzeichen'
 'Zone 1 (recovery)': 'Zone 1 (Erholung)'
@@ -245,17 +273,26 @@ Yoga: Yoga
 'Zone 4 (anaerobic)': 'Zone 4 (anaerob)'
 'Zone 5 (maximal)': 'Zone 5 (maximal)'
 'Zwift Statistics': Zwift-Statistiken
+activities: activities
 age: Alter
 and: und
 bpm: bpm
 clear: löschen
+comments: comments
+days: days
+hours: hours
+hrs: hrs
 intensity: Intensität
 intensityFactor: Intensitätsfaktor
+kudos: kudos
 'max gradient': 'max. Steigung'
 maxHeartRate: 'maximale Herzfrequenz'
+months: months
+more: more
 'more info': 'more info'
 n/a: n/v
 never: never
+weeks: weeks
 workouts: Trainingseinheiten
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '{amountOfAluminiumCans} aluminium cans for soft drinks produced'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '{amountOfCapsForPetBottles} caps for PET bottles produced'
@@ -267,6 +304,7 @@ workouts: Trainingseinheiten
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} Ergebnisse basierend auf deinen aktiven Filtern'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} Routen basierend auf deinen aktiven Filtern'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'

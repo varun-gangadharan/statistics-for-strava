@@ -22,4 +22,12 @@ final class SportTypes extends Collection
             SportType::VIRTUAL_RIDE,
         ]);
     }
+
+    public static function thatSupportImagesForStravaRewind(): SportTypes
+    {
+        return self::fromArray(array_filter(
+            SportType::cases(),
+            fn (SportType $sportType) => !in_array($sportType, [SportType::VIRTUAL_RIDE, SportType::VIRTUAL_RUN, SportType::VIRTUAL_ROW])
+        ));
+    }
 }
