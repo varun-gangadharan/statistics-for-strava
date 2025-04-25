@@ -9,8 +9,8 @@ use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 final readonly class RelativeEffortChart
 {
     /**
-     * @param array<string, float> $relativeEffortData Date strings as keys, relative effort scores as values
-     * @param array<string, string> $activityTypes Optional activity types for filtering
+     * @param array<string, float>  $relativeEffortData Date strings as keys, relative effort scores as values
+     * @param array<string, string> $activityTypes      Optional activity types for filtering
      */
     private function __construct(
         private array $relativeEffortData,
@@ -19,8 +19,8 @@ final readonly class RelativeEffortChart
     }
 
     /**
-     * @param array<string, float> $relativeEffortData Date strings as keys, relative effort scores as values
-     * @param array<string, string> $activityTypes Optional activity types for categorization
+     * @param array<string, float>  $relativeEffortData Date strings as keys, relative effort scores as values
+     * @param array<string, string> $activityTypes      Optional activity types for categorization
      */
     public static function fromRelativeEffortData(array $relativeEffortData, array $activityTypes = []): self
     {
@@ -46,7 +46,7 @@ final readonly class RelativeEffortChart
         // Format dates for display and prepare data
         $formattedDates = [];
         $relativeEffortValues = [];
-        $activityTypeGroups = []; 
+        $activityTypeGroups = [];
         $weeklyEffort = [];
         $allValues = array_values($this->relativeEffortData);
 
@@ -59,27 +59,27 @@ final readonly class RelativeEffortChart
             // Format date for display
             $dateObj = SerializableDateTime::fromString($date);
             $formattedDates[] = $dateObj->format('M d');
-            
+
             // Group by week for weekly summary
             $weekKey = $dateObj->format('Y-W'); // Year and week number
-            
-            if ($currentWeekKey === '') {
+
+            if ('' === $currentWeekKey) {
                 $currentWeekKey = $weekKey;
-                $weeklyKeys[] = $dateObj->format('M d') . ' - ';
+                $weeklyKeys[] = $dateObj->format('M d').' - ';
             } elseif ($currentWeekKey !== $weekKey) {
                 $weeklyEffort[] = $currentWeekSum;
                 $weeklyKeys[count($weeklyKeys) - 1] .= SerializableDateTime::fromString($dates[$index - 1])->format('M d');
-                
+
                 $currentWeekKey = $weekKey;
                 $currentWeekSum = 0;
-                $weeklyKeys[] = $dateObj->format('M d') . ' - ';
+                $weeklyKeys[] = $dateObj->format('M d').' - ';
             }
-            
+
             $currentWeekSum += $this->relativeEffortData[$date];
-            
+
             // Get relative effort value
             $relativeEffortValues[] = $this->relativeEffortData[$date];
-            
+
             // Group by activity type if provided
             if (isset($this->activityTypes[$date])) {
                 $type = $this->activityTypes[$date];
@@ -89,7 +89,7 @@ final readonly class RelativeEffortChart
                 $activityTypeGroups[$type][$index] = $this->relativeEffortData[$date];
             }
         }
-        
+
         // Add the last week
         if ($currentWeekSum > 0) {
             $weeklyEffort[] = $currentWeekSum;
@@ -103,7 +103,7 @@ final readonly class RelativeEffortChart
         // Determine effort levels for visualization
         $highEffortThreshold = 100; // Highly subjective, adjust based on your data
         $moderateEffortThreshold = 50;
-        
+
         // Prepare the series data for activity types
         $activityTypeSeries = [];
         foreach ($activityTypeGroups as $type => $values) {
@@ -234,17 +234,16 @@ final readonly class RelativeEffortChart
                 [
                     'type' => 'inside',
                     'xAxisIndex' => [0, 1],
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
                 [
                     'type' => 'slider',
                     'xAxisIndex' => [0, 1],
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
             ],
         ];
     }
 }
-

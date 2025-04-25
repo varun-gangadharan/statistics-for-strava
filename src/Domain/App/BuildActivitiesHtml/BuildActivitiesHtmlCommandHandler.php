@@ -6,11 +6,11 @@ namespace App\Domain\App\BuildActivitiesHtml;
 
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\ActivityTotals;
+use App\Domain\Strava\Activity\ElevationVsHeartRateChart;
 use App\Domain\Strava\Activity\HeartRateDistributionChart;
-use App\Domain\Strava\Activity\PowerDistributionChart;
 use App\Domain\Strava\Activity\HeartRateDriftChart;
 use App\Domain\Strava\Activity\HeartRateVsPaceChart;
-use App\Domain\Strava\Activity\ElevationVsHeartRateChart;
+use App\Domain\Strava\Activity\PowerDistributionChart;
 use App\Domain\Strava\Activity\Split\ActivitySplitRepository;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
@@ -114,34 +114,34 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 $heartRateStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::HEART_RATE);
             } catch (EntityNotFound) {
             }
-            
+
             // Get additional streams for new charts
             $timeStream = null;
             $distanceStream = null;
             $altitudeStream = null;
             $velocityStream = null;
             $powerStream = null;
-            
+
             try {
                 $timeStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::TIME);
             } catch (EntityNotFound) {
             }
-            
+
             try {
                 $distanceStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::DISTANCE);
             } catch (EntityNotFound) {
             }
-            
+
             try {
                 $altitudeStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::ALTITUDE);
             } catch (EntityNotFound) {
             }
-            
+
             try {
-    $velocityStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::VELOCITY);
-} catch (EntityNotFound) {
-}
-            
+                $velocityStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::VELOCITY);
+            } catch (EntityNotFound) {
+            }
+
             try {
                 $powerStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::WATTS);
             } catch (EntityNotFound) {
@@ -187,7 +187,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             $heartRateDriftChart = null;
             $heartRateVsPaceChart = null;
             $elevationVsHeartRateChart = null;
-            
+
             // Heart Rate Drift chart - only requires heart rate stream for basic functionality
             if ($heartRateStream) {
                 $timeData = [];
@@ -196,23 +196,23 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     $timeData = $timeStream->getData();
                 } else {
                     // Create synthetic time data (1 second per heart rate sample)
-                    for ($i = 0; $i < count($heartRateStream->getData()); $i++) {
+                    for ($i = 0; $i < count($heartRateStream->getData()); ++$i) {
                         $timeData[] = $i;
                     }
                 }
-                
+
                 // If we have power data, add it for decoupling analysis
                 $powerData = [];
                 if ($powerStream && count($powerStream->getData()) === count($heartRateStream->getData())) {
                     $powerData = $powerStream->getData();
                 }
-                
+
                 // If we have speed/velocity data, add it as an alternative
                 $speedData = [];
                 if ($velocityStream && count($velocityStream->getData()) === count($heartRateStream->getData())) {
                     $speedData = $velocityStream->getData();
                 }
-                
+
                 $heartRateDriftChart = HeartRateDriftChart::fromActivityData(
                     time: $timeData,
                     heartRate: $heartRateStream->getData(),
@@ -220,15 +220,15 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     power: $powerData
                 );
             }
-            
+
             // Heart Rate vs Pace chart - simplified to just need heart rate data
             if ($heartRateStream) {
                 $paceData = [];
-                
+
                 // If we have velocity data, use it to calculate pace
                 if ($velocityStream && count($heartRateStream->getData()) === count($velocityStream->getData())) {
                     $velocityData = $velocityStream->getData();
-                    
+
                     foreach ($velocityData as $velocity) {
                         // Convert m/s to min/km or min/mile based on unit system
                         if ($velocity > 0) {
@@ -246,19 +246,19 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 } else {
                     // Create synthetic pace data based on average pace from activity
                     $avgPaceMinPerKm = $activity->getElapsedTimeInSeconds() / ($activity->getDistance()->getValue() / 1000);
-                    for ($i = 0; $i < count($heartRateStream->getData()); $i++) {
+                    for ($i = 0; $i < count($heartRateStream->getData()); ++$i) {
                         // Randomize pace slightly to create a more natural chart
                         $randomVariation = mt_rand(-30, 30) / 100; // -0.3 to +0.3 variation
                         $paceData[] = $avgPaceMinPerKm * (1 + $randomVariation);
                     }
                 }
-                
+
                 // Optional elevation data for coloring points
                 $elevationData = [];
                 if ($altitudeStream && count($altitudeStream->getData()) === count($heartRateStream->getData())) {
                     $elevationData = $altitudeStream->getData();
                 }
-                
+
                 $heartRateVsPaceChart = HeartRateVsPaceChart::fromActivityData(
                     heartRate: $heartRateStream->getData(),
                     pace: $paceData,
@@ -266,19 +266,18 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     elevation: $elevationData
                 );
             }
-            
+
             // Elevation vs Heart Rate chart
-            if ($heartRateStream && $altitudeStream && $distanceStream &&
-                count($heartRateStream->getData()) === count($altitudeStream->getData()) &&
-                count($heartRateStream->getData()) === count($distanceStream->getData())) {
-                
+            if ($heartRateStream && $altitudeStream && $distanceStream
+                && count($heartRateStream->getData()) === count($altitudeStream->getData())
+                && count($heartRateStream->getData()) === count($distanceStream->getData())) {
                 $elevationVsHeartRateChart = ElevationVsHeartRateChart::fromActivityData(
                     elevation: $altitudeStream->getData(),
                     heartRate: $heartRateStream->getData(),
                     distance: $distanceStream->getData()
                 );
             }
-            
+
             $activityProfileCharts = [];
             if ($activityType->supportsCombinedStreamCalculation()) {
                 try {

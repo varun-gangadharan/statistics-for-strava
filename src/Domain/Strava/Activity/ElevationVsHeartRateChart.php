@@ -8,8 +8,8 @@ final readonly class ElevationVsHeartRateChart
 {
     /**
      * @param array<int, float> $elevation Elevation values in meters
-     * @param array<int, int> $heartRate Heart rate values in BPM
-     * @param array<int, float> $distance Optional distance data in km
+     * @param array<int, int>   $heartRate Heart rate values in BPM
+     * @param array<int, float> $distance  Optional distance data in km
      */
     private function __construct(
         private array $elevation,
@@ -20,13 +20,13 @@ final readonly class ElevationVsHeartRateChart
 
     /**
      * @param array<int, float> $elevation Elevation values in meters
-     * @param array<int, int> $heartRate Heart rate values in BPM
-     * @param array<int, float> $distance Optional distance data in km
+     * @param array<int, int>   $heartRate Heart rate values in BPM
+     * @param array<int, float> $distance  Optional distance data in km
      */
     public static function fromActivityData(
         array $elevation,
         array $heartRate,
-        array $distance = []
+        array $distance = [],
     ): self {
         return new self(
             elevation: $elevation,
@@ -50,7 +50,7 @@ final readonly class ElevationVsHeartRateChart
         $hrData = [];
         $elevationData = [];
         $xAxisData = [];
-        
+
         if ($hasDistance) {
             $xAxisData = $this->distance;
             $xAxisName = 'Distance (km)';
@@ -64,11 +64,11 @@ final readonly class ElevationVsHeartRateChart
         $gradients = [];
         $elevationDiff = [];
         $distanceDiff = [];
-        
+
         // Calculate elevation differences for gradient
-        for ($i = 1; $i < count($this->elevation); $i++) {
+        for ($i = 1; $i < count($this->elevation); ++$i) {
             $elevationDiff[] = $this->elevation[$i] - $this->elevation[$i - 1];
-            
+
             if ($hasDistance) {
                 $distVal = max(0.001, $this->distance[$i] - $this->distance[$i - 1]); // Avoid division by zero
                 $gradients[] = ($this->elevation[$i] - $this->elevation[$i - 1]) / ($distVal * 1000) * 100; // Convert to percentage
@@ -76,25 +76,25 @@ final readonly class ElevationVsHeartRateChart
                 $gradients[] = $this->elevation[$i] - $this->elevation[$i - 1]; // Simpler version without distance
             }
         }
-        
+
         // Add 0 for the first point to match array lengths
         array_unshift($gradients, 0);
-        
+
         // Smooth heart rate and elevation data for better visualization - reduced for short runs
         $windowSize = count($this->heartRate) < 500 ? 2 : 5; // Smaller window for short runs (3-5km)
         $smoothedHeartRate = $this->movingAverage($this->heartRate, $windowSize);
         $smoothedElevation = $this->movingAverage($this->elevation, $windowSize);
-        
+
         // Calculate correlation between elevation and heart rate
         $correlation = $this->calculateCorrelation($this->elevation, $this->heartRate);
         $correlationText = $this->interpretCorrelation($correlation);
-        
+
         // Calculate average heart rate for uphill, flat, and downhill sections
         $uphillHr = [];
         $downhillHr = [];
         $flatHr = [];
-        
-        for ($i = 0; $i < count($gradients); $i++) {
+
+        for ($i = 0; $i < count($gradients); ++$i) {
             if ($gradients[$i] > 3) { // Uphill (>3% gradient)
                 $uphillHr[] = $this->heartRate[$i];
             } elseif ($gradients[$i] < -3) { // Downhill (<-3% gradient)
@@ -103,11 +103,11 @@ final readonly class ElevationVsHeartRateChart
                 $flatHr[] = $this->heartRate[$i];
             }
         }
-        
+
         $avgUphillHr = !empty($uphillHr) ? round(array_sum($uphillHr) / count($uphillHr)) : 0;
         $avgDownhillHr = !empty($downhillHr) ? round(array_sum($downhillHr) / count($downhillHr)) : 0;
         $avgFlatHr = !empty($flatHr) ? round(array_sum($flatHr) / count($flatHr)) : 0;
-        
+
         // Generate chart configuration
         return [
             'title' => [
@@ -122,22 +122,22 @@ final readonly class ElevationVsHeartRateChart
                 ],
                 'formatter' => function ($params) use ($gradients) {
                     $result = '';
-                    
+
                     foreach ($params as $param) {
-                        if ($param['seriesName'] === 'Heart Rate') {
-                            $result .= 'HR: ' . round($param['value']) . ' BPM<br/>';
-                        } elseif ($param['seriesName'] === 'Elevation') {
-                            $result .= 'Elevation: ' . round($param['value']) . ' m<br/>';
+                        if ('Heart Rate' === $param['seriesName']) {
+                            $result .= 'HR: '.round($param['value']).' BPM<br/>';
+                        } elseif ('Elevation' === $param['seriesName']) {
+                            $result .= 'Elevation: '.round($param['value']).' m<br/>';
                         }
-                        
+
                         // Add gradient info if available
                         $index = $param['dataIndex'];
                         if (isset($gradients[$index])) {
                             $gradient = round($gradients[$index], 1);
-                            $result .= 'Gradient: ' . $gradient . '%<br/>';
+                            $result .= 'Gradient: '.$gradient.'%<br/>';
                         }
                     }
-                    
+
                     return $result;
                 },
             ],
@@ -280,52 +280,52 @@ final readonly class ElevationVsHeartRateChart
             ],
         ];
     }
-    
+
     /**
-     * Calculate Pearson correlation coefficient
-     * 
+     * Calculate Pearson correlation coefficient.
+     *
      * @param array<int, float> $x Elevation data
-     * @param array<int, int> $y Heart rate data
+     * @param array<int, int>   $y Heart rate data
      */
     private function calculateCorrelation(array $x, array $y): float
     {
         $n = count($x);
-        
+
         // Calculate means
         $meanX = array_sum($x) / $n;
         $meanY = array_sum($y) / $n;
-        
+
         // Calculate covariance and standard deviations
         $covariance = 0;
         $stdDevX = 0;
         $stdDevY = 0;
-        
-        for ($i = 0; $i < $n; $i++) {
+
+        for ($i = 0; $i < $n; ++$i) {
             $covariance += ($x[$i] - $meanX) * ($y[$i] - $meanY);
             $stdDevX += pow($x[$i] - $meanX, 2);
             $stdDevY += pow($y[$i] - $meanY, 2);
         }
-        
+
         $stdDevX = sqrt($stdDevX / $n);
         $stdDevY = sqrt($stdDevY / $n);
-        
+
         // Calculate correlation
-        if ($stdDevX == 0 || $stdDevY == 0) {
+        if (0 == $stdDevX || 0 == $stdDevY) {
             return 0; // No variance, so no correlation
         }
-        
+
         $correlation = $covariance / ($n * $stdDevX * $stdDevY);
-        
+
         return round($correlation, 3);
     }
-    
+
     /**
-     * Interpret correlation value
+     * Interpret correlation value.
      */
     private function interpretCorrelation(float $correlation): string
     {
         $abs = abs($correlation);
-        
+
         if ($abs < 0.1) {
             return 'Negligible';
         } elseif ($abs < 0.3) {
@@ -338,7 +338,7 @@ final readonly class ElevationVsHeartRateChart
             return 'Very Strong';
         }
     }
-    
+
     /**
      * @param array<int, int|float> $data
      */
@@ -346,14 +346,14 @@ final readonly class ElevationVsHeartRateChart
     {
         $result = [];
         $count = count($data);
-        
-        for ($i = 0; $i < $count; $i++) {
+
+        for ($i = 0; $i < $count; ++$i) {
             $start = max(0, $i - $window + 1);
             $length = min($window, $i + 1);
             $subset = array_slice($data, $start, $length);
             $result[] = array_sum($subset) / count($subset);
         }
-        
+
         return $result;
     }
 }

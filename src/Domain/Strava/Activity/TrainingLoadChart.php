@@ -24,7 +24,7 @@ final readonly class TrainingLoadChart
     public static function fromDailyLoadData(
         array $dailyLoadData,
         int $ctlDays = 42,
-        int $atlDays = 7
+        int $atlDays = 7,
     ): self {
         return new self(
             dailyLoadData: $dailyLoadData,
@@ -45,7 +45,7 @@ final readonly class TrainingLoadChart
         // Sort data by date
         $dates = array_keys($this->dailyLoadData);
         sort($dates);
-        
+
         // If showing 4 months history + 1 month future projection
         if ($showFutureProjection) {
             // Get the date range to display (last 4 months)
@@ -54,24 +54,24 @@ final readonly class TrainingLoadChart
             $fourMonthsAgo = clone $lastDateObj;
             $fourMonthsAgo->modify('-4 months');
             $fourMonthsAgoStr = $fourMonthsAgo->format('Y-m-d');
-            
+
             // Filter dates to only show last 4 months
-            $filteredDates = array_filter($dates, function($date) use ($fourMonthsAgoStr) {
+            $filteredDates = array_filter($dates, function ($date) use ($fourMonthsAgoStr) {
                 return $date >= $fourMonthsAgoStr;
             });
-            
+
             // Add future month projection
             $oneMonthLater = clone $lastDateObj;
             $oneMonthLater->modify('+1 month');
             $futureDates = [];
             $currentDate = clone $lastDateObj;
             $currentDate->modify('+1 day');
-            
+
             while ($currentDate <= $oneMonthLater) {
                 $futureDates[] = $currentDate->format('Y-m-d');
                 $currentDate->modify('+1 day');
             }
-            
+
             // Use filtered dates for calculations
             $dates = array_values($filteredDates);
         }
@@ -88,34 +88,34 @@ final readonly class TrainingLoadChart
         foreach ($dates as $date) {
             $trimpValues[$date] = $this->dailyLoadData[$date]['trimp'];
         }
-        
+
         // Add projected future values if needed
         if ($showFutureProjection && isset($futureDates)) {
             // Calculate average TRIMP from last 4 weeks for projection
             $lastMonthDates = array_slice($dates, -28); // Last 4 weeks
             $lastMonthTrimp = 0;
             $lastMonthDaysWithActivity = 0;
-            
+
             foreach ($lastMonthDates as $date) {
                 if ($this->dailyLoadData[$date]['trimp'] > 0) {
                     $lastMonthTrimp += $this->dailyLoadData[$date]['trimp'];
-                    $lastMonthDaysWithActivity++;
+                    ++$lastMonthDaysWithActivity;
                 }
             }
-            
+
             $avgDailyTrimp = $lastMonthDaysWithActivity > 0 ? $lastMonthTrimp / $lastMonthDaysWithActivity : 0;
             $avgRestDays = $lastMonthDaysWithActivity > 0 ? (28 - $lastMonthDaysWithActivity) / 4 : 2; // Weekly rest days
-            
-            // Create projected training pattern (workout/rest days) 
+
+            // Create projected training pattern (workout/rest days)
             foreach ($futureDates as $i => $date) {
                 // Create a pattern with appropriate rest days
                 $isRestDay = ($i % 7) < $avgRestDays;
                 $trimpValues[$date] = $isRestDay ? 0 : $avgDailyTrimp;
-                
+
                 // Add this date to our array of dates to process
                 $dates[] = $date;
             }
-            
+
             // Resort dates to ensure chronological order
             sort($dates);
         }
@@ -123,12 +123,12 @@ final readonly class TrainingLoadChart
         // Calculate weekly sums and standard deviations for monotony and strain
         $weeklyTrimps = [];
         $weeklyStdDevs = [];
-        
+
         foreach ($dates as $index => $date) {
             // Format date for display
             $dateObj = SerializableDateTime::fromString($date);
             $formattedDates[] = $dateObj->format('M d');
-            
+
             // Calculate CTL (Chronic Training Load)
             $ctlStartIndex = max(0, $index - $this->ctlDays + 1);
             $ctlWindow = array_slice($trimpValues, $ctlStartIndex, min($index + 1 - $ctlStartIndex, $this->ctlDays));
@@ -149,22 +149,22 @@ final readonly class TrainingLoadChart
             if ($index >= 6) { // Need at least 7 days
                 $weekTrimps = array_slice($trimpValues, $index - 6, 7);
                 $weeklyTrimps[] = array_sum($weekTrimps);
-                
+
                 // Calculate standard deviation for monotony
                 $mean = array_sum($weekTrimps) / 7;
                 $variance = 0;
-                
+
                 foreach ($weekTrimps as $trimp) {
                     $variance += pow($trimp - $mean, 2);
                 }
-                
+
                 $stdDev = sqrt($variance / 7);
                 $weeklyStdDevs[] = $stdDev;
-                
+
                 // Monotony = daily average / standard deviation
                 $monotony = ($stdDev > 0) ? $mean / $stdDev : 0;
                 $monotonyValues[] = round($monotony, 2);
-                
+
                 // Strain = weekly TRIMP * monotony
                 $strain = array_sum($weekTrimps) * $monotony;
                 $strainValues[] = round($strain, 0);
@@ -339,12 +339,12 @@ final readonly class TrainingLoadChart
             'dataZoom' => [
                 [
                     'type' => 'inside',
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
                 [
                     'type' => 'slider',
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
             ],

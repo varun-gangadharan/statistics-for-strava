@@ -7,10 +7,10 @@ namespace App\Domain\Strava\Activity;
 final readonly class HeartRateDriftChart
 {
     /**
-     * @param array<int, int> $time Time in seconds from start
-     * @param array<int, int> $heartRate Heart rate values
-     * @param array<int, float> $speed Speed values (optional)
-     * @param array<int, float> $power Power values (optional)
+     * @param array<int, int>   $time      Time in seconds from start
+     * @param array<int, int>   $heartRate Heart rate values
+     * @param array<int, float> $speed     Speed values (optional)
+     * @param array<int, float> $power     Power values (optional)
      */
     private function __construct(
         private array $time,
@@ -21,16 +21,16 @@ final readonly class HeartRateDriftChart
     }
 
     /**
-     * @param array<int, int> $time Time in seconds from start
-     * @param array<int, int> $heartRate Heart rate values
-     * @param array<int, float> $speed Speed values (optional)
-     * @param array<int, float> $power Power values (optional)
+     * @param array<int, int>   $time      Time in seconds from start
+     * @param array<int, int>   $heartRate Heart rate values
+     * @param array<int, float> $speed     Speed values (optional)
+     * @param array<int, float> $power     Power values (optional)
      */
     public static function fromActivityData(
         array $time,
         array $heartRate,
         array $speed = [],
-        array $power = []
+        array $power = [],
     ): self {
         return new self(
             time: $time,
@@ -63,20 +63,20 @@ final readonly class HeartRateDriftChart
         $firstHalf = [];
         $secondHalf = [];
         $midpointIndex = (int) floor(count($this->heartRate) / 2);
-        
+
         $hrFirstHalf = array_slice($this->heartRate, 0, $midpointIndex);
         $hrSecondHalf = array_slice($this->heartRate, $midpointIndex);
-        
+
         $averageHrFirstHalf = array_sum($hrFirstHalf) / count($hrFirstHalf);
         $averageHrSecondHalf = array_sum($hrSecondHalf) / count($hrSecondHalf);
-        
+
         $driftPercentage = (($averageHrSecondHalf - $averageHrFirstHalf) / $averageHrFirstHalf) * 100;
         $driftPercentage = round($driftPercentage, 1);
-        
+
         // Calculate power/HR or pace/HR ratio for decoupling if available
         $decouplingPercentage = null;
         $ratioData = [];
-        
+
         if ($hasPower) {
             // Calculate power:HR ratio
             $ratioData = [];
@@ -87,13 +87,13 @@ final readonly class HeartRateDriftChart
                     $ratioData[] = 0;
                 }
             }
-            
+
             $ratioFirstHalf = array_slice($ratioData, 0, $midpointIndex);
             $ratioSecondHalf = array_slice($ratioData, $midpointIndex);
-            
+
             $averageRatioFirstHalf = array_sum($ratioFirstHalf) / count($ratioFirstHalf);
             $averageRatioSecondHalf = array_sum($ratioSecondHalf) / count($ratioSecondHalf);
-            
+
             $decouplingPercentage = (($averageRatioFirstHalf - $averageRatioSecondHalf) / $averageRatioFirstHalf) * 100;
             $decouplingPercentage = round($decouplingPercentage, 1);
         } elseif ($hasSpeed) {
@@ -106,13 +106,13 @@ final readonly class HeartRateDriftChart
                     $ratioData[] = 0;
                 }
             }
-            
+
             $ratioFirstHalf = array_slice($ratioData, 0, $midpointIndex);
             $ratioSecondHalf = array_slice($ratioData, $midpointIndex);
-            
+
             $averageRatioFirstHalf = array_sum($ratioFirstHalf) / count($ratioFirstHalf);
             $averageRatioSecondHalf = array_sum($ratioSecondHalf) / count($ratioSecondHalf);
-            
+
             $decouplingPercentage = (($averageRatioFirstHalf - $averageRatioSecondHalf) / $averageRatioFirstHalf) * 100;
             $decouplingPercentage = round($decouplingPercentage, 1);
         }
@@ -125,7 +125,7 @@ final readonly class HeartRateDriftChart
         // Calculate min/max values for y-axis with some padding
         $minHr = floor(min($this->heartRate) * 0.95);
         $maxHr = ceil(max($this->heartRate) * 1.05);
-        
+
         $minRatio = !empty($ratioData) ? floor(min($ratioData) * 0.95) : 0;
         $maxRatio = !empty($ratioData) ? ceil(max($ratioData) * 1.05) : 0;
 
@@ -141,7 +141,7 @@ final readonly class HeartRateDriftChart
 
         // Determine decoupling quality if available
         $decouplingQuality = null;
-        if ($decouplingPercentage !== null) {
+        if (null !== $decouplingPercentage) {
             $decouplingQuality = 'Excellent';
             if (abs($decouplingPercentage) > 10) {
                 $decouplingQuality = 'Poor';
@@ -238,8 +238,8 @@ final readonly class HeartRateDriftChart
         return [
             'title' => [
                 'text' => 'Heart Rate Drift Analysis',
-                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})" . 
-                    ($decouplingPercentage !== null ? " | Decoupling: {$decouplingPercentage}% ({$decouplingQuality})" : ''),
+                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})".
+                    (null !== $decouplingPercentage ? " | Decoupling: {$decouplingPercentage}% ({$decouplingQuality})" : ''),
                 'left' => 'center',
             ],
             'tooltip' => [
@@ -249,7 +249,7 @@ final readonly class HeartRateDriftChart
                 ],
             ],
             'legend' => [
-                'data' => array_map(fn($item) => $item['name'], $series),
+                'data' => array_map(fn ($item) => $item['name'], $series),
                 'top' => 30,
             ],
             'grid' => [
@@ -315,14 +315,14 @@ final readonly class HeartRateDriftChart
     {
         $result = [];
         $count = count($data);
-        
-        for ($i = 0; $i < $count; $i++) {
+
+        for ($i = 0; $i < $count; ++$i) {
             $start = max(0, $i - $window + 1);
             $length = min($window, $i + 1);
             $subset = array_slice($data, $start, $length);
             $result[] = array_sum($subset) / count($subset);
         }
-        
+
         return $result;
     }
 }

@@ -125,14 +125,6 @@ services:
         class: App\Domain\Strava\Athlete\AthleteBirthDate
         factory: [ App\Domain\Strava\Athlete\AthleteBirthDate, 'fromString' ]
         arguments: ['%env(string:ATHLETE_BIRTHDAY)%']
-        
-    App\Domain\Strava\Athlete\Athlete:
-        class: App\Domain\Strava\Athlete\Athlete
-        factory: [ App\Domain\Strava\Athlete\Athlete, 'create' ]
-        arguments:
-            - { birthDate: '%env(string:ATHLETE_BIRTHDAY)%' }
-        calls:
-            - [setMaxHeartRateFormula, ['@App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula']]
 
     App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula:
         class: App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula

@@ -13,9 +13,9 @@ final readonly class PolarizedTrainingDistributionChart
     private const ZONE_5_LABEL = 'Zone 5 (Max)';
 
     /**
-     * @param array<string, array<string, int>> $trainingData Activity dates as keys, with duration in seconds per zone
-     * @param array<string, string> $activityTypes Activity types for optional filtering
-     * @param string $periodType 'weekly', 'monthly', or 'yearly'
+     * @param array<string, array<string, int>> $trainingData  Activity dates as keys, with duration in seconds per zone
+     * @param array<string, string>             $activityTypes Activity types for optional filtering
+     * @param string                            $periodType    'weekly', 'monthly', or 'yearly'
      */
     private function __construct(
         private array $trainingData,
@@ -25,14 +25,14 @@ final readonly class PolarizedTrainingDistributionChart
     }
 
     /**
-     * @param array<string, array<string, int>> $trainingData Activity dates as keys, with duration in seconds per zone
-     * @param array<string, string> $activityTypes Activity types for optional filtering
-     * @param string $periodType 'weekly', 'monthly', or 'yearly'
+     * @param array<string, array<string, int>> $trainingData  Activity dates as keys, with duration in seconds per zone
+     * @param array<string, string>             $activityTypes Activity types for optional filtering
+     * @param string                            $periodType    'weekly', 'monthly', or 'yearly'
      */
     public static function fromTrainingZoneData(
         array $trainingData,
         array $activityTypes = [],
-        string $periodType = 'weekly'
+        string $periodType = 'weekly',
     ): self {
         return new self(
             trainingData: $trainingData,
@@ -60,7 +60,7 @@ final readonly class PolarizedTrainingDistributionChart
 
         foreach ($dates as $date) {
             $periodKey = $this->getPeriodKey($date);
-            
+
             if (!isset($periodData[$periodKey])) {
                 $periodData[$periodKey] = [
                     self::ZONE_1_LABEL => 0,
@@ -71,12 +71,12 @@ final readonly class PolarizedTrainingDistributionChart
                 ];
                 $periodLabels[] = $periodKey;
             }
-            
+
             // Only include activities of specified types if provided
             if (!empty($this->activityTypes) && !isset($this->activityTypes[$date])) {
                 continue;
             }
-            
+
             // Add time in each zone
             foreach ($this->trainingData[$date] as $zone => $seconds) {
                 $zoneName = $this->getZoneName($zone);
@@ -94,13 +94,13 @@ final readonly class PolarizedTrainingDistributionChart
         // Prepare series data
         $series = [];
         $zoneNames = [self::ZONE_1_LABEL, self::ZONE_2_LABEL, self::ZONE_3_LABEL, self::ZONE_4_LABEL, self::ZONE_5_LABEL];
-        
+
         foreach ($zoneNames as $zone) {
             $data = [];
             foreach ($periodLabels as $period) {
                 $data[] = $periodData[$period][$zone];
             }
-            
+
             $series[] = [
                 'name' => $zone,
                 'type' => 'bar',
@@ -122,19 +122,19 @@ final readonly class PolarizedTrainingDistributionChart
             $zone3 = $periodData[$period][self::ZONE_3_LABEL];
             $zone4 = $periodData[$period][self::ZONE_4_LABEL];
             $zone5 = $periodData[$period][self::ZONE_5_LABEL];
-            
+
             $totalTime = $zone1 + $zone2 + $zone3 + $zone4 + $zone5;
             $totalTimeInZones[] = $totalTime;
-            
+
             // Calculate 80/20 ratio (Low:High intensity)
             $lowIntensity = $zone1 + $zone2;
             $highIntensity = $zone4 + $zone5;
-            
+
             // Avoid division by zero
             if ($totalTime > 0) {
                 $lowPercentage = ($lowIntensity / $totalTime) * 100;
                 $highPercentage = ($highIntensity / $totalTime) * 100;
-                $polarizationRatios[] = round($lowPercentage, 1) . '/' . round($highPercentage, 1);
+                $polarizationRatios[] = round($lowPercentage, 1).'/'.round($highPercentage, 1);
             } else {
                 $polarizationRatios[] = 'N/A';
             }
@@ -143,24 +143,24 @@ final readonly class PolarizedTrainingDistributionChart
         // Check if the training is properly polarized (80/20 rule)
         $isPolarized = [];
         foreach ($periodLabels as $index => $period) {
-            if (!isset($totalTimeInZones[$index]) || $totalTimeInZones[$index] == 0) {
+            if (!isset($totalTimeInZones[$index]) || 0 == $totalTimeInZones[$index]) {
                 $isPolarized[] = false;
                 continue;
             }
-            
+
             $zone1 = $periodData[$period][self::ZONE_1_LABEL];
             $zone2 = $periodData[$period][self::ZONE_2_LABEL];
             $zone4 = $periodData[$period][self::ZONE_4_LABEL];
             $zone5 = $periodData[$period][self::ZONE_5_LABEL];
-            
+
             $lowIntensity = $zone1 + $zone2;
             $highIntensity = $zone4 + $zone5;
             $lowPercentage = ($lowIntensity / $totalTimeInZones[$index]) * 100;
             $highPercentage = ($highIntensity / $totalTimeInZones[$index]) * 100;
-            
+
             // Is it roughly 80/20?
-            $isPolarized[] = ($lowPercentage >= 75 && $lowPercentage <= 85 && 
-                              $highPercentage >= 15 && $highPercentage <= 25);
+            $isPolarized[] = ($lowPercentage >= 75 && $lowPercentage <= 85
+                              && $highPercentage >= 15 && $highPercentage <= 25);
         }
 
         return [
@@ -175,17 +175,17 @@ final readonly class PolarizedTrainingDistributionChart
                     'type' => 'shadow',
                 ],
                 'formatter' => function ($params) use ($polarizationRatios) {
-                    $result = $params[0]['axisValue'] . '<br/>';
+                    $result = $params[0]['axisValue'].'<br/>';
                     $total = 0;
-                    
+
                     foreach ($params as $param) {
-                        $result .= $param['marker'] . ' ' . $param['seriesName'] . ': ' . $param['value'] . ' hours<br/>';
+                        $result .= $param['marker'].' '.$param['seriesName'].': '.$param['value'].' hours<br/>';
                         $total += $param['value'];
                     }
-                    
-                    $result .= '<b>Total: ' . round($total, 1) . ' hours</b><br/>';
-                    $result .= 'Low/High Ratio: ' . $polarizationRatios[$params[0]['dataIndex']];
-                    
+
+                    $result .= '<b>Total: '.round($total, 1).' hours</b><br/>';
+                    $result .= 'Low/High Ratio: '.$polarizationRatios[$params[0]['dataIndex']];
+
                     return $result;
                 },
             ],
@@ -218,12 +218,12 @@ final readonly class PolarizedTrainingDistributionChart
                 if (!$isPolarized) {
                     return null;
                 }
-                
+
                 $xCoord = $index / (count($periodLabels) - 1) * 100;
-                
+
                 return [
                     'type' => 'text',
-                    'left' => $xCoord . '%',
+                    'left' => $xCoord.'%',
                     'top' => '10%',
                     'style' => [
                         'text' => '✓',
@@ -239,17 +239,18 @@ final readonly class PolarizedTrainingDistributionChart
     }
 
     /**
-     * Get period key based on date and period type
+     * Get period key based on date and period type.
      */
     private function getPeriodKey(string $date): string
     {
         $dateTime = new \DateTime($date);
-        
-        if ($this->periodType === 'weekly') {
+
+        if ('weekly' === $this->periodType) {
             $weekNumber = $dateTime->format('W');
             $year = $dateTime->format('Y');
+
             return "W{$weekNumber}, {$year}";
-        } elseif ($this->periodType === 'monthly') {
+        } elseif ('monthly' === $this->periodType) {
             return $dateTime->format('M Y');
         } else { // yearly
             return $dateTime->format('Y');
@@ -257,7 +258,7 @@ final readonly class PolarizedTrainingDistributionChart
     }
 
     /**
-     * Convert zone identifier to human-readable name
+     * Convert zone identifier to human-readable name.
      */
     private function getZoneName(string $zone): string
     {
@@ -279,7 +280,7 @@ final readonly class PolarizedTrainingDistributionChart
             '4' => self::ZONE_4_LABEL,
             '5' => self::ZONE_5_LABEL,
         ];
-        
+
         return $zoneMap[$zone] ?? self::ZONE_1_LABEL;
     }
 }

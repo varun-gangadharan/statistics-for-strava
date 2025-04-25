@@ -98,7 +98,7 @@ final class BuildAppConsoleCommand extends Command
         $output->writeln('  => Building photos.html');
         $this->commandBus->dispatch(new BuildPhotosHtml());
         $output->writeln('  => Building training-metrics.html');
-        $this->commandBus->dispatch(new BuildTrainingMetricsHtml(\App\Infrastructure\ValueObject\Time\SerializableDateTime::fromDateTimeImmutable($now)));
+        $this->commandBus->dispatch(new BuildTrainingMetricsHtml($now));
         $output->writeln('  => Building badge.svg');
         $this->commandBus->dispatch(new BuildBadgeSvg($now));
 

@@ -9,7 +9,7 @@ use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 final readonly class HrvChart
 {
     /**
-     * @param array<string, float> $hrvData Date strings as keys, HRV values as values
+     * @param array<string, float> $hrvData         Date strings as keys, HRV values as values
      * @param array<string, float> $readinessScores Optional readiness scores
      */
     private function __construct(
@@ -19,7 +19,7 @@ final readonly class HrvChart
     }
 
     /**
-     * @param array<string, float> $hrvData Date strings as keys, HRV values as values
+     * @param array<string, float> $hrvData         Date strings as keys, HRV values as values
      * @param array<string, float> $readinessScores Optional readiness scores
      */
     public static function fromHrvData(array $hrvData, array $readinessScores = []): self
@@ -58,22 +58,22 @@ final readonly class HrvChart
             // Format date for display
             $dateObj = SerializableDateTime::fromString($date);
             $formattedDates[] = $dateObj->format('M d');
-            
+
             // Get HRV value
             $hrvValues[] = $this->hrvData[$date];
-            
+
             // Calculate rolling average for baseline
             $rollingWindow[] = $this->hrvData[$date];
             if (count($rollingWindow) > $windowSize) {
                 array_shift($rollingWindow);
             }
-            
+
             if (count($rollingWindow) === $windowSize) {
                 $hrvBaseline[] = array_sum($rollingWindow) / $windowSize;
             } else {
                 $hrvBaseline[] = null;
             }
-            
+
             // Get readiness score if available
             if (isset($this->readinessScores[$date])) {
                 $readinessValues[] = $this->readinessScores[$date];
@@ -84,7 +84,7 @@ final readonly class HrvChart
 
         // Calculate HRV trend (deviation from baseline)
         foreach ($hrvValues as $index => $value) {
-            if ($index >= $windowSize - 1 && $hrvBaseline[$index] !== null) {
+            if ($index >= $windowSize - 1 && null !== $hrvBaseline[$index]) {
                 $deviation = $value - $hrvBaseline[$index];
                 $hrvTrend[] = $deviation;
             } else {
@@ -214,12 +214,12 @@ final readonly class HrvChart
             'dataZoom' => [
                 [
                     'type' => 'inside',
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
                 [
                     'type' => 'slider',
-                    'start' => max(0, 100 - (min(90, 500 / count($dates) * 100))),
+                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
                     'end' => 100,
                 ],
             ],

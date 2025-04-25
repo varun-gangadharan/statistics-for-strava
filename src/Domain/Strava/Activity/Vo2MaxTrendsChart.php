@@ -37,14 +37,15 @@ final readonly class Vo2MaxTrendsChart
 
         $dates = array_keys($this->vo2MaxValues);
         $vo2MaxValues = array_values($this->vo2MaxValues);
-        
+
         // Calculate min/max for y-axis with some padding
         $minVo2Max = floor(min($vo2MaxValues) - 2);
         $maxVo2Max = ceil(max($vo2MaxValues) + 2);
-        
+
         // Format dates for display
         $formattedDates = array_map(function (string $dateString) {
             $date = SerializableDateTime::fromString($dateString);
+
             return $date->format('M d');
         }, $dates);
 
@@ -52,12 +53,12 @@ final readonly class Vo2MaxTrendsChart
         $movingAverageData = [];
         if (count($vo2MaxValues) >= 7) {
             $window = 7; // 7-day moving average
-            for ($i = 0; $i < count($vo2MaxValues); $i++) {
+            for ($i = 0; $i < count($vo2MaxValues); ++$i) {
                 if ($i < $window - 1) {
                     $movingAverageData[] = null; // Not enough data for full window
                 } else {
                     $sum = 0;
-                    for ($j = 0; $j < $window; $j++) {
+                    for ($j = 0; $j < $window; ++$j) {
                         $sum += $vo2MaxValues[$i - $j];
                     }
                     $movingAverageData[] = $sum / $window;
@@ -77,12 +78,12 @@ final readonly class Vo2MaxTrendsChart
                 'axisPointer' => [
                     'type' => 'cross',
                     'label' => [
-                        'backgroundColor' => '#6a7985'
-                    ]
-                ]
+                        'backgroundColor' => '#6a7985',
+                    ],
+                ],
             ],
             'legend' => [
-                'data' => ['VO2 Max', count($movingAverageData) > 0 ? '7-day Average' : '']
+                'data' => ['VO2 Max', count($movingAverageData) > 0 ? '7-day Average' : ''],
             ],
             'xAxis' => [
                 'type' => 'category',
@@ -103,7 +104,7 @@ final readonly class Vo2MaxTrendsChart
                     'type' => 'line',
                     'data' => $vo2MaxValues,
                     'itemStyle' => [
-                        'color' => '#FC4C02' // Strava orange
+                        'color' => '#FC4C02', // Strava orange
                     ],
                     'areaStyle' => [
                         'color' => [
@@ -115,14 +116,14 @@ final readonly class Vo2MaxTrendsChart
                             'colorStops' => [
                                 [
                                     'offset' => 0,
-                                    'color' => 'rgba(252, 76, 2, 0.4)' // Strava orange with opacity
+                                    'color' => 'rgba(252, 76, 2, 0.4)', // Strava orange with opacity
                                 ],
                                 [
                                     'offset' => 1,
-                                    'color' => 'rgba(252, 76, 2, 0.1)'
-                                ]
-                            ]
-                        ]
+                                    'color' => 'rgba(252, 76, 2, 0.1)',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 count($movingAverageData) > 0 ? [
@@ -132,7 +133,7 @@ final readonly class Vo2MaxTrendsChart
                     'smooth' => true,
                     'lineStyle' => [
                         'width' => 2,
-                        'color' => '#2684FF' // Blue color for moving average
+                        'color' => '#2684FF', // Blue color for moving average
                     ],
                     'symbol' => 'none',
                 ] : [],
@@ -141,9 +142,9 @@ final readonly class Vo2MaxTrendsChart
                 [
                     'type' => 'inside',
                     'start' => 0,
-                    'end' => 100
-                ]
-            ]
+                    'end' => 100,
+                ],
+            ],
         ];
     }
 }
