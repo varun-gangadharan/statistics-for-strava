@@ -1,6 +1,10 @@
 '2 days of activity for 4 weeks': '2 days of activity for 4 weeks'
+'Active days': 'Active days'
 Activities: Activities
+'Activity count': 'Activity count'
 'Activity intensity': 'Activity intensity'
+'Activity locations': 'Activity locations'
+'Activity start times': 'Activity start times'
 'Adaptive & Inclusive Sports': 'Adaptive & Inclusive Sports'
 Advanced: Advanced
 Afternoon: Afternoon
@@ -31,6 +35,7 @@ Commutes: Commutes
 'Complete a half marathon run.': 'Complete a half marathon run.'
 Components: Components
 Crossfit: Crossfit
+'Daily activities': 'Daily activities'
 Dashboard: Dashboard
 'Days needed': 'Days needed'
 'Daytime stats': 'Daytime stats'
@@ -51,6 +56,7 @@ Distribution: Distribution
 Eddington: Eddington
 Elev: Elev
 Elevation: Elevation
+'Elevation in {unit}': 'Elevation in {unit}'
 Elliptical: Elliptical
 Evening: Evening
 'Excludes commutes': 'Excludes commutes'
@@ -104,7 +110,10 @@ Kayaking: Kayaking
 'Latest start time': 'Latest start time'
 'Loading data...': 'Loading data...'
 Loading...: Loading...
+'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
+'Longest streaks': 'Longest streaks'
 'Longest workout': 'Longest workout'
 Low: Low
 Maintenance: Maintenance
@@ -128,12 +137,17 @@ Night: Night
 'No activities': 'No activities'
 'Nordic Ski': 'Nordic Ski'
 Nov: Nov
+'Number of activities per month': 'Number of activities per month'
 Oct: Oct
 'One of your gear maitenance tasks is due': 'One of your gear maitenance tasks is due'
 Other: Other
 'Outdoor Sports': 'Outdoor Sports'
+PRs: PRs
+'PRs achieved per month': 'PRs achieved per month'
 Pace: Pace
 'Peak power outputs': 'Peak power outputs'
+'Personal Records': 'Personal Records'
+Photo: Photo
 Photos: Photos
 'Pickle Ball': 'Pickle Ball'
 Pilates: Pilates
@@ -146,6 +160,9 @@ Race: Race
 'Racing Score': 'Racing Score'
 'Racquet & Paddle Sports': 'Racquet & Paddle Sports'
 'Racquet Ball': 'Racquet Ball'
+'Rest days': 'Rest days'
+'Rest days vs. active days': 'Rest days vs. active days'
+Rewind: Rewind
 'Ride a total of 1250km': 'Ride a total of 1250km'
 'Ride a total of 200km': 'Ride a total of 200km'
 'Ride a total of 600km': 'Ride a total of 600km'
@@ -171,15 +188,18 @@ Skating: Skating
 Snowboard: Snowboard
 Snowshoe: Snowshoe
 Soccer: Soccer
+Socials: Socials
 Source: Source
 Speed: Speed
 Squash: Squash
 'Stair Stepper': 'Stair Stepper'
 'Stand Up Paddling': 'Stand Up Paddling'
 'Start slideshow': 'Start slideshow'
+'Start times': 'Start times'
 'Statistics for Strava': 'Statistics for Strava'
 Stats: Stats
 'Stats per weekday': 'Stats per weekday'
+Streaks: Streaks
 Sun: Sun
 Sunday: Sunday
 Surfing: Surfing
@@ -197,6 +217,7 @@ Tennis: Tennis
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.'
 Thu: Thu
 Thursday: Thursday
+Time: Time
 'Time / week': 'Time / week'
 'Times completed': 'Times completed'
 To: To
@@ -204,7 +225,13 @@ To: To
 'Toggle sidebar': 'Toggle sidebar'
 'Top 10': 'Top 10'
 'Total carbon saved': 'Total carbon saved'
+'Total distance per month': 'Total distance per month'
+'Total elevation per month': 'Total elevation per month'
+'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
+'Total hours spent per sport type': 'Total hours spent per sport type'
 'Total kudos': 'Total kudos'
+'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': 'Trail Runs'
 Trivia: Trivia
 Tue: Tue
@@ -237,6 +264,7 @@ Yoga: Yoga
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍"
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to'
 'Your Strava badge': 'Your Strava badge'
+'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': 'Your Zwift badge'
 'Your badge(s)': 'Your badge(s)'
 'Zone 1 (recovery)': 'Zone 1 (recovery)'
@@ -245,17 +273,26 @@ Yoga: Yoga
 'Zone 4 (anaerobic)': 'Zone 4 (anaerobic)'
 'Zone 5 (maximal)': 'Zone 5 (maximal)'
 'Zwift Statistics': 'Zwift Statistics'
+activities: activities
 age: age
 and: and
 bpm: bpm
 clear: clear
+comments: comments
+days: days
+hours: hours
+hrs: hrs
 intensity: intensity
 intensityFactor: intensityFactor
+kudos: kudos
 'max gradient': 'max gradient'
 maxHeartRate: maxHeartRate
+months: months
+more: more
 'more info': 'more info'
 n/a: n/a
 never: never
+weeks: weeks
 workouts: workouts
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '{amountOfAluminiumCans} aluminium cans for soft drinks produced'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '{amountOfCapsForPetBottles} caps for PET bottles produced'
@@ -267,6 +304,7 @@ workouts: workouts
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults} results based on your active filters'
 '{numberOfResults} routes based on your active filters': '{numberOfResults} routes based on your active filters'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared'

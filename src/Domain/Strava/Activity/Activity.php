@@ -328,7 +328,10 @@ final class Activity
      */
     public function getLocalImagePaths(): array
     {
-        return $this->localImagePaths;
+        return array_map(
+            fn (string $path) => str_starts_with($path, '/') ? $path : '/'.$path,
+            $this->localImagePaths
+        );
     }
 
     /**
@@ -472,6 +475,11 @@ final class Activity
     public function getMovingTimeInSeconds(): int
     {
         return $this->movingTimeInSeconds;
+    }
+
+    public function getMovingTimeInHours(): float
+    {
+        return round($this->movingTimeInSeconds / 3600, 1);
     }
 
     public function updateMovingTimeInSeconds(int $movingTimeInSeconds): self

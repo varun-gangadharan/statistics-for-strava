@@ -34,7 +34,7 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         assert($command instanceof BuildGearMaintenanceHtml);
         if (!$this->gearMaintenanceConfig->isFeatureEnabled()) {
             $this->buildStorage->write(
-                'gear-maintenance.html',
+                'gear/maintenance.html',
                 $this->twig->load('html/gear/gear-maintenance-disabled.html.twig')->render()
             );
 
@@ -114,7 +114,7 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         }
 
         $this->buildStorage->write(
-            'gear-maintenance.html',
+            'gear/maintenance.html',
             $this->twig->load('html/gear/gear-maintenance.html.twig')->render([
                 'errors' => $errors,
                 'warnings' => $warnings,

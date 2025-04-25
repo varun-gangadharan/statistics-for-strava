@@ -1,6 +1,10 @@
 '2 days of activity for 4 weeks': 4周内2天的活动
+'Active days': 'Active days'
 Activities: 活动
+'Activity count': 'Activity count'
 'Activity intensity': 活动强度
+'Activity locations': 'Activity locations'
+'Activity start times': 'Activity start times'
 'Adaptive & Inclusive Sports': 适应性和包容性运动
 Advanced: 高级
 Afternoon: 下午
@@ -31,6 +35,7 @@ Commutes: 通勤
 'Complete a half marathon run.': 完成半马。
 Components: Components
 Crossfit: 交叉健身
+'Daily activities': 'Daily activities'
 Dashboard: 仪表板
 'Days needed': 所需天数
 'Daytime stats': 白天统计
@@ -51,6 +56,7 @@ Distribution: 分布
 Eddington: 愛丁頓數
 Elev: 海拔
 Elevation: 海拔高度
+'Elevation in {unit}': 'Elevation in {unit}'
 Elliptical: 椭圆机
 Evening: 晚上
 'Excludes commutes': 筛除通勤
@@ -104,7 +110,10 @@ Kayaking: 皮划艇
 'Latest start time': 最晚开始时间
 'Loading data...': 加载数据中...
 Loading...: 加载中...
+'Locations over the globe': 'Locations over the globe'
 'Long run': 'Long run'
+'Longest activity (h)': 'Longest activity (h)'
+'Longest streaks': 'Longest streaks'
 'Longest workout': 最长锻炼
 Low: 低
 Maintenance: Maintenance
@@ -128,12 +137,17 @@ Night: 夜晚
 'No activities': 没有活动
 'Nordic Ski': 北欧滑雪
 Nov: 十一月
+'Number of activities per month': 'Number of activities per month'
 Oct: 十月
 'One of your gear maitenance tasks is due': 'One of your gear maitenance tasks is due'
 Other: 其他
 'Outdoor Sports': 户外运动
+PRs: PRs
+'PRs achieved per month': 'PRs achieved per month'
 Pace: 步速
 'Peak power outputs': 峰值功率输出
+'Personal Records': 'Personal Records'
+Photo: Photo
 Photos: 照片
 'Pickle Ball': 匹克球
 Pilates: 普拉提
@@ -146,6 +160,9 @@ Race: 比赛
 'Racing Score': 赛车成绩
 'Racquet & Paddle Sports': 球拍和桨类运动
 'Racquet Ball': 壁球
+'Rest days': 'Rest days'
+'Rest days vs. active days': 'Rest days vs. active days'
+Rewind: Rewind
 'Ride a total of 1250km': 骑行总计1250公里
 'Ride a total of 200km': 骑行总计200公里
 'Ride a total of 600km': 骑行总计600公里
@@ -171,15 +188,18 @@ Skating: 滑冰
 Snowboard: 单板滑雪
 Snowshoe: 雪鞋
 Soccer: 足球
+Socials: Socials
 Source: 来源
 Speed: 速度
 Squash: 壁球
 'Stair Stepper': 楼梯机
 'Stand Up Paddling': 站立划桨
 'Start slideshow': 播放幻灯片
+'Start times': 'Start times'
 'Statistics for Strava': 'Statistics for Strava'
 Stats: Stats
 'Stats per weekday': 按工作日统计
+Streaks: Streaks
 Sun: 周日
 Sunday: 星期日
 Surfing: 冲浪
@@ -197,6 +217,7 @@ Tennis: 网球
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 这张地图显示了过去一年的每日训练强度。活动的训练强度是基于多个指标计算的。
 Thu: 周四
 Thursday: 星期四
+Time: Time
 'Time / week': 每周时间
 'Times completed': 完成次数
 To: 到
@@ -204,7 +225,13 @@ To: 到
 'Toggle sidebar': 切换侧边栏
 'Top 10': 前10名
 'Total carbon saved': 总节约碳排放
+'Total distance per month': 'Total distance per month'
+'Total elevation per month': 'Total elevation per month'
+'Total hours': 'Total hours'
+'Total hours spent per gear': 'Total hours spent per gear'
+'Total hours spent per sport type': 'Total hours spent per sport type'
 'Total kudos': 总点赞
+'Total kudos and comments received': 'Total kudos and comments received'
 'Trail Runs': 越野跑
 Trivia: 琐事
 Tue: 周二
@@ -237,6 +264,7 @@ Yoga: 瑜伽
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": '您记录了{numberOfCountriesWithWorkouts}个不同国家/地区的锻炼情况，占所有国家/地区的百分之 {percentage} 🌍'
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': '你的通勤减少了{amountOfCarbonSaved}的碳排放 🥳。这相当于'
 'Your Strava badge': Strava徽章
+'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': Zwift徽章
 'Your badge(s)': 徽章
 'Zone 1 (recovery)': 区域1（恢复）
@@ -245,17 +273,26 @@ Yoga: 瑜伽
 'Zone 4 (anaerobic)': 区域4（无氧）
 'Zone 5 (maximal)': 区域5（最大）
 'Zwift Statistics': Zwift统计
+activities: activities
 age: 年龄
 and: 和
 bpm: 拍子数
 clear: 清除
+comments: comments
+days: days
+hours: hours
+hrs: hrs
 intensity: 强度
 intensityFactor: 强度因子
+kudos: kudos
 'max gradient': 最大坡度
 maxHeartRate: 最大心率
+months: months
+more: more
 'more info': 更多信息
 n/a: 不适用
 never: never
+weeks: weeks
 workouts: 锻炼
 '{amountOfAluminiumCans} aluminium cans for soft drinks produced': '生产了{amountOfAluminiumCans}个软饮料铝罐'
 '{amountOfCapsForPetBottles} caps for PET bottles produced': '生产了{amountOfCapsForPetBottles}个PET瓶盖'
@@ -267,6 +304,7 @@ workouts: 锻炼
 '{daysSinceLastTagged} days': '{daysSinceLastTagged} days'
 '{hoursSinceLastTagged} hours': '{hoursSinceLastTagged} hours'
 '{maintenanceTaskLabel} every {interval}': '{maintenanceTaskLabel} every {interval}'
+'{numberOfActivities} activities in {year}': '{numberOfActivities} activities in {year}'
 '{numberOfResults} results based on your active filters': '{numberOfResults}个结果符合筛选条件'
 '{numberOfResults} routes based on your active filters': '{numberOfResults}条路线符合筛选条件'
 '{portionsOfSpaghettiMade} portions of spaghetti with tomato sauce prepared': '{portionsOfSpaghettiMade}份意大利面条'
