@@ -38,7 +38,7 @@
 > [!NOTE]
 > This app is in no way affiliated with or part of the official Strava software suite.
 
-https://github.com/user-attachments/assets/9aaaafd9-bc8f-4e1d-bb9d-45d3c661a080
+https://github.com/user-attachments/assets/b7d447b1-0212-49c8-ac67-62d737c66922
 
 ### Key Features
 
