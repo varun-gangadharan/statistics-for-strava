@@ -25,6 +25,7 @@ use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
 use App\Domain\Strava\Activity\TrainingLoadChart;
+use App\Domain\Strava\Activity\TrainingMetricsCalculator;
 use App\Domain\Strava\Activity\Vo2MaxTrendsChart;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
@@ -71,6 +72,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private TranslatorInterface $translator,
     ) {
     }
+    
 
     public function handle(Command $command): void
     {
@@ -196,98 +198,59 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             }
             $allActivitiesByDate[$date][] = $activity;
 
-            // Calculate TRIMP (Training Impulse) based on duration and heart rate
-            if ($activity->getAverageHeartRate() && $activity->getMovingTimeInSeconds() > 0) {
-                // Use the actual athlete age and configured Max Heart Rate formula
-                $maxHr = $athlete->getMaxHeartRate($activity->getStartDate());
+            if (!isset($dailyLoadData[$date])) {
+                $dailyLoadData[$date] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
+            }
 
-                $intensity = $activity->getAverageHeartRate() / $maxHr;
-                $trimp = ($activity->getMovingTimeInSeconds() / 60) * $intensity * 1.92 * exp(1.67 * $intensity);
-
-                if (!isset($dailyLoadData[$date])) {
-                    $dailyLoadData[$date] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
-                }
-
+            // Calculate training load using the shared calculator
+            if ($activity->getMovingTimeInSeconds() > 0) {
+                $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
+                
                 $dailyLoadData[$date]['trimp'] += $trimp;
                 $dailyLoadData[$date]['duration'] += $activity->getMovingTimeInSeconds();
-                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() * $intensity;
+                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() * 
+                    ($trimp / ($activity->getMovingTimeInSeconds() / 60));
             }
         }
-
-        // Calculate additional metrics
-        $today = $now->format('Y-m-d');
-        $dates = array_keys($dailyLoadData);
-        sort($dates);
 
         // Fill in days with no activities
-        $lastDate = end($dates);
-        $currentDate = reset($dates);
-        while ($currentDate <= $lastDate) {
-            if (!isset($dailyLoadData[$currentDate])) {
-                $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
-            }
-            $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
-        }
-
-        // Calculate current metrics
-        $currentCtl = 0;
-        $currentAtl = 0;
-        $weeklyTrimp = 0;
-        $restDaysLastWeek = 0;
-        $monotony = 0;
-        $strain = 0;
-
-        if (!empty($dailyLoadData)) {
-            // Calculate CTL and ATL
-            $ctlDays = 42; // ~6 weeks for Chronic Training Load
-            $atlDays = 7;  // 7 days for Acute Training Load
-
-            $dates = array_keys($dailyLoadData);
+        $dates = array_keys($dailyLoadData);
+        if (!empty($dates)) {
             sort($dates);
-            $lastIndex = count($dates) - 1;
-
-            if ($lastIndex >= 0) {
-                // Calculate CTL (Chronic Training Load) - 42 day exponentially weighted average
-                $ctlStartIndex = max(0, $lastIndex - $ctlDays + 1);
-                $ctlWindow = array_slice(array_values($dailyLoadData), $ctlStartIndex, $ctlDays);
-                $ctlSum = array_sum(array_column($ctlWindow, 'trimp'));
-                $currentCtl = $ctlSum / count($ctlWindow);
-
-                // Calculate ATL (Acute Training Load) - 7 day exponentially weighted average
-                $atlStartIndex = max(0, $lastIndex - $atlDays + 1);
-                $atlWindow = array_slice(array_values($dailyLoadData), $atlStartIndex, $atlDays);
-                $atlSum = array_sum(array_column($atlWindow, 'trimp'));
-                $weeklyTrimp = $atlSum;
-                $currentAtl = $atlSum / count($atlWindow);
-
-                // Calculate rest days in last week
-                $lastWeekDates = array_slice($dates, -7);
-                foreach ($lastWeekDates as $date) {
-                    if (0 == $dailyLoadData[$date]['trimp']) {
-                        ++$restDaysLastWeek;
-                    }
+            $lastDate = end($dates);
+            $currentDate = reset($dates);
+            
+            while ($currentDate <= $lastDate) {
+                if (!isset($dailyLoadData[$currentDate])) {
+                    $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
                 }
-
-                // Calculate monotony (ratio of daily average to standard deviation) - 7 day calculation
-                $lastWeekTrimp = array_column(array_intersect_key($dailyLoadData, array_flip($lastWeekDates)), 'trimp');
-                $avgDailyLoad = array_sum($lastWeekTrimp) / 7;
-
-                if ($avgDailyLoad > 0) {
-                    $variance = 0;
-                    foreach ($lastWeekTrimp as $trimp) {
-                        $variance += pow($trimp - $avgDailyLoad, 2);
-                    }
-                    $stdDev = sqrt($variance / 7);
-                    $monotony = ($stdDev > 0) ? $avgDailyLoad / $stdDev : 0;
-
-                    // Calculate strain (weekly load * monotony) - 7 day calculation
-                    $strain = array_sum($lastWeekTrimp) * $monotony;
-                }
+                $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
             }
         }
 
-        $currentTsb = $currentCtl - $currentAtl; // Training Stress Balance
-        $acRatio = ($currentCtl > 0) ? $currentAtl / $currentCtl : 0; // Acute:Chronic ratio
+        // Calculate metrics using the shared calculator
+        $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
+
+        // Build the training metrics page first
+        $trainingLoadChart = TrainingLoadChart::fromDailyLoadData($dailyLoadData);
+        
+        $this->buildStorage->write(
+            'training-metrics.html',
+            $this->twig->render('html/dashboard/training-metrics.html.twig', [
+                'trainingLoadChart' => Json::encode(
+                    $trainingLoadChart->build(true)
+                ),
+                'currentCtl' => $metrics['currentCtl'],
+                'currentAtl' => $metrics['currentAtl'],
+                'currentTsb' => $metrics['currentTsb'],
+                'acRatio' => $metrics['acRatio'],
+                'restDaysLastWeek' => $metrics['restDaysLastWeek'],
+                'monotony' => $metrics['monotony'],
+                'strain' => $metrics['strain'],
+                'weeklyTrimp' => $metrics['weeklyTrimp'],
+                'polarizedTrainingDistributionChart' => Json::encode(PolarizedTrainingDistributionChart::fromTrainingZoneData([])->build()),
+            ])
+        );
 
         $this->buildStorage->write(
             'dashboard.html',
@@ -341,14 +304,14 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'yearlyDistanceCharts' => $yearlyDistanceCharts,
                 'yearlyStatistics' => $yearlyStatistics,
                 'bestEffortsCharts' => $bestEffortsCharts,
-                // Training load metrics for the dashboard
-                'currentCtl' => round($currentCtl, 1),
-                'currentAtl' => round($currentAtl, 1),
-                'currentTsb' => round($currentTsb, 1),
-                'restDaysLastWeek' => $restDaysLastWeek,
-                'acRatio' => round($acRatio, 2),
-                'monotony' => round($monotony, 2),
-                'strain' => round($strain, 0),
+                // Training load metrics for the dashboard - same values as in the training-metrics.html
+                'currentCtl' => $metrics['currentCtl'],
+                'currentAtl' => $metrics['currentAtl'],
+                'currentTsb' => $metrics['currentTsb'],
+                'restDaysLastWeek' => $metrics['restDaysLastWeek'],
+                'acRatio' => $metrics['acRatio'],
+                'monotony' => $metrics['monotony'],
+                'strain' => $metrics['strain'],
             ]),
         );
 
@@ -407,7 +370,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             'training-metrics.html',
             $this->twig->load('html/dashboard/training-metrics.html.twig')->render([
                 'trainingLoadChart' => Json::encode(
-                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build(true) // Show 4 months history + 1 month projection
+                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build(true)
                 ),
                 'currentCtl' => round($currentCtl, 1),
                 'currentAtl' => round($currentAtl, 1),
@@ -417,11 +380,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'monotony' => round($monotony, 2),
                 'strain' => round($strain, 0),
                 'weeklyTrimp' => round($weeklyTrimp, 0),
-                // Additional training metrics charts
-                'hrvChart' => Json::encode(HrvChart::fromHrvData([], [])->build()),
-                'polarizedTrainingDistributionChart' => Json::encode(PolarizedTrainingDistributionChart::fromTrainingZoneData([])->build()),
-                'relativeEffortChart' => Json::encode(RelativeEffortChart::fromRelativeEffortData([])->build()),
-                'vo2MaxTrendsChart' => Json::encode(Vo2MaxTrendsChart::fromVo2MaxData([])->build()),
             ]),
         );
     }

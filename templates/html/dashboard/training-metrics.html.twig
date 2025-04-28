@@ -17,11 +17,10 @@
     <div class="p-4 md:p-5 space-y-4">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold">
-                {{ "Training Load Analysis (4 months history + 1 month projection)"|trans }}
+                {{ "Training Load Analysis (6 week history)"|trans }}
             </h3>
         </div>
-        <div>render fancy chart YEAH</div>
-        {# <div class="h-80" data-echarts-options='{{ trainingLoadChart }}'></div> #}
+        <div class="h-80" data-echarts-options='{{ trainingLoadChart }}'></div>
 
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- CTL Card -->
@@ -179,7 +178,7 @@
                     </button>
                     <div data-popover id="popover-trimp" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
                         <div class="p-3 space-y-2">
-                            <p>{{ "Training Impulse - Heart rate-based load metric that accounts for intensity and duration."|trans }}</p>
+                            <p>{{ "Training Impulse - Training load metric that accounts for intensity and duration."|trans }}</p>
                         </div>
                     </div>
                 </div>
@@ -187,58 +186,4 @@
                 <div class="text-sm text-gray-500">{{ "Last 7 days training load"|trans }}</div>
             </div>
         </div>
-
-        {# Additional charts tabs: HRV, Polarized, Relative Effort, VO2 Max #}
-        <div class="mb-4 border-b border-gray-200">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="trainingMetricsTab" data-tabs="#trainingMetricsTabContent" role="tablist">
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#trainingMetricsLoad" role="tab" aria-controls="trainingMetricsLoad" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "Load"|trans }}
-                    </a>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#trainingMetricsHrv" role="tab" aria-controls="trainingMetricsHrv" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "HRV"|trans }}
-                    </a>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#trainingMetricsPolarized" role="tab" aria-controls="trainingMetricsPolarized" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "Polarized Distribution"|trans }}
-                    </a>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#trainingMetricsEffort" role="tab" aria-controls="trainingMetricsEffort" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "Relative Effort"|trans }}
-                    </a>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#trainingMetricsVo2Max" role="tab" aria-controls="trainingMetricsVo2Max" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "VO₂ Max Trends"|trans }}
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div id="trainingMetricsTabContent">
-            <div id="trainingMetricsLoad" role="tabpanel" aria-labelledby="trainingMetricsLoad-tab">
-                <div class="h-80">render fancy chart YEAH</div>
-                {# <div class="h-80" data-echarts-options='{{ trainingLoadChart }}'></div> #}
-            </div>
-            <div id="trainingMetricsHrv" role="tabpanel" aria-labelledby="trainingMetricsHrv-tab">
-                <div class="h-80">render fancy chart YEAH</div>
-                {# <div class="h-80" data-echarts-options='{{ hrvChart }}'></div> #}
-            </div>
-            <div id="trainingMetricsPolarized" role="tabpanel" aria-labelledby="trainingMetricsPolarized-tab">
-                <div class="h-80">render fancy chart YEAH</div>
-                {# <div class="h-80" data-echarts-options='{{ polarizedTrainingDistributionChart }}'></div> #}
-            </div>
-            <div id="trainingMetricsEffort" role="tabpanel" aria-labelledby="trainingMetricsEffort-tab">
-                <div class="h-80">render fancy chart YEAH</div>
-                {# <div class="h-80" data-echarts-options='{{ relativeEffortChart }}'></div> #}
-            </div>
-            <div id="trainingMetricsVo2Max" role="tabpanel" aria-labelledby="trainingMetricsVo2Max-tab">
-                <div class="h-80">render fancy chart YEAH</div>
-                {# <div class="h-80" data-echarts-options='{{ vo2MaxTrendsChart }}'></div> #}
-            </div>
-        </div>
-    </div>
 {% endautoescape %}

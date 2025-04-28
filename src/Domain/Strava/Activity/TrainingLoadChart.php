@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+// Removed DateInterval, DatePeriod, DateTimeImmutable as they were only used for date manipulation handled by SerializableDateTime now.
 
 final readonly class TrainingLoadChart
 {
+    private const DEFAULT_DISPLAY_DAYS = 42;
+
     /**
-     * @param array<string, array{trimp: float, duration: int, intensity: float}> $dailyLoadData
+     * @param array<string, array{trimp: float, duration: int, intensity: float}> $dailyLoadData Date ('Y-m-d') => Load Data
      */
     private function __construct(
         private array $dailyLoadData,
@@ -26,6 +29,8 @@ final readonly class TrainingLoadChart
         int $ctlDays = 42,
         int $atlDays = 7,
     ): self {
+        // Ensure data is sorted chronologically for calculations later
+        ksort($dailyLoadData);
         return new self(
             dailyLoadData: $dailyLoadData,
             ctlDays: $ctlDays,
@@ -34,316 +39,383 @@ final readonly class TrainingLoadChart
     }
 
     /**
-     * @return array<mixed>
+     * Calculates dynamic axis range with percentage-based buffers.
+     *
+     * @param float[] $values Data values
+     * @param float $bufferPercentage Percentage buffer (e.g., 0.1 for 10%)
+     * @param float|null $forceMin Optional minimum value for the axis
+     * @param float|null $forceMax Optional maximum value for the axis
+     * @param float $minAbsValue Absolute minimum allowed value (e.g., 0 for load)
+     * @param float $step Rounding step (e.g., 5 or 10)
+     * @return array{min: float, max: float}
      */
-    public function build(bool $showFutureProjection = false): array
+    private function calculateAxisRange(
+        array $values,
+        float $bufferPercentage,
+        ?float $forceMin = null,
+        ?float $forceMax = null,
+        float $minAbsValue = -INF, // Allow negative for TSB
+        float $step = 10.0
+    ): array {
+        if (empty($values)) {
+            return ['min' => $forceMin ?? $minAbsValue, 'max' => $forceMax ?? $minAbsValue + $step * 5]; // Default range if no data
+        }
+
+        $dataMin = min($values);
+        $dataMax = max($values);
+
+        // Handle case where all values are the same
+        if ($dataMin == $dataMax) {
+             $spread = abs($dataMax * $bufferPercentage * 2); // Create a small spread based on the value
+             if ($spread < $step / 2) { // Ensure minimum spread if value is small or zero
+                 $spread = $step;
+             }
+             $minCalc = $dataMin - $spread / 2;
+             $maxCalc = $dataMax + $spread / 2;
+        } else {
+            $spread = $dataMax - $dataMin;
+            $buffer = $spread * $bufferPercentage;
+            $minCalc = $dataMin - $buffer;
+            $maxCalc = $dataMax + $buffer;
+        }
+
+        // Apply absolute minimum value constraint (e.g., axes shouldn't go below 0 for load)
+        $minCalc = max($minAbsValue, $minCalc);
+
+        // Apply forced min/max if provided
+        $finalMin = $forceMin !== null ? min($forceMin, $minCalc) : $minCalc;
+        $finalMax = $forceMax !== null ? max($forceMax, $maxCalc) : $maxCalc;
+
+        // Round min down and max up to the nearest step
+        $finalMin = floor($finalMin / $step) * $step;
+        $finalMax = ceil($finalMax / $step) * $step;
+
+        // Ensure min is strictly less than max after rounding
+        if ($finalMin >= $finalMax) {
+           $finalMax = $finalMin + $step;
+        }
+
+        return ['min' => $finalMin, 'max' => $finalMax];
+    }
+
+
+    /**
+     * Builds the ECharts configuration for the last defined period (default 6 weeks).
+     *
+     * @return array<mixed> ECharts configuration array
+     */
+    public function build(): array
     {
-        if (count($this->dailyLoadData) < 7) {
+        if (empty($this->dailyLoadData)) {
+            error_log("TrainingLoadChart: No data points available, returning empty array");
             return [];
         }
 
-        // Sort data by date
-        $dates = array_keys($this->dailyLoadData);
-        sort($dates);
+        $allDates = array_keys($this->dailyLoadData);
+        // ksort in factory ensures keys are sorted
 
-        // If showing 4 months history + 1 month future projection
-        if ($showFutureProjection) {
-            // Get the date range to display (last 4 months)
-            $lastDate = end($dates);
-            $lastDateObj = SerializableDateTime::fromString($lastDate);
-            $fourMonthsAgo = $lastDateObj->modify('-4 months');
-            $fourMonthsAgoStr = $fourMonthsAgo->format('Y-m-d');
+        $lastDateStr = end($allDates);
+        $firstDateStr = reset($allDates);
+        $lastDateObj = SerializableDateTime::fromString($lastDateStr);
 
-            // Filter dates to only show last 4 months
-            $filteredDates = array_filter($dates, function ($date) use ($fourMonthsAgoStr) {
-                return $date >= $fourMonthsAgoStr;
-            });
+        // --- Date Filtering: Default to last 6 weeks (42 days) ---
+        $filterStartDate = $lastDateObj->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days'); // -41 to get 42 days inclusive
+        $filterStartDateStr = $filterStartDate->format('Y-m-d');
 
-            // Add future month projection
-            $oneMonthLater = $lastDateObj->modify('+1 month');
-            $futureDates = [];
-            $currentDate = $lastDateObj;
+        // Filter dates to only include the specified period relative to the last data point
+        $displayDates = array_filter($allDates, function ($date) use ($filterStartDateStr, $lastDateStr) {
+            return $date >= $filterStartDateStr && $date <= $lastDateStr;
+        });
+        sort($displayDates); // Ensure filtered dates are sorted
 
-            while ($currentDate <= $oneMonthLater) {
-                $futureDates[] = $currentDate->format('Y-m-d');
-                $currentDate = $currentDate->modify('+1 day');
-            }
-
-            // Use filtered dates for calculations
-            $dates = array_values($filteredDates);
+        if (empty($displayDates)) {
+             error_log(sprintf(
+                 "TrainingLoadChart: No data points found within the last %d days (since %s). Last data point was %s. Returning empty array.",
+                 self::DEFAULT_DISPLAY_DAYS,
+                 $filterStartDateStr,
+                 $lastDateStr
+             ));
+             return [];
         }
 
-        // Calculate TRIMP values, CTL, ATL and TSB for each date
-        $trimpValues = [];
+         error_log(sprintf(
+             "TrainingLoadChart: Using display dates from %s to %s (%d total) based on %d-day window ending %s",
+             reset($displayDates),
+             end($displayDates),
+             count($displayDates),
+             self::DEFAULT_DISPLAY_DAYS,
+             $lastDateStr
+         ));
+
+        // --- Set the dates to be processed ---
+        $dates = $displayDates; // Use the filtered dates for display
+
+        // --- Calculate TRIMP, CTL, ATL, TSB ---
+        $trimpValues = []; // Daily TRIMP for the chart period
         $ctlValues = [];
         $atlValues = [];
         $tsbValues = [];
-        $monotonyValues = [];
-        $strainValues = [];
-        $formattedDates = [];
+        $formattedDates = []; // For X-axis labels
 
-        foreach ($dates as $date) {
-            $trimpValues[$date] = $this->dailyLoadData[$date]['trimp'];
-        }
+        // We need a buffer of past data (up to ctlDays) to calculate initial CTL/ATL correctly
+        // Get data from display_start_date - ctlDays up to the last display date
+        $calculationStartDate = SerializableDateTime::fromString(reset($dates))->modify('-' . $this->ctlDays . ' days');
+        $calculationStartDateStr = $calculationStartDate->format('Y-m-d');
 
-        // Add projected future values if needed
-        if ($showFutureProjection && isset($futureDates)) {
-            // Calculate average TRIMP from last 4 weeks for projection
-            $lastMonthDates = array_slice($dates, -28); // Last 4 weeks
-            $lastMonthTrimp = 0;
-            $lastMonthDaysWithActivity = 0;
-
-            foreach ($lastMonthDates as $date) {
-                if ($this->dailyLoadData[$date]['trimp'] > 0) {
-                    $lastMonthTrimp += $this->dailyLoadData[$date]['trimp'];
-                    ++$lastMonthDaysWithActivity;
-                }
+        $calculationData = []; // Only historical TRIMP values needed for calculation
+        foreach ($this->dailyLoadData as $date => $load) {
+            // Include data from the buffer start date up to the last date in our display window
+            if ($date >= $calculationStartDateStr && $date <= end($dates)) {
+                 $calculationData[$date] = $load['trimp'] ?? 0;
             }
-
-            $avgDailyTrimp = $lastMonthDaysWithActivity > 0 ? $lastMonthTrimp / $lastMonthDaysWithActivity : 0;
-            $avgRestDays = $lastMonthDaysWithActivity > 0 ? (28 - $lastMonthDaysWithActivity) / 4 : 2; // Weekly rest days
-
-            // Create projected training pattern (workout/rest days)
-            foreach ($futureDates as $i => $date) {
-                // Create a pattern with appropriate rest days
-                $isRestDay = ($i % 7) < $avgRestDays;
-                $trimpValues[$date] = $isRestDay ? 0 : $avgDailyTrimp;
-
-                // Add this date to our array of dates to process
-                $dates[] = $date;
-            }
-
-            // Resort dates to ensure chronological order
-            sort($dates);
         }
+        // Ensure calculation data is sorted (although ksort on input helps)
+        ksort($calculationData);
 
-        // Calculate weekly sums and standard deviations for monotony and strain
-        $weeklyTrimps = [];
-        $weeklyStdDevs = [];
+        // Now iterate through the final dates array (last N days)
+        // and calculate metrics using the buffered $calculationData pool
+        $prevCtl = 0;
+        $prevAtl = 0;
+        $decayCtl = exp(-1 / $this->ctlDays);
+        $decayAtl = exp(-1 / $this->atlDays);
 
-        foreach ($dates as $index => $date) {
-            // Format date for display
-            $dateObj = SerializableDateTime::fromString($date);
-            $formattedDates[] = $dateObj->format('M d');
+        foreach ($dates as $currentDate) {
+            // Use TRIMP from calculationData (includes buffer) or 0 if missing
+            $todayTrimp = $calculationData[$currentDate] ?? 0;
 
-            // Calculate CTL (Chronic Training Load)
-            $ctlStartIndex = max(0, $index - $this->ctlDays + 1);
-            $ctlWindow = array_slice($trimpValues, $ctlStartIndex, min($index + 1 - $ctlStartIndex, $this->ctlDays));
-            $ctl = !empty($ctlWindow) ? array_sum($ctlWindow) / count($ctlWindow) : 0;
-            $ctlValues[] = round($ctl, 1);
-
-            // Calculate ATL (Acute Training Load)
-            $atlStartIndex = max(0, $index - $this->atlDays + 1);
-            $atlWindow = array_slice($trimpValues, $atlStartIndex, min($index + 1 - $atlStartIndex, $this->atlDays));
-            $atl = !empty($atlWindow) ? array_sum($atlWindow) / count($atlWindow) : 0;
-            $atlValues[] = round($atl, 1);
-
-            // Calculate TSB (Training Stress Balance) = CTL - ATL
+            // Exponentially Weighted Moving Average (EWMA)
+            $ctl = ($prevCtl * $decayCtl) + ($todayTrimp * (1 - $decayCtl));
+            $atl = ($prevAtl * $decayAtl) + ($todayTrimp * (1 - $decayAtl));
             $tsb = $ctl - $atl;
+
+            // Store values for the chart *only for dates within the display window*
+            $trimpValues[] = round($todayTrimp, 1);
+            $ctlValues[] = round($ctl, 1);
+            $atlValues[] = round($atl, 1);
             $tsbValues[] = round($tsb, 1);
+            $formattedDates[] = SerializableDateTime::fromString($currentDate)->format('M d');
 
-            // Calculate monotony and strain for the last 7 days
-            if ($index >= 6) { // Need at least 7 days
-                $weekTrimps = array_slice($trimpValues, $index - 6, 7);
-                $weeklyTrimps[] = array_sum($weekTrimps);
+            // Update previous values for next iteration
+            $prevCtl = $ctl;
+            $prevAtl = $atl;
 
-                // Calculate standard deviation for monotony
-                $mean = array_sum($weekTrimps) / 7;
-                $variance = 0;
-
-                foreach ($weekTrimps as $trimp) {
-                    $variance += pow($trimp - $mean, 2);
-                }
-
-                $stdDev = sqrt($variance / 7);
-                $weeklyStdDevs[] = $stdDev;
-
-                // Monotony = daily average / standard deviation
-                $monotony = ($stdDev > 0) ? $mean / $stdDev : 0;
-                $monotonyValues[] = round($monotony, 2);
-
-                // Strain = weekly TRIMP * monotony
-                $strain = array_sum($weekTrimps) * $monotony;
-                $strainValues[] = round($strain, 0);
-            } else {
-                $monotonyValues[] = null;
-                $strainValues[] = null;
-                $weeklyTrimps[] = null;
-                $weeklyStdDevs[] = null;
+            // Optional: Log first/last few calculations within the display window
+            $currentIndex = array_search($currentDate, $dates);
+            if ($currentIndex !== false && ($currentIndex < 3 || $currentIndex >= count($dates) - 3)) {
+                 error_log(sprintf(
+                     "TrainingLoadChart (Display): [%s] TRIMP=%.1f, CTL=%.1f, ATL=%.1f, TSB=%.1f",
+                     $currentDate, $todayTrimp, $ctl, $atl, $tsb
+                 ));
             }
         }
 
-        // For TSB, we need to determine zones (form)
-        $tsbMinValue = min($tsbValues);
-        $tsbMaxValue = max($tsbValues);
+        // --- Logging Final Ranges ---
+        error_log(sprintf(
+            "TrainingLoadChart: Final CTL range (last %d days): %.1f - %.1f",
+            self::DEFAULT_DISPLAY_DAYS,
+            empty($ctlValues) ? 0 : min($ctlValues), empty($ctlValues) ? 0 : max($ctlValues)
+        ));
+        error_log(sprintf(
+            "TrainingLoadChart: Final ATL range (last %d days): %.1f - %.1f",
+             self::DEFAULT_DISPLAY_DAYS,
+             empty($atlValues) ? 0 : min($atlValues), empty($atlValues) ? 0 : max($atlValues)
+        ));
+         error_log(sprintf(
+             "TrainingLoadChart: Final TSB range (last %d days): %.1f - %.1f",
+             self::DEFAULT_DISPLAY_DAYS,
+             empty($tsbValues) ? 0 : min($tsbValues), empty($tsbValues) ? 0 : max($tsbValues)
+         ));
+
+        // --- ECharts Configuration ---
+
+        // NEW: Calculate dynamic Y-axis ranges with buffers
+        $bufferPercent = 0.1; // 10% buffer
+
+        // Calculate dynamic ranges only based on the values within the display window
+        $tsbAxisRange = $this->calculateAxisRange($tsbValues, $bufferPercent, -30.0, 30.0, -INF, 5.0); // Force TSB range to include -30 to +30, round to 5
+        $loadAxisRange = $this->calculateAxisRange(array_merge($ctlValues, $atlValues), $bufferPercent, null, null, 0.0, 10.0); // Min 0 for Load, round to 10
+        $trimpAxisRange = $this->calculateAxisRange($trimpValues, $bufferPercent * 2, null, null, 0.0, 20.0); // Min 0 for TRIMP, bigger buffer, round to 20
+
+        error_log(sprintf(
+            "TrainingLoadChart: Axis Ranges - TRIMP(%.1f-%.1f) Load(%.1f-%.1f) TSB(%.1f-%.1f)",
+            $trimpAxisRange['min'], $trimpAxisRange['max'],
+            $loadAxisRange['min'], $loadAxisRange['max'],
+            $tsbAxisRange['min'], $tsbAxisRange['max']
+        ));
+
+        // Define number of data points for zoom
+        $numDataPoints = count($dates);
+        // Default zoom start index (show last 42 days)
+        $defaultZoomStartIndex = max(0, $numDataPoints - self::DEFAULT_DISPLAY_DAYS);
+        $defaultZoomEndIndex = max(0, $numDataPoints - 1);
+
 
         return [
             'tooltip' => [
                 'trigger' => 'axis',
                 'axisPointer' => [
                     'type' => 'cross',
+                    'link' => [['xAxisIndex' => 'all']], // Link both x-axes for tooltip/crosshair
+                    'label' => ['backgroundColor' => '#6a7985'],
                 ],
             ],
             'legend' => [
-                'data' => ['Daily TRIMP', 'CTL (Fitness)', 'ATL (Fatigue)', 'TSB (Form)', 'Monotony', 'Strain'],
+                'data' => ['CTL (Fitness)', 'ATL (Fatigue)', 'TSB (Form)', 'Daily TRIMP'], // Order might change slightly depending on visual preference
+                'top' => '5%', // Position legend at the top
             ],
+            'axisPointer' => [ // Ensure crosshair spans both grids
+                 'link' => ['xAxisIndex' => 'all'],
+            ],
+            // Reorganized grid layout
             'grid' => [
-                'left' => '3%',
-                'right' => '4%',
-                'bottom' => '10%',
-                'containLabel' => true,
+                 // Grid 0: Top grid for CTL, ATL, TSB (takes more height)
+                [
+                    'left' => '5%',
+                    'right' => '8%', // Adjust right margin for TSB axis labels
+                    'top' => '15%', // Start below legend
+                    'height' => '55%', // Allocate more height
+                    'containLabel' => true
+                ],
+                 // Grid 1: Bottom grid for Daily TRIMP
+                [
+                    'left' => '5%',
+                    'right' => '8%', // Match right margin
+                    'top' => '75%', // Position below the top grid, leaving a small gap
+                    'height' => '15%', // Smaller height for the bars
+                    'containLabel' => true
+                ]
             ],
+             // Reorganized X-Axes to match grids
             'xAxis' => [
-                'type' => 'category',
-                'boundaryGap' => false,
-                'data' => $formattedDates,
+                // x-Axis 0: Linked to grid 0 (Top: CTL, ATL, TSB)
+                [
+                    'type' => 'category',
+                    'gridIndex' => 0, // Assign to top grid
+                    'data' => $formattedDates,
+                    'boundaryGap' => true, // Keep gap for line charts
+                    'axisLine' => ['onZero' => false],
+                    'axisLabel' => ['show' => false], // Hide labels to avoid overlap
+                    'axisTick' => ['show' => false], // Hide ticks
+                ],
+                // x-Axis 1: Linked to grid 1 (Bottom: Daily TRIMP)
+                [
+                    'type' => 'category',
+                    'gridIndex' => 1, // Assign to bottom grid
+                    'data' => $formattedDates,
+                    'boundaryGap' => true, // Keep gap for bar charts
+                    'axisLine' => ['onZero' => true],
+                    'position' => 'bottom',
+                    'axisLabel' => ['show' => true], // Show labels on the bottom-most axis
+                    'axisTick' => ['show' => true], // Show ticks
+                ]
             ],
+            // Reorganized Y-Axes to match grids and dynamic ranges
             'yAxis' => [
+                // y-Axis 0: Linked to grid 1 (Bottom: Daily TRIMP) - Position Left
+                 [
+                    'type' => 'value',
+                    'name' => 'Daily TRIMP',
+                    'nameLocation' => 'middle',
+                    'nameGap' => 35,
+                    'gridIndex' => 1, // Assign to bottom grid
+                    'position' => 'left',
+                    'axisLabel' => ['formatter' => '{value}'],
+                    'min' => $trimpAxisRange['min'], // Dynamic min
+                    'max' => $trimpAxisRange['max'], // Dynamic max
+                    'splitLine' => ['show' => true], // Show horizontal grid lines
+                    'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
+                ],
+                 // y-Axis 1: Linked to grid 0 (Top: CTL, ATL) - Position Left
                 [
                     'type' => 'value',
-                    'name' => 'TRIMP / Load',
+                    'name' => 'Load (CTL/ATL)',
+                    'nameLocation' => 'middle',
+                    'nameGap' => 35,
+                    'gridIndex' => 0, // Assign to top grid
                     'position' => 'left',
-                    'alignTicks' => true,
-                    'axisLine' => [
-                        'show' => true,
-                        'lineStyle' => [
-                            'color' => '#FC4C02',
-                        ],
-                    ],
-                    'axisLabel' => [
-                        'formatter' => '{value}',
-                    ],
-                ],
-                [
+                    'alignTicks' => true, // Align ticks if possible (might not perfectly align with TSB)
+                    'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
+                    'axisLabel' => ['formatter' => '{value}'],
+                    'min' => $loadAxisRange['min'], // Dynamic min
+                    'max' => $loadAxisRange['max'], // Dynamic max
+                    'splitLine' => ['show' => true], // Show horizontal grid lines
+                 ],
+                  // y-Axis 2: Linked to grid 0 (Top: TSB) - Position Right
+                 [
                     'type' => 'value',
                     'name' => 'Form (TSB)',
+                    'nameLocation' => 'middle',
+                    'nameGap' => 45, // Increased gap for right axis
+                    'gridIndex' => 0, // Assign to top grid
                     'position' => 'right',
-                    'alignTicks' => true,
-                    'axisLine' => [
-                        'show' => true,
-                        'lineStyle' => [
-                            'color' => '#5470C6',
-                        ],
-                    ],
-                    'axisLabel' => [
-                        'formatter' => '{value}',
-                    ],
-                    'min' => min(-30, $tsbMinValue),
-                    'max' => max(30, $tsbMaxValue),
-                ],
+                    'alignTicks' => true, // Align ticks
+                    'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#5470C6']], // TSB Color
+                    'axisLabel' => ['formatter' => '{value}'],
+                    'min' => $tsbAxisRange['min'], // Dynamic min based on data spread + buffer
+                    'max' => $tsbAxisRange['max'], // Dynamic max based on data spread + buffer
+                    'splitLine' => ['show' => false], // Hide TSB grid lines to avoid clutter
+                 ],
             ],
-            'visualMap' => [
-                [
-                    'show' => false,
-                    'type' => 'piecewise',
-                    'dimension' => 0,
-                    'seriesIndex' => 3,
-                    'pieces' => [
-                        ['gt' => -5, 'lt' => 5, 'color' => '#91CC75'],  // Green for optimal form (-5 to 5)
-                        ['gt' => 5, 'lt' => 25, 'color' => '#FAC858'],  // Yellow for freshness (5 to 25)
-                        ['gt' => 25, 'color' => '#EE6666'],             // Red for too fresh (>25)
-                        ['gt' => -30, 'lt' => -5, 'color' => '#73C0DE'], // Blue for fatigue (-30 to -5)
-                        ['lt' => -30, 'color' => '#3BA272'],            // Purple for high fatigue (<-30)
-                    ],
-                ],
-            ],
+             // Modified series order and axis associations
             'series' => [
+                 // Series associated with Top Grid (Grid 0)
                 [
-                    'name' => 'Daily TRIMP',
-                    'type' => 'bar',
-                    'data' => array_values($trimpValues),
-                    'itemStyle' => [
-                        'color' => '#FC4C02',
-                    ],
-                    'barWidth' => '60%',
-                    'yAxisIndex' => 0,
-                ],
+                    'name' => 'CTL (Fitness)', 'type' => 'line', 'data' => $ctlValues, 'smooth' => true,
+                    'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#3CB371'],
+                    'xAxisIndex' => 0, // Use x-Axis 0 (linked to grid 0)
+                    'yAxisIndex' => 1, // Use y-Axis 1 (Load axis, linked to grid 0)
+                 ],
                 [
-                    'name' => 'CTL (Fitness)',
-                    'type' => 'line',
-                    'data' => $ctlValues,
-                    'smooth' => true,
-                    'lineStyle' => [
-                        'width' => 3,
-                        'color' => '#FFA500',  // Orange for CTL
-                    ],
-                    'yAxisIndex' => 0,
-                ],
+                    'name' => 'ATL (Fatigue)', 'type' => 'line', 'data' => $atlValues, 'smooth' => true,
+                    'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#FF6347'],
+                    'xAxisIndex' => 0, // Use x-Axis 0 (linked to grid 0)
+                    'yAxisIndex' => 1, // Use y-Axis 1 (Load axis, linked to grid 0)
+                 ],
                 [
-                    'name' => 'ATL (Fatigue)',
-                    'type' => 'line',
-                    'data' => $atlValues,
-                    'smooth' => true,
-                    'lineStyle' => [
-                        'width' => 3,
-                        'color' => '#FF6347',  // Tomato for ATL
-                    ],
-                    'yAxisIndex' => 0,
-                ],
-                [
-                    'name' => 'TSB (Form)',
-                    'type' => 'line',
-                    'data' => $tsbValues,
-                    'smooth' => true,
-                    'lineStyle' => [
-                        'width' => 3,
-                    ],
-                    'yAxisIndex' => 1,
+                    'name' => 'TSB (Form)', 'type' => 'line', 'data' => $tsbValues, 'smooth' => true,
+                    'symbol' => 'none', 'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
+                    'xAxisIndex' => 0, // Use x-Axis 0 (linked to grid 0)
+                    'yAxisIndex' => 2, // Use y-Axis 2 (TSB axis, linked to grid 0)
                     'markLine' => [
-                        'silent' => true,
-                        'lineStyle' => [
-                            'color' => '#333',
-                            'type' => 'dashed',
-                        ],
-                        'data' => [
-                            [
-                                'yAxis' => 5,
-                                'label' => ['formatter' => 'Fresh'],
-                            ],
-                            [
-                                'yAxis' => -5,
-                                'label' => ['formatter' => 'Fatigued'],
-                            ],
-                        ],
-                    ],
-                ],
+                         'silent' => true, 'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
+                         'data' => [
+                             ['yAxis' => 5, 'label' => ['formatter' => 'Fresh', 'position' => 'insideEndTop']],
+                             // ['yAxis' => -5, 'label' => ['formatter' => 'Neutral', 'position' => 'insideEndTop']], // Reduced zones
+                             ['yAxis' => -15, 'label' => ['formatter' => 'Optimal', 'position' => 'insideEndTop']], // Common zones
+                             ['yAxis' => -30, 'label' => ['formatter' => 'Fatigued', 'position' => 'insideEndTop']], // Common zones
+                          ],
+                         'label' => ['distance' => [0, -5]], // Adjust label position relative to line
+                     ],
+                 ],
+                // Series associated with Bottom Grid (Grid 1)
                 [
-                    'name' => 'Monotony',
-                    'type' => 'line',
-                    'data' => $monotonyValues,
-                    'smooth' => true,
-                    'symbol' => 'none',
-                    'lineStyle' => [
-                        'width' => 2,
-                        'color' => '#9966CC',
-                    ],
-                    'yAxisIndex' => 0,
-                ],
-                [
-                    'name' => 'Strain',
-                    'type' => 'line',
-                    'data' => $strainValues,
-                    'smooth' => true,
-                    'symbol' => 'none',
-                    'lineStyle' => [
-                        'width' => 2,
-                        'color' => '#3CB371',
-                        'type' => 'dashed',
-                    ],
-                    'yAxisIndex' => 0,
-                ],
+                    'name' => 'Daily TRIMP', 'type' => 'bar', 'data' => $trimpValues,
+                    'itemStyle' => ['color' => '#FC4C02'], 'barWidth' => '60%',
+                    'xAxisIndex' => 1, // Use x-Axis 1 (linked to grid 1)
+                    'yAxisIndex' => 0, // Use y-Axis 0 (TRIMP axis, linked to grid 1)
+                    'emphasis' => ['itemStyle' => ['opacity' => 0.8]],
+                 ],
             ],
+            // dataZoom adjusted to show last 6 weeks by default
             'dataZoom' => [
                 [
                     'type' => 'inside',
-                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
-                    'end' => 100,
+                    'xAxisIndex' => [0, 1], // Apply zoom to both x-axes
+                    'startValue' => $defaultZoomStartIndex, // Start index for last 42 days
+                    'endValue' => $defaultZoomEndIndex,   // End index (last data point)
+                    'minValueSpan' => 14, // Allow zooming in to 2 weeks minimum
+                    'maxValueSpan' => $numDataPoints, // Allow zooming out to full range shown
                 ],
                 [
                     'type' => 'slider',
-                    'start' => max(0, 100 - min(90, 500 / count($dates) * 100)),
-                    'end' => 100,
-                ],
+                    'xAxisIndex' => [0, 1], // Apply slider to both x-axes
+                    'startValue' => $defaultZoomStartIndex, // Start index for last 42 days
+                    'endValue' => $defaultZoomEndIndex,   // End index (last data point)
+                    'bottom' => '2%',
+                    'height' => '3%',
+                    'minValueSpan' => 14, // Match inside zoom min span
+                    'maxValueSpan' => $numDataPoints, // Match inside zoom max span
+                 ],
             ],
         ];
     }

@@ -180,46 +180,70 @@
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <!-- TRAINING LOAD METRICS -->
-            <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-xs sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">{{ "Training Load Analysis"|trans }}</h3>
-                    <a href="#" data-model-content-url="/training-metrics.html" class="inline-flex items-center p-2 text-sm font-medium rounded-lg text-blue-600 hover:bg-gray-100">
-                        {{ "View details"|trans }}
-                    </a>
+    <!-- TRAINING LOAD METRICS -->
+    <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-xs sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">{{ "Training Load Analysis"|trans }}</h3>
+            <a href="#" data-model-content-url="/training-metrics.html" 
+               class="inline-flex items-center p-2 text-sm font-medium rounded-lg text-blue-600 hover:bg-gray-100">
+                {{ "View details"|trans }}
+            </a>
+        </div>
+        
+        <!-- Main Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+            <!-- CTL -->
+            <div class="p-3 text-center bg-green-50 border border-green-200 rounded-lg">
+                <div class="text-xs font-medium text-green-700 mb-1">{{ "Fitness (CTL)"|trans }}</div>
+                <div class="text-lg font-bold text-green-600">{{ currentCtl }}</div>
+            </div>
+            
+            <!-- ATL -->
+            <div class="p-3 text-center bg-red-50 border border-red-200 rounded-lg">
+                <div class="text-xs font-medium text-red-700 mb-1">{{ "Fatigue (ATL)"|trans }}</div>
+                <div class="text-lg font-bold text-red-600">{{ currentAtl }}</div>
+            </div>
+            
+            <!-- TSB -->
+            <div class="p-3 text-center bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="text-xs font-medium text-blue-700 mb-1">{{ "Form (TSB)"|trans }}</div>
+                <div class="text-lg font-bold {{ currentTsb > 5 ? 'text-yellow-600' : (currentTsb < -5 ? 'text-blue-600' : 'text-green-600') }}">
+                    {{ currentTsb }}
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "CTL (Fitness)"|trans }}</div>
-                        <div class="font-bold text-xl">{{ currentCtl }}</div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "ATL (Fatigue)"|trans }}</div>
-                        <div class="font-bold text-xl">{{ currentAtl }}</div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "TSB (Form)"|trans }}</div>
-                        <div class="font-bold text-xl {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ currentTsb }}</div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "A:C Ratio"|trans }}</div>
-                        <div class="font-bold text-xl {{ acRatio > 1.3 ? 'text-red-500' : (acRatio < 0.8 ? 'text-yellow-500' : 'text-green-500') }}">{{ acRatio }}</div>
-                    </div>
+            </div>
+            
+            <!-- A:C Ratio -->
+            <div class="p-3 text-center bg-purple-50 border border-purple-200 rounded-lg">
+                <div class="text-xs font-medium text-purple-700 mb-1">{{ "A:C Ratio"|trans }}</div>
+                <div class="text-lg font-bold {{ acRatio > 1.3 ? 'text-red-600' : (acRatio < 0.8 ? 'text-yellow-600' : 'text-green-600') }}">
+                    {{ acRatio }}
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "Monotony"|trans }}</div>
-                        <div class="font-bold text-xl {{ monotony > 2.0 ? 'text-red-500' : (monotony > 1.5 ? 'text-yellow-500' : 'text-green-500') }}">{{ monotony }}</div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "Strain"|trans }}</div>
-                        <div class="font-bold text-xl">{{ strain }}</div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="font-semibold text-sm mb-1">{{ "Rest Days"|trans }}</div>
-                        <div class="font-bold text-xl">{{ restDaysLastWeek }} / 7</div>
-                    </div>
+            </div>
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <!-- Monotony -->
+            <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="text-xs text-gray-600">{{ "Monotony"|trans }}</div>
+                <div class="text-sm font-medium {{ monotony > 2.0 ? 'text-red-600' : (monotony > 1.5 ? 'text-yellow-600' : 'text-green-600') }}">
+                    {{ monotony }}
                 </div>
+            </div>
+            
+            <!-- Strain -->
+            <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="text-xs text-gray-600">{{ "Strain"|trans }}</div>
+                <div class="text-sm font-medium">{{ strain }}</div>
+            </div>
+            
+            <!-- Rest Days -->
+            <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="text-xs text-gray-600">{{ "Rest Days"|trans }}</div>
+                <div class="text-sm font-medium">{{ restDaysLastWeek }}/7</div>
+            </div>
+        </div>
+    </div>
             </div>
             
             {% if powerOutputs is not empty %}
