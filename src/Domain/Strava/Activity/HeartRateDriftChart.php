@@ -105,7 +105,7 @@ final readonly class HeartRateDriftChart
             $ratioData = [];
             foreach (range(0, count($this->heartRate) - 1) as $i) {
                 if ($this->heartRate[$i] > 0) {
-                    $ratioData[] = $this->speed[$i] / $this->heartRate[$i];
+                    $ratioData[] = $this->speed[$i] / $this->heartRate[$i] * 100;
                 } else {
                     $ratioData[] = 0;
                 }
@@ -241,9 +241,9 @@ final readonly class HeartRateDriftChart
 
         return [
             'title' => [
-                'text' => 'Heart Rate Drift Analysis',
-                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})".
-                    (null !== $decouplingPercentage ? " | Decoupling: {$decouplingPercentage}% ({$decouplingQuality})" : ''),
+                /*'text' => 'Heart Rate Drift Analysis',*/
+                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})" .
+                           (null !== $decouplingPercentage ? " | Decoupling: {$decouplingPercentage}% ({$decouplingQuality})" : ''),
                 'left' => 'center',
             ],
             'tooltip' => [
@@ -254,13 +254,13 @@ final readonly class HeartRateDriftChart
             ],
             'legend' => [
                 'data' => array_map(fn ($item) => $item['name'], $series),
-                'top' => 30,
+                'top' => 60,
             ],
             'grid' => [
                 'left' => '3%',
                 'right' => '4%',
                 'bottom' => '3%',
-                'top' => 80,
+                'top' => 100,
                 'containLabel' => true,
             ],
             'xAxis' => [

@@ -15,9 +15,6 @@ use App\Domain\Strava\Activity\BestEffort\BestEffortChart;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStats;
 use App\Domain\Strava\Activity\DaytimeStats\DaytimeStatsCharts;
 use App\Domain\Strava\Activity\DistanceBreakdown;
-use App\Domain\Strava\Activity\HrvChart;
-use App\Domain\Strava\Activity\PolarizedTrainingDistributionChart;
-use App\Domain\Strava\Activity\RelativeEffortChart;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
 use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
@@ -26,7 +23,6 @@ use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
 use App\Domain\Strava\Activity\TrainingLoadChart;
 use App\Domain\Strava\Activity\TrainingMetricsCalculator;
-use App\Domain\Strava\Activity\Vo2MaxTrendsChart;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -248,7 +244,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'monotony' => $metrics['monotony'],
                 'strain' => $metrics['strain'],
                 'weeklyTrimp' => $metrics['weeklyTrimp'],
-                'polarizedTrainingDistributionChart' => Json::encode(PolarizedTrainingDistributionChart::fromTrainingZoneData([])->build()),
             ])
         );
 

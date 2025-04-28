@@ -111,9 +111,10 @@ final readonly class ElevationVsHeartRateChart
         // Generate chart configuration
         return [
             'title' => [
-                'text' => 'Elevation vs Heart Rate',
+                /*'text' => 'Elevation vs Heart Rate',*/
                 'subtext' => "Correlation: {$correlation} ({$correlationText})",
                 'left' => 'center',
+                'itemGap' => 15,
             ],
             'tooltip' => [
                 'trigger' => 'axis',
@@ -123,33 +124,38 @@ final readonly class ElevationVsHeartRateChart
                 'formatter' => function ($params) use ($gradients) {
                     $result = '';
 
-                    foreach ($params as $param) {
-                        if ('Heart Rate' === $param['seriesName']) {
-                            $result .= 'HR: '.round($param['value']).' BPM<br/>';
-                        } elseif ('Elevation' === $param['seriesName']) {
-                            $result .= 'Elevation: '.round($param['value']).' m<br/>';
-                        }
+                      // Determine the x-axis value (distance or index) for context
+                      $xAxisValue = $params[0]['axisValueLabel'] ?? $params[0]['name'] ?? '';
+                      $result .= $xAxisValue . '<br/>'; // Add X-axis value at the top
 
-                        // Add gradient info if available
-                        $index = $param['dataIndex'];
-                        if (isset($gradients[$index])) {
-                            $gradient = round($gradients[$index], 1);
-                            $result .= 'Gradient: '.$gradient.'%<br/>';
-                        }
-                    }
+                      $gradientValueText = '';
+                      if (isset($gradients[$params[0]['dataIndex']])) {
+                          $gradientValueText = 'Gradient: ' . round($gradients[$params[0]['dataIndex']], 1) . '%<br/>';
+                      }
 
-                    return $result;
+                      foreach ($params as $param) {
+                          $value = round(is_numeric($param['value']) ? $param['value'] : 0); // Ensure value is numeric before rounding
+                          if ('Heart Rate' === $param['seriesName']) {
+                               $result .= $param['marker'] . 'HR: ' . $value . ' BPM<br/>';
+                          } elseif ('Elevation' === $param['seriesName']) {
+                               $result .= $param['marker'] . 'Elevation: ' . $value . ' m<br/>';
+                          }
+                      }
+                      // Add gradient at the end for clarity
+                      $result .= $gradientValueText;
+
+                      return $result;
                 },
             ],
             'legend' => [
                 'data' => ['Heart Rate', 'Elevation'],
-                'top' => 30,
+                'top' => 85,
             ],
             'grid' => [
                 'left' => '3%',
                 'right' => '3%',
                 'bottom' => '15%',
-                'top' => 80,
+                'top' => 140,
                 'containLabel' => true,
             ],
             'xAxis' => [
@@ -266,7 +272,7 @@ final readonly class ElevationVsHeartRateChart
                 [
                     'type' => 'group',
                     'left' => 'center',
-                    'top' => 40,
+                    'top' => 55,
                     'children' => [
                         [
                             'type' => 'text',
