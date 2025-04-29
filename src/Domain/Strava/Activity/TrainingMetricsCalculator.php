@@ -21,8 +21,9 @@ final readonly class TrainingMetricsCalculator
      */
     public static function calculateMetrics(array $dailyLoadData, ?array $previousMetrics = null): array
     {
-        $ctlDecay = 2 / (42 + 1);  // Proper 42-day EMA decay factor
-        $atlDecay = 2 / (7 + 1);   // Proper 7-day EMA decay factor
+        // Continuous-time decay factors for CTL (42-day) and ATL (7-day)
+        $ctlDecay = exp(-1 / 42);  // CTL decay λ = e^(−1/42)
+        $atlDecay = exp(-1 / 7);   // ATL decay λ = e^(−1/7)
         
         // Ensure data is sorted chronologically
         ksort($dailyLoadData);
@@ -39,9 +40,9 @@ final readonly class TrainingMetricsCalculator
         foreach ($dates as $date) {
             $trimp = $dailyLoadData[$date]['trimp'];
             
-            // Apply exponential decay formula daily using EMA approach
-            $ctl = $trimp * $ctlDecay + $ctl * (1 - $ctlDecay);
-            $atl = $trimp * $atlDecay + $atl * (1 - $atlDecay);
+            // Apply continuous-time EMA decay daily: new = prev*λ + trimp*(1−λ)
+            $ctl = $ctl * $ctlDecay + $trimp * (1 - $ctlDecay);
+            $atl = $atl * $atlDecay + $trimp * (1 - $atlDecay);
             
             // Calculate derived metrics
             $tsb = $ctl - $atl;
