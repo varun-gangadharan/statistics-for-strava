@@ -52,18 +52,23 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
             }
         }
 
-        // Ensure complete date range without gaps
-        $dates = array_keys($dailyLoadData);
+        // Get today's date using the command's current date time
+        $todayDate = $now->format('Y-m-d');
+
+        // Determine first and last date for the date range
+        $dates = empty($dailyLoadData) ? [] : array_keys($dailyLoadData);
         if (!empty($dates)) {
             sort($dates);
             $firstDate = new \DateTime(reset($dates));
-            $lastDate = new \DateTime(end($dates));
 
-            // Create complete date range
+            // Use today's date as the last date to ensure we include all days up to today
+            $lastDate = new \DateTime($todayDate);
+
+            // Create complete date range from first activity to today
             $period = new \DatePeriod(
                 $firstDate,
                 new \DateInterval('P1D'),
-                $lastDate->modify('+1 day')
+                $lastDate->modify('+1 day') // Include today
             );
 
             foreach ($period as $date) {
@@ -96,6 +101,7 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
                 'monotony' => $metrics['monotony'],
                 'strain' => $metrics['strain'],
                 'weeklyTrimp' => $metrics['weeklyTrimp'],
+                'lastUpdated' => $now->format('Y-m-d H:i:s'), // Add last updated timestamp
             ])
         );
     }

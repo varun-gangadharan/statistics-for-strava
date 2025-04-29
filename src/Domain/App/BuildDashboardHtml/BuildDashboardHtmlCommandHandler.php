@@ -209,18 +209,15 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         }
 
         // Fill in days with no activities
-        $dates = array_keys($dailyLoadData);
-        if (!empty($dates)) {
-            sort($dates);
-            $lastDate = end($dates);
-            $currentDate = reset($dates);
+        $startDate = $allActivities->getFirstActivityStartDate()?->format('Y-m-d') ?? $now->format('Y-m-d');
+        $endDate = $now->format('Y-m-d');
 
-            while ($currentDate <= $lastDate) {
-                if (!isset($dailyLoadData[$currentDate])) {
-                    $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
-                }
-                $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
+        $currentDate = $startDate;
+        while ($currentDate <= $endDate) {
+            if (!isset($dailyLoadData[$currentDate])) {
+                $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
             }
+            $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
         }
 
         // Calculate metrics using the shared calculator

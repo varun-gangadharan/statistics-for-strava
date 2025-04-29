@@ -232,7 +232,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     foreach ($velocityData as $velocity) {
                         // Convert m/s to min/km or min/mile based on unit system
                         if ($velocity > 0) {
-                            if ($this->unitSystem->isMetric()) {
+                            if (UnitSystem::METRIC === $this->unitSystem) {
                                 // Pace in min/km = 16.6667 / velocity in m/s
                                 $paceData[] = 16.6667 / $velocity;
                             } else {
@@ -262,7 +262,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 $heartRateVsPaceChart = HeartRateVsPaceChart::fromActivityData(
                     heartRate: $heartRateStream->getData(),
                     pace: $paceData,
-                    paceUnit: $this->unitSystem->isMetric() ? 'min/km' : 'min/mile',
+                    paceUnit: 'min'.$this->unitSystem->paceSymbol(),
                     elevation: $elevationData
                 );
             }
