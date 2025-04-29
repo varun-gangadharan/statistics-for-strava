@@ -216,18 +216,18 @@ final readonly class TrainingLoadChart
                 // Grid 0: Top grid for CTL, ATL, TSB (takes more height)
                 [
                     'left' => '5%',
-                    'right' => '8%', // Adjust right margin for TSB axis labels
-                    'top' => '15%', // Start below legend
-                    'height' => '55%', // Allocate more height
-                    'containLabel' => true,
+                    'right' => '8%',
+                    'top' => '15%',
+                    'height' => '55%',
+                    'containLabel' => false,
                 ],
                 // Grid 1: Bottom grid for Daily TRIMP
                 [
                     'left' => '5%',
-                    'right' => '8%', // Match right margin
-                    'top' => '75%', // Position below the top grid, leaving a small gap
-                    'height' => '15%', // Smaller height for the bars
-                    'containLabel' => true,
+                    'right' => '8%',
+                    'top' => '75%',
+                    'height' => '15%',
+                    'containLabel' => false,
                 ],
             ],
             // Reorganized X-Axes to match grids
