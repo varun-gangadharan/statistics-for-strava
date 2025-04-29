@@ -68,7 +68,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private TranslatorInterface $translator,
     ) {
     }
-    
 
     public function handle(Command $command): void
     {
@@ -201,10 +200,10 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             // Calculate training load using the shared calculator
             if ($activity->getMovingTimeInSeconds() > 0) {
                 $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
-                
+
                 $dailyLoadData[$date]['trimp'] += $trimp;
                 $dailyLoadData[$date]['duration'] += $activity->getMovingTimeInSeconds();
-                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() * 
+                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() *
                     ($trimp / ($activity->getMovingTimeInSeconds() / 60));
             }
         }
@@ -215,7 +214,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             sort($dates);
             $lastDate = end($dates);
             $currentDate = reset($dates);
-            
+
             while ($currentDate <= $lastDate) {
                 if (!isset($dailyLoadData[$currentDate])) {
                     $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
@@ -229,7 +228,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 
         // Build the training metrics page first
         $trainingLoadChart = TrainingLoadChart::fromDailyLoadData($dailyLoadData);
-        
+
         $this->buildStorage->write(
             'training-metrics.html',
             $this->twig->render('html/dashboard/training-metrics.html.twig', [
@@ -358,23 +357,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                     PowerOutputChart::create($bestPowerOutputs)->build()
                 ),
                 'bestPowerOutputs' => $bestPowerOutputs,
-            ]),
-        );
-
-        $this->buildStorage->write(
-            'training-metrics.html',
-            $this->twig->load('html/dashboard/training-metrics.html.twig')->render([
-                'trainingLoadChart' => Json::encode(
-                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build(true)
-                ),
-                'currentCtl' => round($currentCtl, 1),
-                'currentAtl' => round($currentAtl, 1),
-                'currentTsb' => round($currentTsb, 1),
-                'acRatio' => round($acRatio, 2),
-                'restDaysLastWeek' => $restDaysLastWeek,
-                'monotony' => round($monotony, 2),
-                'strain' => round($strain, 0),
-                'weeklyTrimp' => round($weeklyTrimp, 0),
             ]),
         );
     }

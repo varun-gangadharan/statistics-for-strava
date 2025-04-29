@@ -216,7 +216,7 @@ final readonly class HeartRateVsPaceChart
         $yMean = $sumY / $n;
 
         $divideBy = $n * $sumXX - $sumX * $sumX;
-        if($divideBy === 0){
+        if (0 === $divideBy) {
             return ['slope' => 0, 'intercept' => 0, 'r2' => 0];
         }
         $slope = ($n * $sumXY - $sumX * $sumY) / $divideBy;

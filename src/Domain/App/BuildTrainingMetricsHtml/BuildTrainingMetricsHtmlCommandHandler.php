@@ -5,17 +5,12 @@ declare(strict_types=1);
 namespace App\Domain\App\BuildTrainingMetricsHtml;
 
 use App\Domain\Strava\Activity\ActivitiesEnricher;
-use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\TrainingLoadChart;
 use App\Domain\Strava\Activity\TrainingMetricsCalculator;
-use App\Domain\Strava\Athlete\Athlete;
 use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\Serialization\Json;
-use DateTime;
-use DateInterval;
-use DatePeriod;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
 
@@ -42,17 +37,17 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
         // Process activities and calculate daily TRIMP
         foreach ($allActivities as $activity) {
             $date = $activity->getStartDate()->format('Y-m-d');
-            
+
             if (!isset($dailyLoadData[$date])) {
                 $dailyLoadData[$date] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
             }
 
             if ($activity->getMovingTimeInSeconds() > 0) {
                 $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
-                
+
                 $dailyLoadData[$date]['trimp'] += $trimp;
                 $dailyLoadData[$date]['duration'] += $activity->getMovingTimeInSeconds();
-                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() * 
+                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() *
                     ($trimp / ($activity->getMovingTimeInSeconds() / 60));
             }
         }
@@ -61,13 +56,13 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
         $dates = array_keys($dailyLoadData);
         if (!empty($dates)) {
             sort($dates);
-            $firstDate = new DateTime(reset($dates));
-            $lastDate = new DateTime(end($dates));
-            
+            $firstDate = new \DateTime(reset($dates));
+            $lastDate = new \DateTime(end($dates));
+
             // Create complete date range
-            $period = new DatePeriod(
+            $period = new \DatePeriod(
                 $firstDate,
-                new DateInterval('P1D'),
+                new \DateInterval('P1D'),
                 $lastDate->modify('+1 day')
             );
 
@@ -80,7 +75,7 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
         }
 
         // Sort dates chronologically
-        uksort($dailyLoadData, function($a, $b) {
+        uksort($dailyLoadData, function ($a, $b) {
             return strtotime($a) - strtotime($b);
         });
 
@@ -91,7 +86,7 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
             'training-metrics.html',
             $this->twig->render('html/dashboard/training-metrics.html.twig', [
                 'trainingLoadChart' => Json::encode(
-                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build(true)
+                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build()
                 ),
                 'currentCtl' => $metrics['currentCtl'],
                 'currentAtl' => $metrics['currentAtl'],

@@ -94,7 +94,7 @@ final readonly class HeartRateDriftChart
             $averageRatioFirstHalf = array_sum($ratioFirstHalf) / count($ratioFirstHalf);
             $averageRatioSecondHalf = array_sum($ratioSecondHalf) / count($ratioSecondHalf);
 
-            if($averageRatioFirstHalf === 0){
+            if (0 === $averageRatioFirstHalf) {
                 return [];
             }
 
@@ -241,8 +241,8 @@ final readonly class HeartRateDriftChart
 
         return [
             'title' => [
-                /*'text' => 'Heart Rate Drift Analysis',*/
-                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})" .
+                /* 'text' => 'Heart Rate Drift Analysis', */
+                'subtext' => "HR Drift: {$driftPercentage}% ({$driftQuality})".
                            (null !== $decouplingPercentage ? " | Decoupling: {$decouplingPercentage}% ({$decouplingQuality})" : ''),
                 'left' => 'center',
             ],
