@@ -6,10 +6,7 @@ namespace App\Domain\App\BuildActivitiesHtml;
 
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\ActivityTotals;
-use App\Domain\Strava\Activity\ElevationVsHeartRateChart;
 use App\Domain\Strava\Activity\HeartRateDistributionChart;
-use App\Domain\Strava\Activity\HeartRateDriftChart;
-use App\Domain\Strava\Activity\HeartRateVsPaceChart;
 use App\Domain\Strava\Activity\PowerDistributionChart;
 use App\Domain\Strava\Activity\Split\ActivitySplitRepository;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
@@ -183,101 +180,6 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 }
             }
 
-            // Create new advanced charts
-            $heartRateDriftChart = null;
-            $heartRateVsPaceChart = null;
-            $elevationVsHeartRateChart = null;
-
-            // Heart Rate Drift chart - only requires heart rate stream for basic functionality
-            if ($heartRateStream) {
-                $timeData = [];
-                // If we don't have time stream, create a synthetic one based on heart rate data length
-                if ($timeStream && count($heartRateStream->getData()) === count($timeStream->getData())) {
-                    $timeData = $timeStream->getData();
-                } else {
-                    // Create synthetic time data (1 second per heart rate sample)
-                    for ($i = 0; $i < count($heartRateStream->getData()); ++$i) {
-                        $timeData[] = $i;
-                    }
-                }
-
-                // If we have power data, add it for decoupling analysis
-                $powerData = [];
-                if ($powerStream && count($powerStream->getData()) === count($heartRateStream->getData())) {
-                    $powerData = $powerStream->getData();
-                }
-
-                // If we have speed/velocity data, add it as an alternative
-                $speedData = [];
-                if ($velocityStream && count($velocityStream->getData()) === count($heartRateStream->getData())) {
-                    $speedData = $velocityStream->getData();
-                }
-
-                $heartRateDriftChart = HeartRateDriftChart::fromActivityData(
-                    time: $timeData,
-                    heartRate: $heartRateStream->getData(),
-                    speed: $speedData,
-                    power: $powerData
-                );
-            }
-
-            // Heart Rate vs Pace chart - simplified to just need heart rate data
-            if ($heartRateStream) {
-                $paceData = [];
-
-                // If we have velocity data, use it to calculate pace
-                if ($velocityStream && count($heartRateStream->getData()) === count($velocityStream->getData())) {
-                    $velocityData = $velocityStream->getData();
-
-                    foreach ($velocityData as $velocity) {
-                        // Convert m/s to min/km or min/mile based on unit system
-                        if ($velocity > 0) {
-                            if (UnitSystem::METRIC === $this->unitSystem) {
-                                // Pace in min/km = 16.6667 / velocity in m/s
-                                $paceData[] = 16.6667 / $velocity;
-                            } else {
-                                // Pace in min/mile = 26.8224 / velocity in m/s
-                                $paceData[] = 26.8224 / $velocity;
-                            }
-                        } else {
-                            $paceData[] = 0;
-                        }
-                    }
-                } else {
-                    // Create synthetic pace data based on average pace from activity
-                    $avgPaceMinPerKm = $activity->getElapsedTimeInSeconds() / ($activity->getDistance()->getValue() / 1000);
-                    for ($i = 0; $i < count($heartRateStream->getData()); ++$i) {
-                        // Randomize pace slightly to create a more natural chart
-                        $randomVariation = mt_rand(-30, 30) / 100; // -0.3 to +0.3 variation
-                        $paceData[] = $avgPaceMinPerKm * (1 + $randomVariation);
-                    }
-                }
-
-                // Optional elevation data for coloring points
-                $elevationData = [];
-                if ($altitudeStream && count($altitudeStream->getData()) === count($heartRateStream->getData())) {
-                    $elevationData = $altitudeStream->getData();
-                }
-
-                $heartRateVsPaceChart = HeartRateVsPaceChart::fromActivityData(
-                    heartRate: $heartRateStream->getData(),
-                    pace: $paceData,
-                    paceUnit: 'min'.$this->unitSystem->paceSymbol(),
-                    elevation: $elevationData
-                );
-            }
-
-            // Elevation vs Heart Rate chart
-            if ($heartRateStream && $altitudeStream && $distanceStream
-                && count($heartRateStream->getData()) === count($altitudeStream->getData())
-                && count($heartRateStream->getData()) === count($distanceStream->getData())) {
-                $elevationVsHeartRateChart = ElevationVsHeartRateChart::fromActivityData(
-                    elevation: $altitudeStream->getData(),
-                    heartRate: $heartRateStream->getData(),
-                    distance: $distanceStream->getData()
-                );
-            }
-
             $activityProfileCharts = [];
             if ($activityType->supportsCombinedStreamCalculation()) {
                 try {
@@ -326,9 +228,6 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     ] : null,
                     'heartRateDistributionChart' => $heartRateDistributionChart ? Json::encode($heartRateDistributionChart->build()) : null,
                     'powerDistributionChart' => $powerDistributionChart ? Json::encode($powerDistributionChart->build()) : null,
-                    'heartRateDriftChart' => $heartRateDriftChart ? Json::encode($heartRateDriftChart->build()) : null,
-                    'heartRateVsPaceChart' => $heartRateVsPaceChart ? Json::encode($heartRateVsPaceChart->build()) : null,
-                    'elevationVsHeartRateChart' => $elevationVsHeartRateChart ? Json::encode($elevationVsHeartRateChart->build()) : null,
                     'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                     'splits' => $activitySplits,
                     'profileCharts' => array_reverse($activityProfileCharts),
