@@ -290,7 +290,7 @@
         </div>
     </div>
 {% endif %}
-{% if (powerDistributionChart or heartRateDistributionChart) %}
+{% if (powerDistributionChart or heartRateDistributionChart) and profileCharts is not empty  %}
 <div class="mb-4 border-b border-gray-200">
     <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="chartsTab" data-tabs="#chartsTabContent" role="tablist">
         <li class="mr-2" role="presentation">
@@ -306,7 +306,6 @@
     </ul>
 </div>
 {% endif %}
-
 <div id="chartsTabContent">
     {% if profileCharts is not empty %}
         <div id="chartsTabMetrics" role="tabpanel" aria-labelledby="chartsTabMetrics-tab">
@@ -317,7 +316,6 @@
             </div>
         </div>
     {% endif %}
-    
     {% if powerDistributionChart or heartRateDistributionChart %}
         <div id="chartsTabDistribution" role="tabpanel" aria-labelledby="chartsTabDistribution-tab">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

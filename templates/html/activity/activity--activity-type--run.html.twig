@@ -193,27 +193,22 @@
         </div>
     </div>
 {% endif %}
-{% if profileCharts is not empty or heartRateDistributionChart %}
+{% if heartRateDistributionChart and profileCharts is not empty  %}
     <div class="mb-4 border-b border-gray-200">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="chartsTab" data-tabs="#chartsTabContent" role="tablist">
-            {% if profileCharts is not empty %}
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#chartsTabMetrics" role="tab" aria-controls="chartsTabMetrics" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "Metrics"|trans }}
-                    </a>
-                </li>
-            {% endif %}
-            {% if heartRateDistributionChart %}
-                <li class="mr-2" role="presentation">
-                    <a href="#" data-tabs-target="#chartsTabDistribution" role="tab" aria-controls="chartsTabDistribution" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
-                        {{ "Distribution"|trans }}
-                    </a>
-                </li>
-            {% endif %}
+            <li class="mr-2" role="presentation">
+                <a href="#" data-tabs-target="#chartsTabMetrics" role="tab" aria-controls="chartsTabMetrics" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                    {{ "Metrics"|trans }}
+                </a>
+            </li>
+            <li class="mr-2" role="presentation">
+                <a href="#" data-tabs-target="#chartsTabDistribution" role="tab" aria-controls="chartsTabDistribution" class="inline-flex items-center justify-center p-2 border-b-2 rounded-t-lg group">
+                    {{ "Distribution"|trans }}
+                </a>
+            </li>
         </ul>
     </div>
 {% endif %}
-
 <div id="chartsTabContent">
     {% if profileCharts is not empty %}
         <div id="chartsTabMetrics" role="tabpanel" aria-labelledby="chartsTabMetrics-tab">
@@ -224,7 +219,6 @@
             </div>
         </div>
     {% endif %}
-    
     {% if heartRateDistributionChart %}
         <div id="chartsTabDistribution" role="tabpanel" aria-labelledby="chartsTabDistribution-tab">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
