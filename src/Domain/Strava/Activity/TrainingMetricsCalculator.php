@@ -12,6 +12,10 @@ use App\Domain\Strava\Athlete\Athlete;
  */
 final readonly class TrainingMetricsCalculator
 {
+    // Constants for TRIMP calculations
+    private const HR_TRIMP_FACTOR = 1.92;     // Standard HR-based factor
+    private const HR_TRIMP_EXPONENT = 1.67;   // Standard HR-based exponent
+
     /**
      * Calculates all training metrics from daily load data.
      *
@@ -114,7 +118,7 @@ final readonly class TrainingMetricsCalculator
             'monotony' => round($monotony, 2),
             'strain' => round($strain, 0),
             'weeklyTrimp' => round($weeklyTrimp, 0),
-            'dailyMetrics' => $metrics, // Include all daily metrics for historical tracking
+            'dailyMetrics' => $metrics,
         ];
     }
 
@@ -123,17 +127,19 @@ final readonly class TrainingMetricsCalculator
      */
     public static function calculateTrimp($activity, Athlete $athlete): float
     {
+        $durationMinutes = $activity->getMovingTimeInSeconds() / 60;
+
         if ($activity->getAverageHeartRate()) {
             $activityDate = $activity->getStartDate();
             $maxHr = $athlete->getMaxHeartRate($activityDate);
             $intensity = $activity->getAverageHeartRate() / $maxHr;
 
-            return ($activity->getMovingTimeInSeconds() / 60) * $intensity * 1.92 * exp(1.67 * $intensity);
+            return $durationMinutes * $intensity * self::HR_TRIMP_FACTOR * exp(self::HR_TRIMP_EXPONENT * $intensity);
         }
 
-        if ($activity->getAverageSpeed()?->toFloat() > 0) {
-            $activityType = $activity->getSportType()->getActivityType();
+        $activityType = $activity->getSportType()->getActivityType();
 
+        if ($activity->getAverageSpeed()?->toFloat() > 0) {
             return match ($activityType) {
                 ActivityType::RUN, ActivityType::WALK => self::calculatePaceBasedTrimp($activity),
                 ActivityType::RIDE => self::calculateSpeedBasedTrimp($activity),
@@ -146,22 +152,49 @@ final readonly class TrainingMetricsCalculator
 
     private static function calculatePaceBasedTrimp($activity): float
     {
+        $durationMinutes = $activity->getMovingTimeInSeconds() / 60;
         $pace = 60 / $activity->getAverageSpeed()->toFloat();
-        $intensity = min(1.0, max(0.5, $pace / 8));
 
-        return ($activity->getMovingTimeInSeconds() / 60) * $intensity * 1.5;
+        if ($pace <= 4.0) {
+            $intensity = 0.9;
+        } elseif ($pace <= 5.0) {
+            $intensity = 0.8;
+        } elseif ($pace <= 6.0) {
+            $intensity = 0.7;
+        } elseif ($pace <= 7.0) {
+            $intensity = 0.6;
+        } else {
+            $intensity = 0.5;
+        }
+
+        return $durationMinutes * $intensity * self::HR_TRIMP_FACTOR * exp(self::HR_TRIMP_EXPONENT * $intensity);
     }
 
     private static function calculateSpeedBasedTrimp($activity): float
     {
+        $durationMinutes = $activity->getMovingTimeInSeconds() / 60;
         $speed = $activity->getAverageSpeed()->toFloat() * 3.6;
-        $intensity = min(1.0, max(0.5, $speed / 40));
 
-        return ($activity->getDistance()->toFloat() / 1000) * $speed * 0.05;
+        if ($speed >= 35) {
+            $intensity = 0.9;
+        } elseif ($speed >= 30) {
+            $intensity = 0.8;
+        } elseif ($speed >= 25) {
+            $intensity = 0.7;
+        } elseif ($speed >= 20) {
+            $intensity = 0.6;
+        } else {
+            $intensity = 0.5;
+        }
+
+        return $durationMinutes * $intensity * self::HR_TRIMP_FACTOR * exp(self::HR_TRIMP_EXPONENT * $intensity);
     }
 
     private static function calculateDurationBasedTrimp($activity): float
     {
-        return ($activity->getMovingTimeInSeconds() / 60) * 0.6;
+        $durationMinutes = $activity->getMovingTimeInSeconds() / 60;
+        $intensity = 0.6; // generic default intensity
+
+        return $durationMinutes * $intensity * self::HR_TRIMP_FACTOR * exp(self::HR_TRIMP_EXPONENT * $intensity);
     }
 }
