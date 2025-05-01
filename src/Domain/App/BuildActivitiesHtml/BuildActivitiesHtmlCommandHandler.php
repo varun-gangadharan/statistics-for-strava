@@ -112,38 +112,6 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             } catch (EntityNotFound) {
             }
 
-            // Get additional streams for new charts
-            $timeStream = null;
-            $distanceStream = null;
-            $altitudeStream = null;
-            $velocityStream = null;
-            $powerStream = null;
-
-            try {
-                $timeStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::TIME);
-            } catch (EntityNotFound) {
-            }
-
-            try {
-                $distanceStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::DISTANCE);
-            } catch (EntityNotFound) {
-            }
-
-            try {
-                $altitudeStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::ALTITUDE);
-            } catch (EntityNotFound) {
-            }
-
-            try {
-                $velocityStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::VELOCITY);
-            } catch (EntityNotFound) {
-            }
-
-            try {
-                $powerStream = $this->activityStreamRepository->findOneByActivityAndStreamType($activity->getId(), StreamType::WATTS);
-            } catch (EntityNotFound) {
-            }
-
             $timeInSecondsPerWattage = null;
             $powerDistributionChart = null;
             if ($activityType->supportsPowerDistributionChart() && $activity->getAveragePower()
