@@ -7,6 +7,7 @@ namespace App\Domain\App\BuildTrainingMetricsHtml;
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\TrainingLoadChart;
 use App\Domain\Strava\Activity\TrainingMetricsCalculator;
+use App\Domain\Strava\Activity\TrainingMetricsRepository;
 use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
@@ -21,6 +22,7 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private AthleteRepository $athleteRepository,
+        private TrainingMetricsRepository $trainingMetricsRepository,
     ) {
     }
 
@@ -29,6 +31,8 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
         assert($command instanceof BuildTrainingMetricsHtml);
 
         $now = $command->getCurrentDateTime();
+        // Ensure training metrics table exists (for first build/back-fill)
+        $this->trainingMetricsRepository->createTableIfNotExists();
         $allActivities = $this->activitiesEnricher->getEnrichedActivities();
 
         $dailyLoadData = [];
@@ -84,14 +88,74 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
             return strtotime($a) - strtotime($b);
         });
 
-        // Use the shared calculator to get consistent metrics
-        $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
+        // Determine first loaded date
+        $dates = array_keys($dailyLoadData);
+        if (empty($dates)) {
+            // nothing to do
+            return;
+        }
+        $firstDateStr = reset($dates);
+        echo sprintf("DEBUG: First calculation date: %s\n", $firstDateStr);
+        $firstDateObj = new \DateTime($firstDateStr);
+
+        // --- Seed initial CTL/ATL using either stored history or a warm-up period ---
+        $allDates = array_keys($dailyLoadData);
+        // Warm-up: use up to 56 days of data to seed initial fitness
+        $warmUpDays = 56;
+        $warmCount = min(count($allDates), $warmUpDays);
+        $warmDates = array_slice($allDates, 0, $warmCount);
+        $warmData = [];
+        foreach ($warmDates as $d) {
+            $warmData[$d] = $dailyLoadData[$d];
+        }
+        $seedDate = null;
+        $seedCtl = 0.0;
+        $seedAtl = 0.0;
+        // Attempt to fetch most recent stored metrics at the first calculation date
+        $prev = $this->trainingMetricsRepository->getLatestMetricsBeforeDate($firstDateObj);
+        if (null !== $prev) {
+            // Use persisted history
+            $seedDate = $prev['date'];
+            $seedCtl = (float) $prev['ctl'];
+            $seedAtl = (float) $prev['atl'];
+        } else {
+            // First run: calculate warm-up metrics and take last day values
+            $warmMetrics = TrainingMetricsCalculator::calculateMetrics($warmData);
+            $warmDaily = $warmMetrics['dailyMetrics'] ?? [];
+            if (!empty($warmDaily)) {
+                end($warmDaily);
+                $seedDate = key($warmDaily);
+                $vals = current($warmDaily);
+                $seedCtl = $vals['ctl'];
+                $seedAtl = $vals['atl'];
+            }
+        }
+        // DEBUG: seed date and values
+        echo sprintf("DEBUG: Seed metrics date: %s (ctl=%.2f, atl=%.2f)\n", $seedDate, $seedCtl, $seedAtl);
+
+        // --- Calculate CTL/ATL curve over the full dataset starting from seed ---
+        $metrics = TrainingMetricsCalculator::calculateMetrics(
+            $dailyLoadData,
+            [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
+            $seedDate
+        );
+        echo sprintf("DEBUG: Calculated metrics: %s\n", var_export($metrics, true));
+
+        // Persist computed daily metrics for future builds
+        if (!empty($metrics['dailyMetrics'])) {
+            $this->trainingMetricsRepository->storeMultipleDailyMetrics($metrics['dailyMetrics']);
+        }
 
         $this->buildStorage->write(
             'training-metrics.html',
             $this->twig->render('html/dashboard/training-metrics.html.twig', [
                 'trainingLoadChart' => Json::encode(
-                    TrainingLoadChart::fromDailyLoadData($dailyLoadData)->build()
+                    TrainingLoadChart::fromDailyLoadData(
+                        $dailyLoadData,
+                        42,
+                        7,
+                        $metrics['dailyMetrics']
+                    )->build()
                 ),
                 'currentCtl' => $metrics['currentCtl'],
                 'currentAtl' => $metrics['currentAtl'],

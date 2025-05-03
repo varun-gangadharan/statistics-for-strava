@@ -17,6 +17,8 @@ final readonly class TrainingLoadChart
         private array $dailyLoadData,
         private int $ctlDays = 42, // ~6 weeks for Chronic Training Load
         private int $atlDays = 7,  // 7 days for Acute Training Load
+        /** @var array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null */
+        private ?array $precomputedMetrics = null,
     ) {
     }
 
@@ -27,11 +29,14 @@ final readonly class TrainingLoadChart
         array $dailyLoadData,
         int $ctlDays = 42,
         int $atlDays = 7,
+        /** @param array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null $precomputedMetrics */
+        ?array $precomputedMetrics = null,
     ): self {
         return new self(
             dailyLoadData: $dailyLoadData,
             ctlDays: $ctlDays,
             atlDays: $atlDays,
+            precomputedMetrics: $precomputedMetrics,
         );
     }
 
@@ -154,20 +159,28 @@ final readonly class TrainingLoadChart
         ksort($calculationData);
 
         // Now iterate through the final dates array (last N days)
-        // and calculate metrics using the buffered $calculationData pool
+        // and collect values either from provided precomputed metrics or via local EWMA calculation.
         $prevCtl = 0;
         $prevAtl = 0;
         $decayCtl = exp(-1 / $this->ctlDays);
         $decayAtl = exp(-1 / $this->atlDays);
+        $hasPrecomputed = null !== $this->precomputedMetrics;
 
         foreach ($dates as $currentDate) {
-            // Use TRIMP from calculationData (includes buffer) or 0 if missing
-            $todayTrimp = $calculationData[$currentDate] ?? 0;
-
-            // Exponentially Weighted Moving Average (EWMA)
-            $ctl = ($prevCtl * $decayCtl) + ($todayTrimp * (1 - $decayCtl));
-            $atl = ($prevAtl * $decayAtl) + ($todayTrimp * (1 - $decayAtl));
-            $tsb = $ctl - $atl;
+            if ($hasPrecomputed && isset($this->precomputedMetrics[$currentDate])) {
+                $row = $this->precomputedMetrics[$currentDate];
+                $todayTrimp = $row['trimp'];
+                $ctl = $row['ctl'];
+                $atl = $row['atl'];
+                $tsb = $row['tsb'];
+            } else {
+                // Use TRIMP from calculationData (includes buffer) or 0 if missing
+                $todayTrimp = $calculationData[$currentDate] ?? 0;
+                // Exponentially Weighted Moving Average (EWMA)
+                $ctl = ($prevCtl * $decayCtl) + ($todayTrimp * (1 - $decayCtl));
+                $atl = ($prevAtl * $decayAtl) + ($todayTrimp * (1 - $decayAtl));
+                $tsb = $ctl - $atl;
+            }
 
             // Store values for the chart *only for dates within the display window*
             $trimpValues[] = round($todayTrimp, 1);
@@ -176,9 +189,11 @@ final readonly class TrainingLoadChart
             $tsbValues[] = round($tsb, 1);
             $formattedDates[] = SerializableDateTime::fromString($currentDate)->format('M d');
 
-            // Update previous values for next iteration
-            $prevCtl = $ctl;
-            $prevAtl = $atl;
+            // Update previous values for next iteration if using local calculation
+            if (!$hasPrecomputed) {
+                $prevCtl = $ctl;
+                $prevAtl = $atl;
+            }
         }
 
         // NEW: Calculate dynamic Y-axis ranges with buffers

@@ -20,12 +20,16 @@ final readonly class TrainingMetricsCalculator
      * Calculates all training metrics from daily load data.
      *
      * @param array<string, array{trimp: float, duration: int, intensity: float}>           $dailyLoadData
-     * @param array<string, array{ctl: float, atl: float, tsb: float, acRatio: float}|null> $previousMetrics Previous day's metrics (optional)
+     * @param array<string, array{ctl: float, atl: float, tsb: float, acRatio: float}|null> $previousMetrics Historical metrics keyed by date
+     * @param string|null                                                                  $startDate Optional date to start calculations from
      *
      * @return array Training metrics
      */
-    public static function calculateMetrics(array $dailyLoadData, ?array $previousMetrics = null): array
-    {
+    public static function calculateMetrics(
+        array $dailyLoadData, 
+        ?array $previousMetrics = null, 
+        ?string $startDate = null
+    ): array {
         // Continuous-time decay factors for CTL (42-day) and ATL (7-day)
         $ctlDecay = exp(-1 / 42);  // CTL decay λ = e^(−1/42)
         $atlDecay = exp(-1 / 7);   // ATL decay λ = e^(−1/7)
@@ -36,10 +40,32 @@ final readonly class TrainingMetricsCalculator
         $dates = array_keys($dailyLoadData);
         $metrics = [];
 
-        // Initialize with previous metrics if provided, otherwise start with zeros
-        $lastCtl = $previousMetrics[$dates[0] ?? ''] ?? ['ctl' => 0.0, 'atl' => 0.0, 'tsb' => 0.0, 'acRatio' => 0.0];
-        $ctl = $lastCtl['ctl'] ?? 0.0;
-        $atl = $lastCtl['atl'] ?? 0.0;
+        // Determine starting values from historical metrics
+        if ($startDate === null && !empty($dates)) {
+            $startDate = $dates[0];
+        }
+
+        // Find most recent historical metrics before the start date
+        $startingCtl = 0.0;
+        $startingAtl = 0.0;
+        
+        if ($previousMetrics !== null && $startDate !== null) {
+            $mostRecentDate = null;
+            
+            foreach ($previousMetrics as $date => $metric) {
+                // Include metrics up to and including the start date
+                if ($date <= $startDate && ($mostRecentDate === null || $date > $mostRecentDate)) {
+                    $mostRecentDate = $date;
+                    $startingCtl = $metric['ctl'] ?? 0.0;
+                    $startingAtl = $metric['atl'] ?? 0.0;
+                }
+            }
+        }
+
+        $ctl = $startingCtl;
+        error_log('starting ctl: ' . $ctl);
+        $atl = $startingAtl;
+        error_log('starting atl: ' . $atl);
 
         // Process each day sequentially, updating metrics daily
         foreach ($dates as $date) {

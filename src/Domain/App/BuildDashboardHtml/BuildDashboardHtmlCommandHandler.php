@@ -48,6 +48,7 @@ use App\Infrastructure\ValueObject\Time\Years;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use App\Domain\Strava\Activity\TrainingMetricsRepository;
 
 final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 {
@@ -66,6 +67,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
+        private TrainingMetricsRepository $trainingMetricsRepository,
     ) {
     }
 
@@ -220,17 +222,63 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
         }
 
-        // Calculate metrics using the shared calculator
-        $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
+        // Calculate metrics using the shared calculator, seeding CTL/ATL as in BuildTrainingMetricsHtml
+        // Determine first date for seeding
+        $dates = array_keys($dailyLoadData);
+        sort($dates);
+        $firstDateStr = reset($dates) ?: $now->format('Y-m-d');
+        $firstDateObj = new \DateTime($firstDateStr);
+        // Attempt to fetch persisted metrics for seeding
+        $prev = $this->trainingMetricsRepository->getLatestMetricsBeforeDate($firstDateObj);
+        if (null !== $prev) {
+            $seedDate = $prev['date'];
+            $seedCtl  = (float) $prev['ctl'];
+            $seedAtl  = (float) $prev['atl'];
+            $metrics = TrainingMetricsCalculator::calculateMetrics(
+                $dailyLoadData,
+                [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
+                $seedDate
+            );
+        } else {
+            // Warm-up seeding (up to 56 days) for initial builds
+            $warmUpDays = 56;
+            $warmCount = min(count($dates), $warmUpDays);
+            $warmDates = array_slice($dates, 0, $warmCount);
+            $warmData = [];
+            foreach ($warmDates as $d) {
+                $warmData[$d] = $dailyLoadData[$d];
+            }
+            $warmMetrics = TrainingMetricsCalculator::calculateMetrics($warmData);
+            $warmDaily = $warmMetrics['dailyMetrics'] ?? [];
+            if (!empty($warmDaily)) {
+                end($warmDaily);
+                $seedDate = key($warmDaily);
+                $vals = current($warmDaily);
+                $seedCtl  = $vals['ctl'];
+                $seedAtl  = $vals['atl'];
+                $metrics = TrainingMetricsCalculator::calculateMetrics(
+                    $dailyLoadData,
+                    [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
+                    $seedDate
+                );
+            } else {
+                $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
+            }
+        }
 
-        // Build the training metrics page first
-        $trainingLoadChart = TrainingLoadChart::fromDailyLoadData($dailyLoadData);
+        // Build the training metrics page first using precomputed daily metrics
+        $trainingLoadChart = TrainingLoadChart::fromDailyLoadData(
+            $dailyLoadData,
+            42,
+            7,
+            $metrics['dailyMetrics'],
+        );
 
         $this->buildStorage->write(
             'training-metrics.html',
             $this->twig->render('html/dashboard/training-metrics.html.twig', [
                 'trainingLoadChart' => Json::encode(
-                    $trainingLoadChart->build(true)
+                    $trainingLoadChart->build()
                 ),
                 'currentCtl' => $metrics['currentCtl'],
                 'currentAtl' => $metrics['currentAtl'],
