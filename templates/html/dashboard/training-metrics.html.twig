@@ -71,12 +71,13 @@
                 <div class="text-2xl font-bold {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ currentTsb }}</div>
                 <div class="text-sm text-gray-500">
                     {% if currentTsb > 5 %}
-                        {{ "Fresh - reduced training load"|trans }}
-                    {% elseif currentTsb < -5 %}
-                        {{ "Fatigued - high training stress"|trans }}
-                    {% else %}
-                        {{ "Optimal form for performance"|trans }}
-                    {% endif %}
+  {{ "Fresh - reduced training load"|trans }}
+{% elseif currentTsb < -15 %}
+  {{ "Fatigued - high training stress"|trans }}
+{% else %}
+  {{ "Optimal form for performance"|trans }}
+{% endif %}
+
                 </div>
             </div>
 

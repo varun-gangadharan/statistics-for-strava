@@ -6,6 +6,7 @@ namespace App\Domain\Strava\Athlete\ImportAthlete;
 
 use App\Domain\Strava\Athlete\Athlete;
 use App\Domain\Strava\Athlete\AthleteBirthDate;
+use App\Domain\Strava\Athlete\AthleteRestingHeartRate;
 use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Domain\Strava\Strava;
 use App\Infrastructure\CQRS\Command\Command;
@@ -16,6 +17,7 @@ final readonly class ImportAthleteCommandHandler implements CommandHandler
     public function __construct(
         private Strava $strava,
         private AthleteBirthDate $athleteBirthDate,
+        private AthleteRestingHeartRate $athleteRestingHeartRate,
         private AthleteRepository $athleteRepository,
     ) {
     }
@@ -29,6 +31,7 @@ final readonly class ImportAthleteCommandHandler implements CommandHandler
         $this->athleteRepository->save(Athlete::create([
             ...$athlete,
             'birthDate' => $this->athleteBirthDate,
+            'restingHeartRate' => $this->athleteRestingHeartRate->toInt(),
         ]));
     }
 }

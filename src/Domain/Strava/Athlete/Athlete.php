@@ -67,6 +67,14 @@ final class Athlete implements \JsonSerializable
     }
 
     /**
+     * Returns the athlete's resting heart rate, if available.
+     */
+    public function getRestingHeartRate(): int
+    {
+        return isset($this->data['restingHeartRate']) ? (int) $this->data['restingHeartRate'] : 0;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array

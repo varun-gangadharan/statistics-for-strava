@@ -29,7 +29,7 @@ final readonly class TrainingLoadChart
         array $dailyLoadData,
         int $ctlDays = 42,
         int $atlDays = 7,
-        /** @param array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null $precomputedMetrics */
+        /* @param array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null $precomputedMetrics */
         ?array $precomputedMetrics = null,
     ): self {
         return new self(
@@ -339,10 +339,9 @@ final readonly class TrainingLoadChart
                     'markLine' => [
                         'silent' => true, 'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
                         'data' => [
-                            ['yAxis' => 5, 'label' => ['formatter' => 'Fresh', 'position' => 'insideEndTop']],
-                            // ['yAxis' => -5, 'label' => ['formatter' => 'Neutral', 'position' => 'insideEndTop']], // Reduced zones
-                            ['yAxis' => -15, 'label' => ['formatter' => 'Optimal', 'position' => 'insideEndTop']], // Common zones
-                            ['yAxis' => -30, 'label' => ['formatter' => 'Fatigued', 'position' => 'insideEndTop']], // Common zones
+                            ['yAxis' => 5, 'label' => ['formatter' => 'Fresh']],
+                            ['yAxis' => -5, 'label' => ['formatter' => 'Optimal']],
+                            ['yAxis' => -15, 'label' => ['formatter' => 'Fatigued']],
                         ],
                         'label' => ['distance' => [0, -5]], // Adjust label position relative to line
                     ],

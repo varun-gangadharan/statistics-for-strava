@@ -100,10 +100,15 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
 
         // --- Seed initial CTL/ATL using either stored history or a warm-up period ---
         $allDates = array_keys($dailyLoadData);
-        // Warm-up: use up to 56 days of data to seed initial fitness
+        // Warm-up: use up to 56 days of data immediately preceding the first calculation date
         $warmUpDays = 56;
-        $warmCount = min(count($allDates), $warmUpDays);
-        $warmDates = array_slice($allDates, 0, $warmCount);
+        // Filter dates before the first calculation date
+        $warmDates = array_filter($allDates, fn (string $d) => $d < $firstDateStr);
+        // Take the last $warmUpDays days from that set
+        $warmDates = array_slice(
+            $warmDates,
+            max(0, count($warmDates) - $warmUpDays)
+        );
         $warmData = [];
         foreach ($warmDates as $d) {
             $warmData[$d] = $dailyLoadData[$d];
@@ -130,6 +135,10 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
                 $seedAtl = $vals['atl'];
             }
         }
+        // If no seed date determined (no prior metrics and no warm-up data), start at firstDate
+        if (null === $seedDate) {
+            $seedDate = $firstDateStr;
+        }
         // DEBUG: seed date and values
         echo sprintf("DEBUG: Seed metrics date: %s (ctl=%.2f, atl=%.2f)\n", $seedDate, $seedCtl, $seedAtl);
 
@@ -139,7 +148,7 @@ final readonly class BuildTrainingMetricsHtmlCommandHandler implements CommandHa
             [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
             $seedDate
         );
-        echo sprintf("DEBUG: Calculated metrics: %s\n", var_export($metrics, true));
+        /*echo sprintf("DEBUG: Calculated metrics: %s\n", var_export($metrics, true));*/
 
         // Persist computed daily metrics for future builds
         if (!empty($metrics['dailyMetrics'])) {

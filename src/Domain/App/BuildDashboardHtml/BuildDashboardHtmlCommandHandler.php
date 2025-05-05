@@ -23,6 +23,7 @@ use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
 use App\Domain\Strava\Activity\TrainingLoadChart;
 use App\Domain\Strava\Activity\TrainingMetricsCalculator;
+use App\Domain\Strava\Activity\TrainingMetricsRepository;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -48,7 +49,6 @@ use App\Infrastructure\ValueObject\Time\Years;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
-use App\Domain\Strava\Activity\TrainingMetricsRepository;
 
 final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 {
@@ -74,6 +74,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
     public function handle(Command $command): void
     {
         assert($command instanceof BuildDashboardHtml);
+        // Ensure the training metrics table exists to avoid missing table errors
+        $this->trainingMetricsRepository->createTableIfNotExists();
 
         $now = $command->getCurrentDateTime();
         $athlete = $this->athleteRepository->find();
@@ -201,6 +203,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 
             // Calculate training load using the shared calculator
             if ($activity->getMovingTimeInSeconds() > 0) {
+                echo 'Activity : ';
+                /*var_dump($activity);*/
                 $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
 
                 $dailyLoadData[$date]['trimp'] += $trimp;
@@ -232,8 +236,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $prev = $this->trainingMetricsRepository->getLatestMetricsBeforeDate($firstDateObj);
         if (null !== $prev) {
             $seedDate = $prev['date'];
-            $seedCtl  = (float) $prev['ctl'];
-            $seedAtl  = (float) $prev['atl'];
+            $seedCtl = (float) $prev['ctl'];
+            $seedAtl = (float) $prev['atl'];
             $metrics = TrainingMetricsCalculator::calculateMetrics(
                 $dailyLoadData,
                 [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
@@ -254,8 +258,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 end($warmDaily);
                 $seedDate = key($warmDaily);
                 $vals = current($warmDaily);
-                $seedCtl  = $vals['ctl'];
-                $seedAtl  = $vals['atl'];
+                $seedCtl = $vals['ctl'];
+                $seedAtl = $vals['atl'];
                 $metrics = TrainingMetricsCalculator::calculateMetrics(
                     $dailyLoadData,
                     [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
