@@ -23,7 +23,6 @@ use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
 use App\Domain\Strava\Activity\TrainingLoadChart;
 use App\Domain\Strava\Activity\TrainingMetricsCalculator;
-use App\Domain\Strava\Activity\TrainingMetricsRepository;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -67,15 +66,12 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private Environment $twig,
         private FilesystemOperator $buildStorage,
         private TranslatorInterface $translator,
-        private TrainingMetricsRepository $trainingMetricsRepository,
     ) {
     }
 
     public function handle(Command $command): void
     {
         assert($command instanceof BuildDashboardHtml);
-        // Ensure the training metrics table exists to avoid missing table errors
-        $this->trainingMetricsRepository->createTableIfNotExists();
 
         $now = $command->getCurrentDateTime();
         $athlete = $this->athleteRepository->find();
@@ -203,8 +199,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 
             // Calculate training load using the shared calculator
             if ($activity->getMovingTimeInSeconds() > 0) {
-                echo 'Activity : ';
-                /*var_dump($activity);*/
                 $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
 
                 $dailyLoadData[$date]['trimp'] += $trimp;
@@ -233,41 +227,30 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $firstDateStr = reset($dates) ?: $now->format('Y-m-d');
         $firstDateObj = new \DateTime($firstDateStr);
         // Attempt to fetch persisted metrics for seeding
-        $prev = $this->trainingMetricsRepository->getLatestMetricsBeforeDate($firstDateObj);
-        if (null !== $prev) {
-            $seedDate = $prev['date'];
-            $seedCtl = (float) $prev['ctl'];
-            $seedAtl = (float) $prev['atl'];
+
+        // Warm-up seeding (up to 56 days) for initial builds
+        $warmUpDays = 56;
+        $warmCount = min(count($dates), $warmUpDays);
+        $warmDates = array_slice($dates, 0, $warmCount);
+        $warmData = [];
+        foreach ($warmDates as $d) {
+            $warmData[$d] = $dailyLoadData[$d];
+        }
+        $warmMetrics = TrainingMetricsCalculator::calculateMetrics($warmData);
+        $warmDaily = $warmMetrics['dailyMetrics'] ?? [];
+        if (!empty($warmDaily)) {
+            end($warmDaily);
+            $seedDate = key($warmDaily);
+            $vals = current($warmDaily);
+            $seedCtl = $vals['ctl'];
+            $seedAtl = $vals['atl'];
             $metrics = TrainingMetricsCalculator::calculateMetrics(
                 $dailyLoadData,
                 [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
                 $seedDate
             );
         } else {
-            // Warm-up seeding (up to 56 days) for initial builds
-            $warmUpDays = 56;
-            $warmCount = min(count($dates), $warmUpDays);
-            $warmDates = array_slice($dates, 0, $warmCount);
-            $warmData = [];
-            foreach ($warmDates as $d) {
-                $warmData[$d] = $dailyLoadData[$d];
-            }
-            $warmMetrics = TrainingMetricsCalculator::calculateMetrics($warmData);
-            $warmDaily = $warmMetrics['dailyMetrics'] ?? [];
-            if (!empty($warmDaily)) {
-                end($warmDaily);
-                $seedDate = key($warmDaily);
-                $vals = current($warmDaily);
-                $seedCtl = $vals['ctl'];
-                $seedAtl = $vals['atl'];
-                $metrics = TrainingMetricsCalculator::calculateMetrics(
-                    $dailyLoadData,
-                    [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
-                    $seedDate
-                );
-            } else {
-                $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
-            }
+            $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
         }
 
         // Build the training metrics page first using precomputed daily metrics

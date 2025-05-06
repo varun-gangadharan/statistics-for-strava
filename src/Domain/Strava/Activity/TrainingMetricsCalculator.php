@@ -269,7 +269,7 @@ final readonly class TrainingMetricsCalculator
                 // Only use segment-based TRIMP if HR data was present in splits
                 if ($segmentTrimp > 0) {
                     $scaledSegmentTrimp = $segmentTrimp * self::GLOBAL_SCALING_FACTOR;
-                    /*echo sprintf("DEBUG: Segment-based TRIMP used, sum=%.2f\n", $scaledSegmentTrimp);*/
+
                     return $scaledSegmentTrimp;
                 }
             }

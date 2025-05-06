@@ -177,6 +177,7 @@ final class DbalActivityRepository implements ActivityRepository
         $rawData = Json::decode($result['data'] ?? '[]');
         $activity->setRawData(is_array($rawData) ? $rawData : []);
         $activity->setStreamsAreImported((bool) ($result['streamsAreImported'] ?? false));
+
         return $activity;
     }
 }

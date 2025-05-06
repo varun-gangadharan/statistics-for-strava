@@ -347,15 +347,17 @@ final class Activity
     {
         return $this->totalImageCount;
     }
+
     /**
      * Returns the raw Strava API data stored for this activity.
      *
-     * @return array<mixed> Raw activity data, including splits, streams, etc.
+     * @return array<mixed> raw activity data, including splits, streams, etc
      */
     public function getRawData(): array
     {
         return $this->data;
     }
+
     /**
      * @param array<mixed> $data Raw Strava API data stored in DB
      */
@@ -363,6 +365,7 @@ final class Activity
     {
         $this->data = $data;
     }
+
     /**
      * @param bool $imported Flag for whether streams have been imported
      */
