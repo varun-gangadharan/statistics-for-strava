@@ -20,13 +20,19 @@ final readonly class TrainingMetricsCalculator
     private const CTL_TIME_CONSTANT = 42; // 42-day time constant for Chronic Training Load
     private const ATL_TIME_CONSTANT = 7;  // 7-day time constant for Acute Training Load
 
-    // Global scaling factor for TRIMP calculations
-    // Evidence-based population scaling
-    private const GLOBAL_SCALING_FACTOR = 0.7875;
+    // == NEW Category-Specific Scaling Factors ==
+    private const SCALING_LONG_CYCLES = 0.52;    // For "Ride" activities over a certain duration
+    private const SCALING_SHORT_CYCLES = 0.16;   // For "Ride" activities under or equal to a certain duration
+    private const SCALING_RUN_WITHOUT_HR = 0.36; // For "Run" or "Walk" when HR data is not used for TRIMP
+    private const SCALING_RUN_WITH_HR = 0.54;    // For "Run" or "Walk" when HR data is used for TRIMP
+    private const DEFAULT_ACTIVITY_SCALING_FACTOR = 1.0; // Fallback for other activity types
+
+    // Threshold for differentiating long vs. short cycles
+    private const LONG_CYCLE_DURATION_THRESHOLD_MINUTES = 60; // e.g., activities > 60 minutes are "long"
 
     // TRIMP calculation factors
     private const HR_TRIMP_FACTOR = 1.0;     // Standard HR-based factor
-    private const HR_TRIMP_EXPONENT = 1.67;   // Standard HR-based exponent
+    private const HR_TRIMP_EXPONENT = 1.67;  // Standard HR-based exponent
 
     // Default intensity if HR/Pace/Speed is unavailable
     private const DEFAULT_INTENSITY = 0.4;
@@ -108,7 +114,6 @@ final readonly class TrainingMetricsCalculator
 
         $ctl = $startingCtl;
         $atl = $startingAtl;
-        $prevDate = $lastMetricDate;
 
         // Process each day sequentially, updating metrics daily
         foreach ($dates as $date) {
@@ -117,10 +122,13 @@ final readonly class TrainingMetricsCalculator
                 continue;
             }
 
+            $usedDates[] = $date;
+
             $trimp = $dailyLoadData[$date]['trimp'];
 
             // Apply continuous-time Exponential Moving Average (EMA) decay with time adjustment:
             $timeDecayFactor = self::DEFAULT_TIME_DECAY_FACTOR;
+
             $ctlDecay = pow(exp(-1 / self::CTL_TIME_CONSTANT), $timeDecayFactor);
             $atlDecay = pow(exp(-1 / self::ATL_TIME_CONSTANT), $timeDecayFactor);
             $ctl = $ctl * $ctlDecay + $trimp * (1 - $ctlDecay);
@@ -191,8 +199,8 @@ final readonly class TrainingMetricsCalculator
             if ($avgDailyLoad > 0) {
                 // Calculate Standard Deviation of the last 7 days' TRIMP
                 $variance = 0.0;
-                foreach ($lastSevenDaysTrimp as $trimp) {
-                    $variance += pow($trimp - $avgDailyLoad, 2);
+                foreach ($lastSevenDaysTrimp as $trimpVal) { // Renamed variable to avoid conflict
+                    $variance += pow($trimpVal - $avgDailyLoad, 2);
                 }
                 $stdDev = sqrt($variance / 7);
 
@@ -226,12 +234,13 @@ final readonly class TrainingMetricsCalculator
     // == TRIMP Calculation Helpers ==
 
     /**
-     * Calculates TRIMP for a single activity based on available data (HR, Pace, Speed, or Duration).
+     * Calculates TRIMP for a single activity based on available data (HR, Pace, Speed, or Duration)
+     * and applies category-specific scaling.
      *
      * @param mixed   $activity An object representing the activity (needs methods like getMovingTimeInSeconds, getAverageHeartRate, etc.)
      * @param Athlete $athlete  The athlete performing the activity (used for Max HR)
      *
-     * @return float The calculated TRIMP value
+     * @return float The calculated and scaled TRIMP value
      */
     public static function calculateTrimp($activity, Athlete $athlete): float
     {
@@ -240,82 +249,96 @@ final readonly class TrainingMetricsCalculator
             return 0.0; // No TRIMP for zero duration activities
         }
 
-        // 0. Segment-based TRIMP for runs and rides using per-kilometer splits if available
+        $baseTrimp = 0.0;
+        $dataSourceForScaling = 'duration'; // Default: will be updated if HR or pace/speed is used
+
         $activityType = $activity->getSportType()->getActivityType();
+        $activityDate = $activity->getStartDate(); // Assuming returns DateTimeInterface or similar
+        $maxHr = $athlete->getMaxHeartRate($activityDate); // Assuming returns float > 0
+        $restingHr = $athlete->getRestingHeartRate();
+
+        // 0. Segment-based TRIMP for runs and rides using per-kilometer splits if available
+        // This TRIMP is calculated first and, if valid, becomes the baseTrimp.
+        $calculatedSegmentTrimp = 0.0;
         if (in_array($activityType, [ActivityType::RUN, ActivityType::RIDE], true) && method_exists($activity, 'getRawData')) {
             $rawData = $activity->getRawData();
             $splits = $rawData['splits_metric'] ?? [];
             if (is_array($splits) && count($splits) > 0) {
-                $segmentTrimp = 0.0;
-                $activityDate = $activity->getStartDate();
-                $maxHr = $athlete->getMaxHeartRate($activityDate);
-                $restingHr = $athlete->getRestingHeartRate();
                 foreach ($splits as $split) {
                     $sec = $split['moving_time'] ?? $split['elapsed_time'] ?? 0;
                     $segmentDuration = $sec / 60;
                     $avgHrSplit = $split['average_heartrate'] ?? 0;
+
                     if ($avgHrSplit > 0 && $segmentDuration > 0) {
+                        $hrRatio = 0.0;
                         if ($maxHr > $restingHr) {
                             $hrRatio = ($avgHrSplit - $restingHr) / ($maxHr - $restingHr);
                             $hrRatio = max(0.0, min(1.0, $hrRatio));
                         } elseif ($maxHr > 0) {
                             $hrRatio = max(0.0, min(1.0, $avgHrSplit / $maxHr));
-                        } else {
-                            $hrRatio = 0.0;
                         }
-                        $segmentTrimp += self::calculateTrimpFromIntensity($segmentDuration, $hrRatio);
+                        $calculatedSegmentTrimp += self::calculateTrimpFromIntensity($segmentDuration, $hrRatio);
                     }
                 }
-                // Only use segment-based TRIMP if HR data was present in splits
-                if ($segmentTrimp > 0) {
-                    $scaledSegmentTrimp = $segmentTrimp * self::GLOBAL_SCALING_FACTOR;
-
-                    return $scaledSegmentTrimp;
+                if ($calculatedSegmentTrimp > 0) {
+                    $baseTrimp = $calculatedSegmentTrimp;
+                    $dataSourceForScaling = 'hr'; // Segment HR was available
                 }
             }
         }
 
-        $trimp = 0.0;
-
-        // 1. Priority: Heart Rate based TRIMP
-        $averageHr = $activity->getAverageHeartRate(); // Assuming this returns float|null
-        if ($averageHr > 0) {
-            $activityDate = $activity->getStartDate(); // Assuming returns DateTimeInterface or similar
-            $maxHr = $athlete->getMaxHeartRate($activityDate); // Assuming returns float > 0
-
-            $restingHr = $athlete->getRestingHeartRate();
-            if ($maxHr > $restingHr) {
-                // Implement HR Reserve calculation
-                $hrRatio = ($averageHr - $restingHr) / ($maxHr - $restingHr);
-                // Clamp hrRatio between 0 and 1
-                $hrRatio = max(0.0, min(1.0, $hrRatio));
-            } elseif ($maxHr > 0) {
-                // Fallback to simple HR ratio if resting HR unavailable or invalid
-                $hrRatio = max(0.0, min(1.0, $averageHr / $maxHr));
-            } else {
-                // No valid HR data
+        // If segment TRIMP wasn't calculated or wasn't valid, proceed to other methods
+        if (0.0 == $baseTrimp) {
+            // 1. Priority: Heart Rate based TRIMP (overall average)
+            $averageHr = $activity->getAverageHeartRate(); // Assuming this returns float|null
+            if ($averageHr > 0) {
                 $hrRatio = 0.0;
-            }
-            $trimp = self::calculateTrimpFromIntensity($durationMinutes, $hrRatio);
-        } else {
-            // 2. Fallback: Pace/Speed based TRIMP (if HR unavailable)
-            $activityType = $activity->getSportType()->getActivityType(); // Assuming returns enum or string constant
-            $averageSpeed = $activity->getAverageSpeed()?->toFloat(); // Assuming returns Speed object or null
-
-            if ($averageSpeed > 0) {
-                $trimp = match ($activityType) {
-                    ActivityType::RUN, ActivityType::WALK => self::calculatePaceBasedTrimp($durationMinutes, $averageSpeed),
-                    ActivityType::RIDE => self::calculateSpeedBasedTrimp($durationMinutes, $averageSpeed),
-                    default => self::calculateDurationBasedTrimp($durationMinutes), // Fallback for other types with speed
-                };
+                if ($maxHr > $restingHr) {
+                    $hrRatio = ($averageHr - $restingHr) / ($maxHr - $restingHr);
+                    $hrRatio = max(0.0, min(1.0, $hrRatio));
+                } elseif ($maxHr > 0) {
+                    $hrRatio = max(0.0, min(1.0, $averageHr / $maxHr));
+                }
+                $baseTrimp = self::calculateTrimpFromIntensity($durationMinutes, $hrRatio);
+                $dataSourceForScaling = 'hr';
             } else {
-                // 3. Fallback: Duration-based TRIMP (lowest priority)
-                $trimp = self::calculateDurationBasedTrimp($durationMinutes);
+                // 2. Fallback: Pace/Speed based TRIMP (if HR unavailable)
+                $averageSpeed = $activity->getAverageSpeed()?->toFloat(); // Assuming returns Speed object or null
+
+                if ($averageSpeed > 0) {
+                    $dataSourceForScaling = 'pace_speed'; // Mark that pace/speed was used
+                    $baseTrimp = match ($activityType) {
+                        ActivityType::RUN, ActivityType::WALK => self::calculatePaceBasedTrimp($durationMinutes, $averageSpeed),
+                        ActivityType::RIDE => self::calculateSpeedBasedTrimp($durationMinutes, $averageSpeed),
+                        default => self::calculateDurationBasedTrimp($durationMinutes), // Fallback for other types with speed
+                    };
+                } else {
+                    // 3. Fallback: Duration-based TRIMP (lowest priority)
+                    $baseTrimp = self::calculateDurationBasedTrimp($durationMinutes);
+                    $dataSourceForScaling = 'duration'; // Explicitly duration based
+                }
             }
         }
 
-        // Apply global scaling factor to all TRIMP calculations
-        return $trimp * self::GLOBAL_SCALING_FACTOR;
+        // Apply category-specific scaling factor
+        $scalingFactor = self::DEFAULT_ACTIVITY_SCALING_FACTOR; // Default
+
+        if (ActivityType::RUN === $activityType || ActivityType::WALK === $activityType) {
+            if ('hr' === $dataSourceForScaling) {
+                $scalingFactor = self::SCALING_RUN_WITH_HR;
+            } else { // 'pace_speed' or 'duration'
+                $scalingFactor = self::SCALING_RUN_WITHOUT_HR;
+            }
+        } elseif (ActivityType::RIDE === $activityType) {
+            if ($durationMinutes > self::LONG_CYCLE_DURATION_THRESHOLD_MINUTES) {
+                $scalingFactor = self::SCALING_LONG_CYCLES;
+            } else {
+                $scalingFactor = self::SCALING_SHORT_CYCLES;
+            }
+        }
+        // Other activity types will use DEFAULT_ACTIVITY_SCALING_FACTOR
+
+        return $baseTrimp * $scalingFactor;
     }
 
     /**
@@ -326,7 +349,7 @@ final readonly class TrainingMetricsCalculator
      * @param float $durationMinutes activity duration in minutes
      * @param float $intensity       Relative intensity (e.g., HR ratio, pace/speed based).
      *
-     * @return float calculated TRIMP
+     * @return float calculated (unscaled) TRIMP
      */
     private static function calculateTrimpFromIntensity(float $durationMinutes, float $intensity): float
     {
@@ -349,11 +372,12 @@ final readonly class TrainingMetricsCalculator
 
     /**
      * Calculates TRIMP based on pace intensity for Run/Walk activities.
+     * This returns an unscaled TRIMP.
      *
      * @param float $durationMinutes duration in minutes
      * @param float $averageSpeedMps average speed in meters per second
      *
-     * @return float calculated TRIMP
+     * @return float calculated (unscaled) TRIMP
      */
     private static function calculatePaceBasedTrimp(float $durationMinutes, float $averageSpeedMps): float
     {
@@ -380,11 +404,12 @@ final readonly class TrainingMetricsCalculator
 
     /**
      * Calculates TRIMP based on speed intensity for Ride activities.
+     * This returns an unscaled TRIMP.
      *
      * @param float $durationMinutes duration in minutes
      * @param float $averageSpeedMps average speed in meters per second
      *
-     * @return float calculated TRIMP
+     * @return float calculated (unscaled) TRIMP
      */
     private static function calculateSpeedBasedTrimp(float $durationMinutes, float $averageSpeedMps): float
     {
@@ -412,10 +437,11 @@ final readonly class TrainingMetricsCalculator
     /**
      * Calculates TRIMP using a default intensity, based only on duration.
      * Used as a fallback when HR, pace, or speed data is insufficient.
+     * This returns an unscaled TRIMP.
      *
      * @param float $durationMinutes duration in minutes
      *
-     * @return float calculated TRIMP
+     * @return float calculated (unscaled) TRIMP
      */
     private static function calculateDurationBasedTrimp(float $durationMinutes): float
     {
