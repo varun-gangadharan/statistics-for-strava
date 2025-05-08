@@ -206,18 +206,33 @@ final readonly class TrainingLoadChart
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'TSB (Form)', 'type' => 'line', 'data' => $this->trainingMetrics['TSB'], 'smooth' => true,
-                    'symbol' => 'none', 'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
+                    'name' => 'TSB (Form)',
+                    'type' => 'line',
+                    'data' => $this->trainingMetrics['TSB'],
+                    'smooth' => true,
+                    'symbol' => 'none',
+                    'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 2,
+
                     'markLine' => [
-                        'silent' => true, 'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
-                        'data' => [
-                            ['yAxis' => 5, 'label' => ['formatter' => 'Fresh']],
-                            ['yAxis' => -5, 'label' => ['formatter' => 'Optimal']],
-                            ['yAxis' => -15, 'label' => ['formatter' => 'Fatigued']],
-                        ],
+                        'silent' => true,
+                        'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
                         'label' => ['distance' => [0, -5]],
+                        'data' => [
+                            [
+                                'yAxis' => 15,
+                                'label' => ['formatter' => 'Taper sweet-spot (+15)'],
+                            ],
+                            [
+                                'yAxis' => -10,
+                                'label' => ['formatter' => 'Build zone (–10)'],
+                            ],
+                            [
+                                'yAxis' => -30,
+                                'label' => ['formatter' => 'Over-fatigued (–30)'],
+                            ],
+                        ],
                     ],
                 ],
                 [

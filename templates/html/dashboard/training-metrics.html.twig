@@ -57,21 +57,30 @@
                     <div data-popover id="popover-tsb" role="tooltip" class="absolute z-100 invisible w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0">
                         <div class="p-3 space-y-2">
                             <p>{{ "Training Stress Balance (Form) – The difference between fitness (CTL) and fatigue (ATL). Reflects how ready you are to perform."|trans }}</p>
-                            <p>{{ "> +5: Fresh – Well rested, but prolonged high values may mean loss of fitness."|trans }}</p>
-                            <p>{{ "-5 to +5: Optimal – Balanced fatigue and fitness. Ideal for training or racing."|trans }}</p>
-                            <p>{{ "< -5: Fatigued – Training load is high; may impair performance if sustained."|trans }}</p>
+                            <p>{{ "+15 to +25: Peak-fresh, race-ready. Ideal taper “sweet spot”; >+25 ⇒ possible detraining"|trans }}</p>
+                            <p>{{ "0 to +10: Slightly fresh. Transitional; brief is best"|trans }}</p>
+                            <p>{{ "–10 to –30: 	Build/fatigue zone. Productive heavy-training range"|trans }}</p>
+                            <p>{{ "< –30: Over-fatigued. Risk of injuiry; require extra recovery"|trans }}</p>
                         </div>
                     </div>
                 </div>
                 <div class="text-2xl font-bold {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ trainingMetrics.TSB|last }}</div>
                 <div class="text-sm text-gray-500">
-                    {% if currentTsb > 5 %}
-  {{ "Fresh - reduced training load"|trans }}
-{% elseif currentTsb < -15 %}
-  {{ "Fatigued - high training stress"|trans }}
-{% else %}
-  {{ "Optimal form for performance"|trans }}
-{% endif %}
+                  {% if currentTsb > 25 %}
+                    {{ "Very fresh – possible detraining"|trans }}
+                  {% elseif currentTsb > 15 %}
+                    {{ "Peak-fresh, race-ready – ideal taper sweet spot"|trans }}
+                  {% elseif currentTsb > 10 %}
+                    {{ "Fresh – reduced training load"|trans }}
+                  {% elseif currentTsb > 0 %}
+                    {{ "Slightly fresh – transitional zone"|trans }}
+                  {% elseif currentTsb > -10 %}
+                    {{ "Neutral – short-term sustainable"|trans }}
+                  {% elseif currentTsb > -30 %}
+                    {{ "Fatigued – productive heavy-training range"|trans }}
+                  {% else %}
+                    {{ "Over-fatigued – risk of injury or burnout, extra recovery needed"|trans }}
+                  {% endif %}
 
                 </div>
             </div>
