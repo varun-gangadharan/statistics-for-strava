@@ -22,13 +22,12 @@ use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
 use App\Domain\Strava\Activity\Training\TrainingLoadChart;
-use App\Domain\Strava\Activity\Training\TrainingMetricsCalculator;
+use App\Domain\Strava\Activity\Training\TrainingMetrics;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyDistanceChart;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyStatistics;
-use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Domain\Strava\Athlete\HeartRateZone;
 use App\Domain\Strava\Athlete\TimeInHeartRateZoneChart;
 use App\Domain\Strava\Athlete\Weight\AthleteWeightHistory;
@@ -55,7 +54,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private ActivityHeartRateRepository $activityHeartRateRepository,
         private ActivityPowerRepository $activityPowerRepository,
         private FtpHistory $ftpHistory,
-        private AthleteRepository $athleteRepository,
         private AthleteWeightHistory $athleteWeightHistory,
         private ActivityTypeRepository $activityTypeRepository,
         private SportTypeRepository $sportTypeRepository,
@@ -74,7 +72,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         assert($command instanceof BuildDashboardHtml);
 
         $now = $command->getCurrentDateTime();
-        $athlete = $this->athleteRepository->find();
         $importedActivityTypes = $this->activityTypeRepository->findAll();
         $importedSportTypes = $this->sportTypeRepository->findAll();
         $allActivities = $this->activitiesEnricher->getEnrichedActivities();
@@ -182,91 +179,9 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             );
         }
 
-        $allActivitiesByDate = [];
-        $dailyLoadData = [];
-
-        foreach ($allActivities as $activity) {
-            $date = $activity->getStartDate()->format('Y-m-d');
-            if (!isset($allActivitiesByDate[$date])) {
-                $allActivitiesByDate[$date] = [];
-            }
-            $allActivitiesByDate[$date][] = $activity;
-
-            if (!isset($dailyLoadData[$date])) {
-                $dailyLoadData[$date] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
-            }
-
-            if ($activity->getMovingTimeInSeconds() > 0) {
-                $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
-
-                $dailyLoadData[$date]['trimp'] += $trimp;
-                $dailyLoadData[$date]['duration'] += $activity->getMovingTimeInSeconds();
-                $dailyLoadData[$date]['intensity'] += $activity->getMovingTimeInSeconds() *
-                    ($trimp / ($activity->getMovingTimeInSeconds() / 60));
-            }
-        }
-
-        $startDate = $allActivities->getFirstActivityStartDate()?->format('Y-m-d') ?? $now->format('Y-m-d');
-        $endDate = $now->format('Y-m-d');
-
-        $currentDate = $startDate;
-        while ($currentDate <= $endDate) {
-            if (!isset($dailyLoadData[$currentDate])) {
-                $dailyLoadData[$currentDate] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
-            }
-            $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
-        }
-
-        $dates = array_keys($dailyLoadData);
-        sort($dates);
-
-        $warmUpDays = 56;
-        $warmCount = min(count($dates), $warmUpDays);
-        $warmDates = array_slice($dates, 0, $warmCount);
-        $warmData = [];
-        foreach ($warmDates as $d) {
-            $warmData[$d] = $dailyLoadData[$d];
-        }
-        $warmMetrics = TrainingMetricsCalculator::calculateMetrics($warmData);
-        $warmDaily = $warmMetrics['dailyMetrics'] ?? [];
-        if (!empty($warmDaily)) {
-            end($warmDaily);
-            $seedDate = key($warmDaily);
-            $vals = current($warmDaily);
-            $seedCtl = $vals['ctl'];
-            $seedAtl = $vals['atl'];
-            $metrics = TrainingMetricsCalculator::calculateMetrics(
-                $dailyLoadData,
-                [$seedDate => ['ctl' => $seedCtl, 'atl' => $seedAtl]],
-                $seedDate
-            );
-        } else {
-            $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
-        }
-
-        $trainingLoadChart = TrainingLoadChart::fromDailyLoadData(
-            $dailyLoadData,
-            42,
-            7,
-            $metrics['dailyMetrics'],
-        );
-
-        $this->buildStorage->write(
-            'training-metrics.html',
-            $this->twig->render('html/dashboard/training-metrics.html.twig', [
-                'trainingLoadChart' => Json::encode(
-                    $trainingLoadChart->build()
-                ),
-                'currentCtl' => $metrics['currentCtl'],
-                'currentAtl' => $metrics['currentAtl'],
-                'currentTsb' => $metrics['currentTsb'],
-                'acRatio' => $metrics['acRatio'],
-                'restDaysLastWeek' => $metrics['restDaysLastWeek'],
-                'monotony' => $metrics['monotony'],
-                'strain' => $metrics['strain'],
-                'weeklyTrimp' => $metrics['weeklyTrimp'],
-            ])
-        );
+        $trainingMetrics = TrainingMetrics::create(array_map(function () {
+            return rand(0, 120);
+        }, array_fill(0, 45, null)))->getMetrics();
 
         $this->buildStorage->write(
             'dashboard.html',
@@ -320,15 +235,23 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'yearlyDistanceCharts' => $yearlyDistanceCharts,
                 'yearlyStatistics' => $yearlyStatistics,
                 'bestEffortsCharts' => $bestEffortsCharts,
-                // Training load metrics for the dashboard - same values as in the training-metrics.html
-                'currentCtl' => $metrics['currentCtl'],
-                'currentAtl' => $metrics['currentAtl'],
-                'currentTsb' => $metrics['currentTsb'],
-                'restDaysLastWeek' => $metrics['restDaysLastWeek'],
-                'acRatio' => $metrics['acRatio'],
-                'monotony' => $metrics['monotony'],
-                'strain' => $metrics['strain'],
+                'trainingMetrics' => $trainingMetrics,
+                'restDaysInLast7Days' => 3,
             ]),
+        );
+
+        $this->buildStorage->write(
+            'training-metrics.html',
+            $this->twig->render('html/dashboard/training-metrics.html.twig', [
+                'trainingLoadChart' => Json::encode(
+                    TrainingLoadChart::fromDailyLoadData(
+                        trainingMetrics: $trainingMetrics,
+                        now: $now
+                    )->build()
+                ),
+                'trainingMetrics' => $trainingMetrics,
+                'restDaysInLast7Days' => 3,
+            ])
         );
 
         $this->buildStorage->write(

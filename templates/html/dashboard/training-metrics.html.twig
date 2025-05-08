@@ -18,7 +18,6 @@
         <div class="h-80" data-echarts-options='{{ trainingLoadChart }}'></div>
 
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- CTL Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "CTL (Fitness)"|trans }}</h4>
@@ -31,11 +30,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold">{{ currentCtl }}</div>
+                <div class="text-2xl font-bold">{{ trainingMetrics.CTL|last }}</div>
                 <div class="text-sm text-gray-500">{{ "42-day fitness trend"|trans }}</div>
             </div>
-
-            <!-- ATL Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "ATL (Fatigue)"|trans }}</h4>
@@ -48,11 +45,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold">{{ currentAtl }}</div>
+                <div class="text-2xl font-bold">{{ trainingMetrics.ATL|last }}</div>
                 <div class="text-sm text-gray-500">{{ "7-day fatigue level"|trans }}</div>
             </div>
-
-            <!-- TSB Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "TSB (Form)"|trans }}</h4>
@@ -68,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ currentTsb }}</div>
+                <div class="text-2xl font-bold {{ currentTsb > 5 ? 'text-yellow-500' : (currentTsb < -5 ? 'text-blue-500' : 'text-green-500') }}">{{ trainingMetrics.TSB|last }}</div>
                 <div class="text-sm text-gray-500">
                     {% if currentTsb > 5 %}
   {{ "Fresh - reduced training load"|trans }}
@@ -80,8 +75,6 @@
 
                 </div>
             </div>
-
-            <!-- A:C Ratio Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "A:C Ratio"|trans }}</h4>
@@ -97,7 +90,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold {{ acRatio > 1.3 ? 'text-red-500' : (acRatio < 0.8 ? 'text-yellow-500' : 'text-green-500') }}">{{ acRatio }}</div>
+                <div class="text-2xl font-bold {{ acRatio > 1.3 ? 'text-red-500' : (acRatio < 0.8 ? 'text-yellow-500' : 'text-green-500') }}">{{ trainingMetrics.acRatio|last }}</div>
                 <div class="text-sm text-gray-500">
                     {% if acRatio > 1.3 %}
                         {{ "High risk - reduce volume"|trans }}
@@ -109,18 +102,14 @@
                 </div>
             </div>
         </div>
-
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Rest Days Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "Rest Days"|trans }}</h4>
                 </div>
-                <div class="text-2xl font-bold">{{ restDaysLastWeek }} / 7</div>
+                <div class="text-2xl font-bold">{{ restDaysInLast7Days }} / 7</div>
                 <div class="text-sm text-gray-500">{{ "Rest days in last 7 days"|trans }}</div>
             </div>
-
-            <!-- Training Monotony Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "Monotony"|trans }}</h4>
@@ -135,7 +124,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold {{ monotony > 2.0 ? 'text-red-500' : (monotony > 1.5 ? 'text-yellow-500' : 'text-green-500') }}">{{ monotony }}</div>
+                <div class="text-2xl font-bold {{ monotony > 2.0 ? 'text-red-500' : (monotony > 1.5 ? 'text-yellow-500' : 'text-green-500') }}">{{ trainingMetrics.Monotony|last }}</div>
                 <div class="text-sm text-gray-500">
                     {% if monotony > 2.0 %}
                         {{ "High monotony - increase variety"|trans }}
@@ -146,8 +135,6 @@
                     {% endif %}
                 </div>
             </div>
-
-            <!-- Weekly Strain Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "Weekly Strain"|trans }}</h4>
@@ -161,11 +148,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold">{{ strain }}</div>
+                <div class="text-2xl font-bold">{{ trainingMetrics.Strain|last }}</div>
                 <div class="text-sm text-gray-500">{{ "Overall weekly training stress"|trans }}</div>
             </div>
-
-            <!-- TRIMP Card -->
             <div class="flex flex-col justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
                 <div class="flex items-center mb-2">
                     <h4 class="text-md font-semibold">{{ "Weekly TRIMP"|trans }}</h4>
@@ -178,7 +163,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-2xl font-bold">{{ weeklyTrimp }}</div>
+                <div class="text-2xl font-bold">{{ trainingMetrics.TRIMP|last }}</div>
                 <div class="text-sm text-gray-500">{{ "Last 7 days training load"|trans }}</div>
             </div>
         </div>

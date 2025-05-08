@@ -10,39 +10,22 @@ final readonly class TrainingLoadChart
 {
     private const int DEFAULT_DISPLAY_DAYS = 42;
 
-    /**
-     * @param array<string, array{trimp: float, duration: int, intensity: float}> $dailyLoadData Date ('Y-m-d') => Load Data
-     */
     private function __construct(
-        private array $dailyLoadData,
-        private int $ctlDays = 42,
-        private int $atlDays = 7,
-        /** @var array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null */
-        private ?array $precomputedMetrics = null,
+        private array $trainingMetrics,
+        private SerializableDateTime $now,
     ) {
     }
 
-    /**
-     * @param array<string, array{trimp: float, duration: int, intensity: float}> $dailyLoadData
-     */
     public static function fromDailyLoadData(
-        array $dailyLoadData,
-        int $ctlDays = 42,
-        int $atlDays = 7,
-        /* @param array<string, array{ctl: float, atl: float, tsb: float, trimp: float}>|null $precomputedMetrics */
-        ?array $precomputedMetrics = null,
+        array $trainingMetrics,
+        SerializableDateTime $now,
     ): self {
         return new self(
-            dailyLoadData: $dailyLoadData,
-            ctlDays: $ctlDays,
-            atlDays: $atlDays,
-            precomputedMetrics: $precomputedMetrics,
+            trainingMetrics: $trainingMetrics,
+            now: $now,
         );
     }
 
-    /**
-     * @return array{min: float, max: float}
-     */
     private function calculateAxisRange(
         array $values,
         float $bufferPercentage,
@@ -92,90 +75,26 @@ final readonly class TrainingLoadChart
      */
     public function build(): array
     {
-        if (empty($this->dailyLoadData)) {
-            return [];
-        }
-
-        $sortedDailyLoadData = $this->dailyLoadData;
-        ksort($sortedDailyLoadData);
-
-        $allDates = array_keys($sortedDailyLoadData);
-
-        $lastDateStr = end($allDates);
-        $lastDateObj = SerializableDateTime::fromString($lastDateStr);
-
-        $filterStartDate = $lastDateObj->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days');
-        $filterStartDateStr = $filterStartDate->format('Y-m-d');
-
-        $displayDates = array_filter($allDates, function ($date) use ($filterStartDateStr, $lastDateStr) {
-            return $date >= $filterStartDateStr && $date <= $lastDateStr;
-        });
-        sort($displayDates);
-
-        if (empty($displayDates)) {
-            return [];
-        }
-
-        $dates = $displayDates;
-
-        $trimpValues = [];
-        $ctlValues = [];
-        $atlValues = [];
-        $tsbValues = [];
-        $formattedDates = [];
-
-        $calculationStartDate = SerializableDateTime::fromString(reset($dates))->modify('-'.$this->ctlDays.' days');
-        $calculationStartDateStr = $calculationStartDate->format('Y-m-d');
-
-        $calculationData = [];
-        foreach ($sortedDailyLoadData as $date => $load) {
-            if ($date >= $calculationStartDateStr && $date <= end($dates)) {
-                $calculationData[$date] = $load['trimp'] ?? 0;
-            }
-        }
-        ksort($calculationData);
-
-        $prevCtl = 0;
-        $prevAtl = 0;
-        $decayCtl = exp(-1 / $this->ctlDays);
-        $decayAtl = exp(-1 / $this->atlDays);
-        $hasPrecomputed = null !== $this->precomputedMetrics;
-
-        foreach ($dates as $currentDate) {
-            if ($hasPrecomputed && isset($this->precomputedMetrics[$currentDate])) {
-                $row = $this->precomputedMetrics[$currentDate];
-                $todayTrimp = $row['trimp'];
-                $ctl = $row['ctl'];
-                $atl = $row['atl'];
-                $tsb = $row['tsb'];
-            } else {
-                $todayTrimp = $calculationData[$currentDate] ?? 0;
-                $ctl = ($prevCtl * $decayCtl) + ($todayTrimp * (1 - $decayCtl));
-                $atl = ($prevAtl * $decayAtl) + ($todayTrimp * (1 - $decayAtl));
-                $tsb = $ctl - $atl;
-            }
-
-            $trimpValues[] = round($todayTrimp, 1);
-            $ctlValues[] = round($ctl, 1);
-            $atlValues[] = round($atl, 1);
-            $tsbValues[] = round($tsb, 1);
-            $formattedDates[] = SerializableDateTime::fromString($currentDate)->format('M d');
-
-            if (!$hasPrecomputed) {
-                $prevCtl = $ctl;
-                $prevAtl = $atl;
-            }
-        }
-
         $bufferPercent = 0.1;
 
-        $tsbAxisRange = $this->calculateAxisRange($tsbValues, $bufferPercent, -30.0, 30.0, -INF, 5.0);
-        $loadAxisRange = $this->calculateAxisRange(array_merge($ctlValues, $atlValues), $bufferPercent, null, null, 0.0);
-        $trimpAxisRange = $this->calculateAxisRange($trimpValues, $bufferPercent * 2, null, null, 0.0, 20.0);
+        $tsbAxisRange = $this->calculateAxisRange($this->trainingMetrics['TSB'], $bufferPercent, -30.0, 30.0, -INF, 5.0);
+        $loadAxisRange = $this->calculateAxisRange(array_merge($this->trainingMetrics['CTL'], $this->trainingMetrics['ATL']), $bufferPercent, null, null, 0.0);
+        $trimpAxisRange = $this->calculateAxisRange($this->trainingMetrics['TRIMP'], $bufferPercent * 2, null, null, 0.0, 20.0);
 
-        $numDataPoints = count($dates);
+        $numDataPoints = self::DEFAULT_DISPLAY_DAYS;
         $defaultZoomStartIndex = max(0, $numDataPoints - self::DEFAULT_DISPLAY_DAYS);
         $defaultZoomEndIndex = max(0, $numDataPoints - 1);
+
+        $period = new \DatePeriod(
+            $this->now->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days'),
+            new \DateInterval('P1D'),
+            $this->now
+        );
+
+        $formattedDates = [];
+        foreach ($period as $date) {
+            $formattedDates[] = $date->format('M d');
+        }
 
         return [
             'tooltip' => [
@@ -275,19 +194,19 @@ final readonly class TrainingLoadChart
             ],
             'series' => [
                 [
-                    'name' => 'CTL (Fitness)', 'type' => 'line', 'data' => $ctlValues, 'smooth' => true,
+                    'name' => 'CTL (Fitness)', 'type' => 'line', 'data' => $this->trainingMetrics['CTL'], 'smooth' => true,
                     'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#3CB371'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'ATL (Fatigue)', 'type' => 'line', 'data' => $atlValues, 'smooth' => true,
+                    'name' => 'ATL (Fatigue)', 'type' => 'line', 'data' => $this->trainingMetrics['ATL'], 'smooth' => true,
                     'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#FF6347'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'TSB (Form)', 'type' => 'line', 'data' => $tsbValues, 'smooth' => true,
+                    'name' => 'TSB (Form)', 'type' => 'line', 'data' => $this->trainingMetrics['TSB'], 'smooth' => true,
                     'symbol' => 'none', 'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 2,
@@ -302,7 +221,7 @@ final readonly class TrainingLoadChart
                     ],
                 ],
                 [
-                    'name' => 'Daily TRIMP', 'type' => 'bar', 'data' => $trimpValues,
+                    'name' => 'Daily TRIMP', 'type' => 'bar', 'data' => $this->trainingMetrics['TRIMP'],
                     'itemStyle' => ['color' => '#FC4C02'], 'barWidth' => '60%',
                     'xAxisIndex' => 1,
                     'yAxisIndex' => 0,
