@@ -42,10 +42,10 @@ final class Activity
 
     #[ORM\Column(type: 'json', nullable: true)]
     // @phpstan-ignore-next-line
-    private array $data = [];
+    private readonly array $data;
     #[ORM\Column(type: 'boolean', nullable: true)]
     // @phpstan-ignore-next-line
-    private bool $streamsAreImported = false;
+    private readonly bool $streamsAreImported;
 
     /**
      * @param array<string> $localImagePaths
@@ -346,32 +346,6 @@ final class Activity
     public function getTotalImageCount(): int
     {
         return $this->totalImageCount;
-    }
-
-    /**
-     * Returns the raw Strava API data stored for this activity.
-     *
-     * @return array<mixed> raw activity data, including splits, streams, etc
-     */
-    public function getRawData(): array
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param array<mixed> $data Raw Strava API data stored in DB
-     */
-    public function setRawData(array $data): void
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @param bool $imported Flag for whether streams have been imported
-     */
-    public function setStreamsAreImported(bool $imported): void
-    {
-        $this->streamsAreImported = $imported;
     }
 
     public function getOriginalName(): string

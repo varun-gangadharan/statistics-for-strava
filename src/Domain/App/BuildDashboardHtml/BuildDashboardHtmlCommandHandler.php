@@ -21,8 +21,8 @@ use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
-use App\Domain\Strava\Activity\TrainingLoadChart;
-use App\Domain\Strava\Activity\TrainingMetricsCalculator;
+use App\Domain\Strava\Activity\Training\TrainingLoadChart;
+use App\Domain\Strava\Activity\Training\TrainingMetricsCalculator;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -185,7 +185,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $allActivitiesByDate = [];
         $dailyLoadData = [];
 
-        // Prepare activity data grouped by date
         foreach ($allActivities as $activity) {
             $date = $activity->getStartDate()->format('Y-m-d');
             if (!isset($allActivitiesByDate[$date])) {
@@ -197,7 +196,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 $dailyLoadData[$date] = ['trimp' => 0, 'duration' => 0, 'intensity' => 0];
             }
 
-            // Calculate training load using the shared calculator
             if ($activity->getMovingTimeInSeconds() > 0) {
                 $trimp = TrainingMetricsCalculator::calculateTrimp($activity, $athlete);
 
@@ -208,7 +206,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             }
         }
 
-        // Fill in days with no activities
         $startDate = $allActivities->getFirstActivityStartDate()?->format('Y-m-d') ?? $now->format('Y-m-d');
         $endDate = $now->format('Y-m-d');
 
@@ -220,15 +217,9 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
         }
 
-        // Calculate metrics using the shared calculator, seeding CTL/ATL as in BuildTrainingMetricsHtml
-        // Determine first date for seeding
         $dates = array_keys($dailyLoadData);
         sort($dates);
-        $firstDateStr = reset($dates) ?: $now->format('Y-m-d');
-        $firstDateObj = new \DateTime($firstDateStr);
-        // Attempt to fetch persisted metrics for seeding
 
-        // Warm-up seeding (up to 56 days) for initial builds
         $warmUpDays = 56;
         $warmCount = min(count($dates), $warmUpDays);
         $warmDates = array_slice($dates, 0, $warmCount);
@@ -253,7 +244,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             $metrics = TrainingMetricsCalculator::calculateMetrics($dailyLoadData);
         }
 
-        // Build the training metrics page first using precomputed daily metrics
         $trainingLoadChart = TrainingLoadChart::fromDailyLoadData(
             $dailyLoadData,
             42,

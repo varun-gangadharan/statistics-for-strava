@@ -140,7 +140,7 @@ final class DbalActivityRepository implements ActivityRepository
     {
         $location = Json::decode($result['location'] ?? '[]');
 
-        $activity = Activity::fromState(
+        return Activity::fromState(
             activityId: ActivityId::fromString($result['activityId']),
             startDateTime: SerializableDateTime::fromString($result['startDateTime']),
             sportType: SportType::from($result['sportType']),
@@ -173,11 +173,5 @@ final class DbalActivityRepository implements ActivityRepository
             isCommute: (bool) $result['isCommute'],
             workoutType: WorkoutType::tryFrom($result['workoutType'] ?? ''),
         );
-        // Populate raw JSON data and stream import flag from DB
-        $rawData = Json::decode($result['data'] ?? '[]');
-        $activity->setRawData(is_array($rawData) ? $rawData : []);
-        $activity->setStreamsAreImported((bool) ($result['streamsAreImported'] ?? false));
-
-        return $activity;
     }
 }
