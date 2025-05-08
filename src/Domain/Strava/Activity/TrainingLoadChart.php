@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity\Training;
+namespace App\Domain\Strava\Activity;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
@@ -11,63 +11,19 @@ final readonly class TrainingLoadChart
     private const int DEFAULT_DISPLAY_DAYS = 42;
 
     private function __construct(
-        private array $trainingMetrics,
+        private TrainingMetrics $trainingMetrics,
         private SerializableDateTime $now,
     ) {
     }
 
     public static function fromDailyLoadData(
-        array $trainingMetrics,
+        TrainingMetrics $trainingMetrics,
         SerializableDateTime $now,
     ): self {
         return new self(
             trainingMetrics: $trainingMetrics,
             now: $now,
         );
-    }
-
-    private function calculateAxisRange(
-        array $values,
-        float $bufferPercentage,
-        ?float $forceMin = null,
-        ?float $forceMax = null,
-        float $minAbsValue = -INF,
-        float $step = 10.0,
-    ): array {
-        if (empty($values)) {
-            return ['min' => $forceMin ?? $minAbsValue, 'max' => $forceMax ?? $minAbsValue + $step * 5];
-        }
-
-        $dataMin = min($values);
-        $dataMax = max($values);
-
-        if ($dataMin == $dataMax) {
-            $spread = abs($dataMax * $bufferPercentage * 2);
-            if ($spread < $step / 2) {
-                $spread = $step;
-            }
-            $minCalc = $dataMin - $spread / 2;
-            $maxCalc = $dataMax + $spread / 2;
-        } else {
-            $spread = $dataMax - $dataMin;
-            $buffer = $spread * $bufferPercentage;
-            $minCalc = $dataMin - $buffer;
-            $maxCalc = $dataMax + $buffer;
-        }
-
-        $minCalc = max($minAbsValue, $minCalc);
-
-        $finalMin = null !== $forceMin ? min($forceMin, $minCalc) : $minCalc;
-        $finalMax = null !== $forceMax ? max($forceMax, $maxCalc) : $maxCalc;
-
-        $finalMin = floor($finalMin / $step) * $step;
-        $finalMax = ceil($finalMax / $step) * $step;
-
-        if ($finalMin >= $finalMax) {
-            $finalMax = $finalMin + $step;
-        }
-
-        return ['min' => $finalMin, 'max' => $finalMax];
     }
 
     /**
@@ -77,13 +33,22 @@ final readonly class TrainingLoadChart
     {
         $bufferPercent = 0.1;
 
-        $tsbAxisRange = $this->calculateAxisRange($this->trainingMetrics['TSB'], $bufferPercent, -30.0, 30.0, -INF, 5.0);
-        $loadAxisRange = $this->calculateAxisRange(array_merge($this->trainingMetrics['CTL'], $this->trainingMetrics['ATL']), $bufferPercent, null, null, 0.0);
-        $trimpAxisRange = $this->calculateAxisRange($this->trainingMetrics['TRIMP'], $bufferPercent * 2, null, null, 0.0, 20.0);
-
-        $numDataPoints = self::DEFAULT_DISPLAY_DAYS;
-        $defaultZoomStartIndex = max(0, $numDataPoints - self::DEFAULT_DISPLAY_DAYS);
-        $defaultZoomEndIndex = max(0, $numDataPoints - 1);
+        $tsbAxisRange = $this->calculateAxisRange(
+            values: $this->trainingMetrics->getTsbValues(),
+            bufferPercentage: $bufferPercent,
+            forceMin: -30,
+            forceMax: 30,
+            minAbsValue: -INF,
+            step: 5.0
+        );
+        $trimpAxisRange = $this->calculateAxisRange(
+            values: $this->trainingMetrics->getTrimpValues(),
+            bufferPercentage: $bufferPercent * 2,
+            forceMin: null,
+            forceMax: null,
+            minAbsValue: 0.0,
+            step: 20.0
+        );
 
         $period = new \DatePeriod(
             $this->now->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days'),
@@ -173,8 +138,6 @@ final readonly class TrainingLoadChart
                     'alignTicks' => true,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'axisLabel' => ['formatter' => '{value}'],
-                    'min' => $loadAxisRange['min'],
-                    'max' => $loadAxisRange['max'],
                     'splitLine' => ['show' => true],
                 ],
                 [
@@ -194,27 +157,34 @@ final readonly class TrainingLoadChart
             ],
             'series' => [
                 [
-                    'name' => 'CTL (Fitness)', 'type' => 'line', 'data' => $this->trainingMetrics['CTL'], 'smooth' => true,
-                    'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#3CB371'],
+                    'name' => 'CTL (Fitness)',
+                    'type' => 'line',
+                    'data' => $this->trainingMetrics->getCtlValues(),
+                    'smooth' => true,
+                    'symbol' => 'none',
+                    'lineStyle' => ['width' => 3, 'color' => '#3CB371'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'ATL (Fatigue)', 'type' => 'line', 'data' => $this->trainingMetrics['ATL'], 'smooth' => true,
-                    'symbol' => 'none', 'lineStyle' => ['width' => 3, 'color' => '#FF6347'],
+                    'name' => 'ATL (Fatigue)',
+                    'type' => 'line',
+                    'data' => $this->trainingMetrics->getAtlValues(),
+                    'smooth' => true,
+                    'symbol' => 'none',
+                    'lineStyle' => ['width' => 3, 'color' => '#FF6347'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
                 [
                     'name' => 'TSB (Form)',
                     'type' => 'line',
-                    'data' => $this->trainingMetrics['TSB'],
+                    'data' => $this->trainingMetrics->getTsbValues(),
                     'smooth' => true,
                     'symbol' => 'none',
                     'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 2,
-
                     'markLine' => [
                         'silent' => true,
                         'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
@@ -236,33 +206,60 @@ final readonly class TrainingLoadChart
                     ],
                 ],
                 [
-                    'name' => 'Daily TRIMP', 'type' => 'bar', 'data' => $this->trainingMetrics['TRIMP'],
-                    'itemStyle' => ['color' => '#FC4C02'], 'barWidth' => '60%',
+                    'name' => 'Daily TRIMP',
+                    'type' => 'bar',
+                    'data' => $this->trainingMetrics->getTrimpValues(),
+                    'itemStyle' => ['color' => '#FC4C02'],
+                    'barWidth' => '60%',
                     'xAxisIndex' => 1,
                     'yAxisIndex' => 0,
                     'emphasis' => ['itemStyle' => ['opacity' => 0.8]],
                 ],
             ],
-            'dataZoom' => [
-                [
-                    'type' => 'inside',
-                    'xAxisIndex' => [0, 1],
-                    'startValue' => $defaultZoomStartIndex,
-                    'endValue' => $defaultZoomEndIndex,
-                    'minValueSpan' => 14,
-                    'maxValueSpan' => $numDataPoints,
-                ],
-                [
-                    'type' => 'slider',
-                    'xAxisIndex' => [0, 1],
-                    'startValue' => $defaultZoomStartIndex,
-                    'endValue' => $defaultZoomEndIndex,
-                    'bottom' => '2%',
-                    'height' => '3%',
-                    'minValueSpan' => 14,
-                    'maxValueSpan' => $numDataPoints,
-                ],
-            ],
         ];
+    }
+
+    /**
+     * @param array<int, float|int|null> $values
+     *
+     * @return array{min: int, max: int}
+     */
+    private function calculateAxisRange(
+        array $values,
+        float $bufferPercentage,
+        ?int $forceMin,
+        ?int $forceMax,
+        float $minAbsValue = -INF,
+        float $step = 10.0,
+    ): array {
+        if (empty($values)) {
+            return ['min' => (int) ($forceMin ?? $minAbsValue), 'max' => (int) ($forceMax ?? $minAbsValue + $step * 5)];
+        }
+
+        $dataMin = min($values);
+        $dataMax = max($values);
+
+        if ($dataMin === $dataMax) {
+            $spread = max(abs($dataMax * $bufferPercentage * 2), $step);
+        } else {
+            $spread = ($dataMax - $dataMin) * (1 + 2 * $bufferPercentage);
+        }
+
+        $minCalc = $dataMin - $spread / 2;
+        $maxCalc = $dataMax + $spread / 2;
+
+        $minCalc = max($minAbsValue, $minCalc);
+
+        $finalMin = null !== $forceMin ? min($forceMin, $minCalc) : $minCalc;
+        $finalMax = null !== $forceMax ? max($forceMax, $maxCalc) : $maxCalc;
+
+        $finalMin = floor($finalMin / $step) * $step;
+        $finalMax = ceil($finalMax / $step) * $step;
+
+        if ($finalMin >= $finalMax) {
+            $finalMax = $finalMin + $step;
+        }
+
+        return ['min' => (int) round($finalMin), 'max' => (int) round($finalMax)];
     }
 }

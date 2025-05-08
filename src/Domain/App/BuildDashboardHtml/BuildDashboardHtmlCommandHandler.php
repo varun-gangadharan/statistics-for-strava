@@ -21,8 +21,8 @@ use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
-use App\Domain\Strava\Activity\Training\TrainingLoadChart;
-use App\Domain\Strava\Activity\Training\TrainingMetrics;
+use App\Domain\Strava\Activity\TrainingLoadChart;
+use App\Domain\Strava\Activity\TrainingMetrics;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -181,7 +181,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 
         $trainingMetrics = TrainingMetrics::create(array_map(function () {
             return rand(0, 120);
-        }, array_fill(0, 45, null)))->getMetrics();
+        }, array_fill(0, 45, null)));
 
         $this->buildStorage->write(
             'dashboard.html',

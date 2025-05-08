@@ -199,35 +199,38 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                     <div class="p-3 text-center bg-green-50 border border-green-200 rounded-lg">
                         <div class="text-xs font-medium text-green-700 mb-1">{{ "Fitness (CTL)"|trans }}</div>
-                        <div class="text-lg font-bold text-green-600">{{ trainingMetrics.CTL|last }}</div>
+                        <div class="text-lg font-bold text-green-600">{{ trainingMetrics.getCurrentCtl() }}</div>
                     </div>
                     <div class="p-3 text-center bg-red-50 border border-red-200 rounded-lg">
                         <div class="text-xs font-medium text-red-700 mb-1">{{ "Fatigue (ATL)"|trans }}</div>
-                        <div class="text-lg font-bold text-red-600">{{ trainingMetrics.ATL|last }}</div>
+                        <div class="text-lg font-bold text-red-600">{{ trainingMetrics.getCurrentAtl() }}</div>
                     </div>
                     <div class="p-3 text-center bg-blue-50 border border-blue-200 rounded-lg">
+                        {% set currentTsb = trainingMetrics.getCurrentTsb() %}
                         <div class="text-xs font-medium text-blue-700 mb-1">{{ "Form (TSB)"|trans }}</div>
                         <div class="text-lg font-bold {{ currentTsb > 5 ? 'text-yellow-600' : (currentTsb < -5 ? 'text-blue-600' : 'text-green-600') }}">
-                            {{ trainingMetrics.TSB|last }}
+                            {{ currentTsb }}
                         </div>
                     </div>
                     <div class="p-3 text-center bg-purple-50 border border-purple-200 rounded-lg">
+                        {% set currentAcRatio = trainingMetrics.getCurrentAcRatio() %}
                         <div class="text-xs font-medium text-purple-700 mb-1">{{ "A:C Ratio"|trans }}</div>
-                        <div class="text-lg font-bold {{ acRatio > 1.3 ? 'text-red-600' : (acRatio < 0.8 ? 'text-yellow-600' : 'text-green-600') }}">
-                            {{ trainingMetrics.acRatio|last }}
+                        <div class="text-lg font-bold {{ currentAcRatio > 1.3 ? 'text-red-600' : (currentAcRatio < 0.8 ? 'text-yellow-600' : 'text-green-600') }}">
+                            {{ currentAcRatio }}
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
                     <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
+                        {% set currentMonotony = trainingMetrics.getCurrentMonotony() %}
                         <div class="text-xs text-gray-600">{{ "Monotony"|trans }}</div>
-                        <div class="text-sm font-medium {{ monotony > 2.0 ? 'text-red-600' : (monotony > 1.5 ? 'text-yellow-600' : 'text-green-600') }}">
-                            {{ trainingMetrics.Monotony|last }}
+                        <div class="text-sm font-medium {{ currentMonotony > 2.0 ? 'text-red-600' : (currentMonotony > 1.5 ? 'text-yellow-600' : 'text-green-600') }}">
+                            {{ currentMonotony }}
                         </div>
                     </div>
                     <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
                         <div class="text-xs text-gray-600">{{ "Strain"|trans }}</div>
-                        <div class="text-sm font-medium">{{ trainingMetrics.Strain|last }}</div>
+                        <div class="text-sm font-medium">{{ trainingMetrics.getCurrentStrain() }}</div>
                     </div>
                     <div class="p-2 text-center bg-gray-50 border border-gray-200 rounded-lg">
                         <div class="text-xs text-gray-600">{{ "Rest Days"|trans }}</div>
