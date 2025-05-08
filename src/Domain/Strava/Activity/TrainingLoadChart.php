@@ -31,25 +31,6 @@ final readonly class TrainingLoadChart
      */
     public function build(): array
     {
-        $bufferPercent = 0.1;
-
-        $tsbAxisRange = $this->calculateAxisRange(
-            values: $this->trainingMetrics->getTsbValues(),
-            bufferPercentage: $bufferPercent,
-            forceMin: -30,
-            forceMax: 30,
-            minAbsValue: -INF,
-            step: 5.0
-        );
-        $trimpAxisRange = $this->calculateAxisRange(
-            values: $this->trainingMetrics->getTrimpValues(),
-            bufferPercentage: $bufferPercent * 2,
-            forceMin: null,
-            forceMax: null,
-            minAbsValue: 0.0,
-            step: 20.0
-        );
-
         $period = new \DatePeriod(
             $this->now->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days'),
             new \DateInterval('P1D'),
@@ -71,7 +52,6 @@ final readonly class TrainingLoadChart
                 ],
             ],
             'legend' => [
-                'data' => ['CTL (Fitness)', 'ATL (Fatigue)', 'TSB (Form)', 'Daily TRIMP'],
                 'top' => '5%',
             ],
             'axisPointer' => [
@@ -122,9 +102,6 @@ final readonly class TrainingLoadChart
                     'nameGap' => 35,
                     'gridIndex' => 1,
                     'position' => 'left',
-                    'axisLabel' => ['formatter' => '{value}'],
-                    'min' => $trimpAxisRange['min'],
-                    'max' => $trimpAxisRange['max'],
                     'splitLine' => ['show' => true],
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                 ],
@@ -137,7 +114,6 @@ final readonly class TrainingLoadChart
                     'position' => 'left',
                     'alignTicks' => true,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
-                    'axisLabel' => ['formatter' => '{value}'],
                     'splitLine' => ['show' => true],
                 ],
                 [
@@ -148,10 +124,9 @@ final readonly class TrainingLoadChart
                     'gridIndex' => 0,
                     'position' => 'right',
                     'alignTicks' => true,
-                    'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#5470C6']],
-                    'axisLabel' => ['formatter' => '{value}'],
-                    'min' => $tsbAxisRange['min'],
-                    'max' => $tsbAxisRange['max'],
+                    'max' => ceil(max(15, ...$this->trainingMetrics->getTsbValues())),
+                    'min' => floor(min(-30, ...$this->trainingMetrics->getTsbValues())),
+                    'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'splitLine' => ['show' => false],
                 ],
             ],
@@ -162,7 +137,6 @@ final readonly class TrainingLoadChart
                     'data' => $this->trainingMetrics->getCtlValues(),
                     'smooth' => true,
                     'symbol' => 'none',
-                    'lineStyle' => ['width' => 3, 'color' => '#3CB371'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
@@ -172,7 +146,6 @@ final readonly class TrainingLoadChart
                     'data' => $this->trainingMetrics->getAtlValues(),
                     'smooth' => true,
                     'symbol' => 'none',
-                    'lineStyle' => ['width' => 3, 'color' => '#FF6347'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 1,
                 ],
@@ -182,7 +155,6 @@ final readonly class TrainingLoadChart
                     'data' => $this->trainingMetrics->getTsbValues(),
                     'smooth' => true,
                     'symbol' => 'none',
-                    'lineStyle' => ['width' => 2, 'color' => '#5470C6'],
                     'xAxisIndex' => 0,
                     'yAxisIndex' => 2,
                     'markLine' => [
@@ -217,49 +189,5 @@ final readonly class TrainingLoadChart
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param array<int, float|int|null> $values
-     *
-     * @return array{min: int, max: int}
-     */
-    private function calculateAxisRange(
-        array $values,
-        float $bufferPercentage,
-        ?int $forceMin,
-        ?int $forceMax,
-        float $minAbsValue = -INF,
-        float $step = 10.0,
-    ): array {
-        if (empty($values)) {
-            return ['min' => (int) ($forceMin ?? $minAbsValue), 'max' => (int) ($forceMax ?? $minAbsValue + $step * 5)];
-        }
-
-        $dataMin = min($values);
-        $dataMax = max($values);
-
-        if ($dataMin === $dataMax) {
-            $spread = max(abs($dataMax * $bufferPercentage * 2), $step);
-        } else {
-            $spread = ($dataMax - $dataMin) * (1 + 2 * $bufferPercentage);
-        }
-
-        $minCalc = $dataMin - $spread / 2;
-        $maxCalc = $dataMax + $spread / 2;
-
-        $minCalc = max($minAbsValue, $minCalc);
-
-        $finalMin = null !== $forceMin ? min($forceMin, $minCalc) : $minCalc;
-        $finalMax = null !== $forceMax ? max($forceMax, $maxCalc) : $maxCalc;
-
-        $finalMin = floor($finalMin / $step) * $step;
-        $finalMax = ceil($finalMax / $step) * $step;
-
-        if ($finalMin >= $finalMax) {
-            $finalMax = $finalMin + $step;
-        }
-
-        return ['min' => (int) round($finalMin), 'max' => (int) round($finalMax)];
     }
 }
