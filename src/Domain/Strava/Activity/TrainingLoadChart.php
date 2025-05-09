@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity;
 
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class TrainingLoadChart
 {
@@ -12,16 +13,19 @@ final readonly class TrainingLoadChart
 
     private function __construct(
         private TrainingMetrics $trainingMetrics,
+        private TranslatorInterface $translator,
         private SerializableDateTime $now,
     ) {
     }
 
-    public static function fromDailyLoadData(
+    public static function create(
         TrainingMetrics $trainingMetrics,
+        TranslatorInterface $translator,
         SerializableDateTime $now,
     ): self {
         return new self(
             trainingMetrics: $trainingMetrics,
+            translator: $translator,
             now: $now,
         );
     }
@@ -39,7 +43,7 @@ final readonly class TrainingLoadChart
 
         $formattedDates = [];
         foreach ($period as $date) {
-            $formattedDates[] = $date->format('M d');
+            $formattedDates[] = SerializableDateTime::fromDateTimeImmutable($date)->translatedFormat('M d');
         }
 
         $tsbValues = $this->trainingMetrics->getTsbValues();
@@ -98,7 +102,7 @@ final readonly class TrainingLoadChart
             'yAxis' => [
                 [
                     'type' => 'value',
-                    'name' => 'Daily TRIMP',
+                    'name' => $this->translator->trans('Daily TRIMP'),
                     'nameLocation' => 'middle',
                     'nameGap' => 35,
                     'gridIndex' => 1,
@@ -109,7 +113,7 @@ final readonly class TrainingLoadChart
                 ],
                 [
                     'type' => 'value',
-                    'name' => 'Load (CTL/ATL)',
+                    'name' => $this->translator->trans('Load (CTL/ATL)'),
                     'nameLocation' => 'middle',
                     'nameGap' => 35,
                     'gridIndex' => 0,
@@ -121,7 +125,7 @@ final readonly class TrainingLoadChart
                 ],
                 [
                     'type' => 'value',
-                    'name' => 'Form (TSB)',
+                    'name' => $this->translator->trans('Form (TSB)'),
                     'nameLocation' => 'middle',
                     'nameGap' => 35,
                     'gridIndex' => 0,
@@ -136,7 +140,7 @@ final readonly class TrainingLoadChart
             ],
             'series' => [
                 [
-                    'name' => 'CTL (Fitness)',
+                    'name' => $this->translator->trans('CTL (Fitness)'),
                     'type' => 'line',
                     'data' => $this->trainingMetrics->getCtlValues(),
                     'smooth' => true,
@@ -145,7 +149,7 @@ final readonly class TrainingLoadChart
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'ATL (Fatigue)',
+                    'name' => $this->translator->trans('ATL (Fatigue)'),
                     'type' => 'line',
                     'data' => $this->trainingMetrics->getAtlValues(),
                     'smooth' => true,
@@ -154,7 +158,7 @@ final readonly class TrainingLoadChart
                     'yAxisIndex' => 1,
                 ],
                 [
-                    'name' => 'TSB (Form)',
+                    'name' => $this->translator->trans('TSB (Form)'),
                     'type' => 'line',
                     'data' => $tsbValues,
                     'smooth' => true,
@@ -170,21 +174,21 @@ final readonly class TrainingLoadChart
                         'data' => [
                             [
                                 'yAxis' => 15,
-                                'label' => ['formatter' => 'Taper sweet-spot (+15)'],
+                                'label' => ['formatter' => $this->translator->trans('Taper sweet-spot (+15)')],
                             ],
                             [
                                 'yAxis' => -10,
-                                'label' => ['formatter' => 'Build zone (–10)'],
+                                'label' => ['formatter' => $this->translator->trans('Build zone (–10)')],
                             ],
                             [
                                 'yAxis' => -30,
-                                'label' => ['formatter' => 'Over-fatigued (–30)'],
+                                'label' => ['formatter' => $this->translator->trans('Over-fatigued (–30)')],
                             ],
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Daily TRIMP',
+                    'name' => $this->translator->trans('Daily TRIMP'),
                     'type' => 'bar',
                     'data' => $this->trainingMetrics->getTrimpValues(),
                     'itemStyle' => ['color' => '#FC4C02'],
