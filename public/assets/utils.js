@@ -50,24 +50,27 @@ export const resolveEchartsCallbacks = (obj, path) => {
         const key = remainingParts[0];
         const rest = remainingParts.slice(1);
 
-        if (key.endsWith('[]')) {
-            const arrayKey = key.slice(0, -2);
-            const arr = currentObj[arrayKey];
+        const isArrayKey = key.endsWith('[]');
+        const rawKey = isArrayKey ? key.slice(0, -2) : key;
+
+        if (isArrayKey) {
+            const arr = currentObj?.[rawKey];
             if (Array.isArray(arr)) {
                 arr.forEach(item => resolvePath(item, rest));
             }
         } else if (rest.length === 0) {
             // final key, do callback replacement
             if (
-                currentObj[key] &&
-                currentObj[key] in window.statisticsForStrava.callbacks
+                currentObj?.[rawKey] &&
+                currentObj[rawKey] in window.statisticsForStrava.callbacks
             ) {
-                currentObj[key] = window.statisticsForStrava.callbacks[currentObj[key]];
+                currentObj[rawKey] = window.statisticsForStrava.callbacks[currentObj[rawKey]];
             }
         } else {
-            resolvePath(currentObj[key], rest);
+            resolvePath(currentObj?.[rawKey], rest);
         }
     };
 
     resolvePath(obj, parts);
 };
+
