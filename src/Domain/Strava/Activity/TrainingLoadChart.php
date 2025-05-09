@@ -105,6 +105,7 @@ final readonly class TrainingLoadChart
                     'position' => 'left',
                     'splitLine' => ['show' => true],
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
+                    'minInterval' => 1,
                 ],
                 [
                     'type' => 'value',
@@ -116,6 +117,7 @@ final readonly class TrainingLoadChart
                     'alignTicks' => true,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'splitLine' => ['show' => true],
+                    'minInterval' => 1,
                 ],
                 [
                     'type' => 'value',
@@ -127,6 +129,7 @@ final readonly class TrainingLoadChart
                     'alignTicks' => true,
                     'max' => (int) ceil(max(25, ...$tsbValues)),
                     'min' => (int) floor(min(-35, ...$tsbValues)),
+                    'minInterval' => 1,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'splitLine' => ['show' => false],
                 ],
