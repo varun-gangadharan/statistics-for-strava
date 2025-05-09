@@ -42,34 +42,36 @@ final readonly class TrainingLoadChart
             $formattedDates[] = $date->format('M d');
         }
 
+        $tsbValues = $this->trainingMetrics->getTsbValues();
+
         return [
             'tooltip' => [
                 'trigger' => 'axis',
                 'axisPointer' => [
-                    'type' => 'cross',
                     'link' => [['xAxisIndex' => 'all']],
                     'label' => ['backgroundColor' => '#6a7985'],
                 ],
             ],
             'legend' => [
-                'top' => '5%',
+                'show' => true,
             ],
             'axisPointer' => [
                 'link' => ['xAxisIndex' => 'all'],
             ],
             'grid' => [
                 [
-                    'left' => '5%',
-                    'right' => '8%',
-                    'top' => '15%',
-                    'height' => '55%',
+                    'left' => '50px',
+                    'right' => '50px',
+                    'top' => '40px',
+                    'height' => '63%',
                     'containLabel' => false,
                 ],
                 [
-                    'left' => '5%',
-                    'right' => '8%',
+                    'left' => '50px',
+                    'right' => '50px',
                     'top' => '75%',
-                    'height' => '15%',
+                    'height' => '20%',
+                    'bottom' => '0px',
                     'containLabel' => false,
                 ],
             ],
@@ -88,7 +90,6 @@ final readonly class TrainingLoadChart
                     'gridIndex' => 1,
                     'data' => $formattedDates,
                     'boundaryGap' => true,
-                    'axisLine' => ['onZero' => true],
                     'position' => 'bottom',
                     'axisLabel' => ['show' => true],
                     'axisTick' => ['show' => true],
@@ -120,12 +121,12 @@ final readonly class TrainingLoadChart
                     'type' => 'value',
                     'name' => 'Form (TSB)',
                     'nameLocation' => 'middle',
-                    'nameGap' => 45,
+                    'nameGap' => 35,
                     'gridIndex' => 0,
                     'position' => 'right',
                     'alignTicks' => true,
-                    'max' => ceil(max(15, ...$this->trainingMetrics->getTsbValues())),
-                    'min' => floor(min(-30, ...$this->trainingMetrics->getTsbValues())),
+                    'max' => ceil(max(25, ...$tsbValues)),
+                    'min' => floor(min(-35, ...$tsbValues)),
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'splitLine' => ['show' => false],
                 ],
@@ -152,7 +153,7 @@ final readonly class TrainingLoadChart
                 [
                     'name' => 'TSB (Form)',
                     'type' => 'line',
-                    'data' => $this->trainingMetrics->getTsbValues(),
+                    'data' => $tsbValues,
                     'smooth' => true,
                     'symbol' => 'none',
                     'xAxisIndex' => 0,
@@ -160,7 +161,9 @@ final readonly class TrainingLoadChart
                     'markLine' => [
                         'silent' => true,
                         'lineStyle' => ['color' => '#333', 'type' => 'dashed'],
-                        'label' => ['distance' => [0, -5]],
+                        'label' => [
+                            'position' => 'insideEndTop',
+                        ],
                         'data' => [
                             [
                                 'yAxis' => 15,

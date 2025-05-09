@@ -241,8 +241,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         );
 
         $this->buildStorage->write(
-            'training-metrics.html',
-            $this->twig->render('html/dashboard/training-metrics.html.twig', [
+            'training-load.html',
+            $this->twig->render('html/dashboard/training-load.html.twig', [
                 'trainingLoadChart' => Json::encode(
                     TrainingLoadChart::fromDailyLoadData(
                         trainingMetrics: $trainingMetrics,
