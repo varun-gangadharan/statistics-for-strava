@@ -182,9 +182,12 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             );
         }
 
-        $trainingMetrics = TrainingMetrics::create(array_map(function () {
-            return rand(0, 120);
-        }, array_fill(0, 45, null)));
+        $randomIntensities = [];
+        for ($i = 50; $i >= 0; --$i) {
+            $randomIntensities[$now->modify('- '.$i.' days')->format('Y-m-d')] = rand(0, 120);
+        }
+
+        $trainingMetrics = TrainingMetrics::create($randomIntensities);
         $numberOfRestDays = $this->queryBus->ask(new FindNumberOfRestDays(DateRange::fromDates(
             from: $now->modify('-6 days'),
             till: $now,

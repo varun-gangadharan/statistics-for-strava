@@ -9,7 +9,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class TrainingLoadChart
 {
-    private const int DEFAULT_DISPLAY_DAYS = 42;
+    private const int NUMBER_OF_DAYS_TO_DISPLAY = 42;
 
     private function __construct(
         private TrainingMetrics $trainingMetrics,
@@ -35,18 +35,19 @@ final readonly class TrainingLoadChart
      */
     public function build(): array
     {
+        $start = SerializableDateTime::fromString($this->now->format('Y-m-d 00:00:00'))
+                ->modify('-'.(self::NUMBER_OF_DAYS_TO_DISPLAY - 1).' days');
         $period = new \DatePeriod(
-            $this->now->modify('-'.(self::DEFAULT_DISPLAY_DAYS - 1).' days'),
+            $start,
             new \DateInterval('P1D'),
-            $this->now
+            SerializableDateTime::fromString($this->now->format('Y-m-d 23:59:59'))
         );
 
         $formattedDates = [];
         foreach ($period as $date) {
             $formattedDates[] = SerializableDateTime::fromDateTimeImmutable($date)->translatedFormat('M d');
         }
-
-        $tsbValues = $this->trainingMetrics->getTsbValues();
+        $tsbValues = $this->trainingMetrics->getTsbValuesForXLastDays(self::NUMBER_OF_DAYS_TO_DISPLAY);
 
         return [
             'tooltip' => [
@@ -110,6 +111,7 @@ final readonly class TrainingLoadChart
                     'splitLine' => ['show' => true],
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
                     'minInterval' => 1,
+                    'axisLabel',
                 ],
                 [
                     'type' => 'value',
@@ -120,6 +122,7 @@ final readonly class TrainingLoadChart
                     'position' => 'left',
                     'alignTicks' => true,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
+                    'axisLabel' => ['formatter' => 'toInteger'],
                     'splitLine' => ['show' => true],
                     'minInterval' => 1,
                 ],
@@ -135,6 +138,7 @@ final readonly class TrainingLoadChart
                     'min' => (int) floor(min(-35, ...$tsbValues)),
                     'minInterval' => 1,
                     'axisLine' => ['show' => true, 'lineStyle' => ['color' => '#cccccc']],
+                    'axisLabel' => ['formatter' => 'toInteger'],
                     'splitLine' => ['show' => false],
                 ],
             ],
@@ -142,7 +146,7 @@ final readonly class TrainingLoadChart
                 [
                     'name' => $this->translator->trans('CTL (Fitness)'),
                     'type' => 'line',
-                    'data' => $this->trainingMetrics->getCtlValues(),
+                    'data' => $this->trainingMetrics->getCtlValuesForXLastDays(self::NUMBER_OF_DAYS_TO_DISPLAY),
                     'smooth' => true,
                     'symbol' => 'none',
                     'xAxisIndex' => 0,
@@ -151,7 +155,7 @@ final readonly class TrainingLoadChart
                 [
                     'name' => $this->translator->trans('ATL (Fatigue)'),
                     'type' => 'line',
-                    'data' => $this->trainingMetrics->getAtlValues(),
+                    'data' => $this->trainingMetrics->getAtlValuesForXLastDays(self::NUMBER_OF_DAYS_TO_DISPLAY),
                     'smooth' => true,
                     'symbol' => 'none',
                     'xAxisIndex' => 0,
@@ -190,7 +194,7 @@ final readonly class TrainingLoadChart
                 [
                     'name' => $this->translator->trans('Daily TRIMP'),
                     'type' => 'bar',
-                    'data' => $this->trainingMetrics->getTrimpValues(),
+                    'data' => $this->trainingMetrics->getTrimpValuesForXLastDays(self::NUMBER_OF_DAYS_TO_DISPLAY),
                     'itemStyle' => ['color' => '#FC4C02'],
                     'barWidth' => '60%',
                     'xAxisIndex' => 1,

@@ -6,30 +6,30 @@ namespace App\Domain\Strava\Activity\Training;
 
 final class TrainingMetrics
 {
-    /** @var array<int, int|float> */
+    /** @var array<string, int|float> */
     private array $atlValues = [];
-    /** @var array<int, int|float> */
+    /** @var array<string, int|float> */
     private array $ctlValues = [];
-    /** @var array<int, int|float> */
+    /** @var array<string, int|float> */
     private array $tsbValues = [];
-    /** @var array<int, int|float|null> */
+    /** @var array<string, int|float|null> */
     private array $trimpValues = [];
-    /** @var array<int, int|float|null> */
+    /** @var array<string, int|float|null> */
     private array $monotonyValues = [];
-    /** @var array<int, int|float|null> */
+    /** @var array<string, int|float|null> */
     private array $strainValues = [];
-    /** @var array<int, int|float> */
+    /** @var array<string, int|float> */
     private array $acRatioValues = [];
 
     private function __construct(
-        /** @var array<int, int> */
+        /** @var array<string, int> */
         private readonly array $intensities,
     ) {
         $this->buildMetrics();
     }
 
     /**
-     * @param array<int, int> $intensities
+     * @param array<string, int> $intensities
      */
     public static function create(array $intensities): TrainingMetrics
     {
@@ -41,50 +41,56 @@ final class TrainingMetrics
         $alphaATL = 1 - exp(-1 / 7);
         $alphaCTL = 1 - exp(-1 / 42);
 
-        foreach ($this->intensities as $day => $load) {
-            if (0 === $day) {
-                $this->atlValues[$day] = $load;
-                $this->ctlValues[$day] = $load;
-                $this->tsbValues[$day] = 0;
+        $altValues = $ctlValues = $tsbValues = $trimpValues = $monotonyValues = $strainValues = $acRatioValues = [];
+
+        $delta = 0;
+        foreach ($this->intensities as $intensity) {
+            if (0 === $delta) {
+                $altValues[$delta] = $intensity;
+                $ctlValues[$delta] = $intensity;
+                $tsbValues[$delta] = 0;
             } else {
-                $this->atlValues[$day] = ($load * $alphaATL) + ($this->atlValues[$day - 1] * (1 - $alphaATL));
-                $this->ctlValues[$day] = ($load * $alphaCTL) + ($this->ctlValues[$day - 1] * (1 - $alphaCTL));
-                $this->tsbValues[$day] = $this->ctlValues[$day - 1] - $this->atlValues[$day - 1];
+                $altValues[$delta] = ($intensity * $alphaATL) + ($altValues[$delta - 1] * (1 - $alphaATL));
+                $ctlValues[$delta] = ($intensity * $alphaCTL) + ($ctlValues[$delta - 1] * (1 - $alphaCTL));
+                $tsbValues[$delta] = $ctlValues[$delta - 1] - $altValues[$delta - 1];
             }
 
-            if ($day >= 6) { // Day 6 = first full week
-                $weekLoads = array_slice($this->intensities, $day - 6, 7);
+            if ($delta >= 6) { // Day 6 = first full week
+                $weekLoads = array_slice($this->intensities, $delta - 6, 7);
                 $sum = array_sum($weekLoads);
                 $avg = $sum / 7;
                 $std = $this->standardDeviation($weekLoads);
 
-                $this->trimpValues[$day] = $sum;
-                $this->monotonyValues[$day] = $std > 0 ? $avg / $std : 0;
-                $this->strainValues[$day] = $this->trimpValues[$day] * $this->monotonyValues[$day];
+                $trimpValues[$delta] = $sum;
+                $monotonyValues[$delta] = $std > 0 ? $avg / $std : 0;
+                $strainValues[$delta] = $trimpValues[$delta] * $monotonyValues[$delta];
             } else {
-                $this->trimpValues[$day] = null;
-                $this->monotonyValues[$day] = null;
-                $this->strainValues[$day] = null;
+                $trimpValues[$delta] = null;
+                $monotonyValues[$delta] = null;
+                $strainValues[$delta] = null;
             }
 
-            $this->acRatioValues[$day] = round($this->atlValues[$day] / $this->ctlValues[$day], 2);
+            $acRatioValues[$delta] = round($altValues[$delta] / $ctlValues[$delta], 2);
+            ++$delta;
         }
 
+        $intensityKeys = array_keys($this->intensities);
         // Round numbers when all calculating is done.
-        $this->atlValues = array_map(fn (int|float $value) => round($value, 1), $this->atlValues);
-        $this->ctlValues = array_map(fn (int|float $value) => round($value, 1), $this->ctlValues);
-        $this->tsbValues = array_map(fn (int|float $value) => round($value, 1), $this->tsbValues);
-        $this->trimpValues = array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $this->trimpValues);
-        $this->strainValues = array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $this->strainValues);
-        $this->monotonyValues = array_map(fn (int|float|null $value) => null === $value ? null : round($value, 2), $this->monotonyValues);
+        $this->acRatioValues = array_combine($intensityKeys, $acRatioValues);
+        $this->atlValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $altValues));
+        $this->ctlValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $ctlValues));
+        $this->tsbValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $tsbValues));
+        $this->trimpValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $trimpValues));
+        $this->strainValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $strainValues));
+        $this->monotonyValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : round($value, 2), $monotonyValues));
     }
 
     /**
      * @return array<int, int|float>
      */
-    public function getAtlValues(): array
+    public function getAtlValuesForXLastDays(int $numberOfDays): array
     {
-        return $this->atlValues;
+        return array_values(array_slice($this->atlValues, -$numberOfDays));
     }
 
     public function getCurrentAtl(): ?float
@@ -99,9 +105,9 @@ final class TrainingMetrics
     /**
      * @return array<int, int|float>
      */
-    public function getCtlValues(): array
+    public function getCtlValuesForXLastDays(int $numberOfDays): array
     {
-        return $this->ctlValues;
+        return array_values(array_slice($this->ctlValues, -$numberOfDays));
     }
 
     public function getCurrentCtl(): ?float
@@ -116,9 +122,9 @@ final class TrainingMetrics
     /**
      * @return array<int, int|float>
      */
-    public function getTsbValues(): array
+    public function getTsbValuesForXLastDays(int $numberOfDays): array
     {
-        return $this->tsbValues;
+        return array_values(array_slice($this->tsbValues, -$numberOfDays));
     }
 
     public function getCurrentTsb(): ?float
@@ -133,9 +139,9 @@ final class TrainingMetrics
     /**
      * @return array<int, int|float|null>
      */
-    public function getTrimpValues(): array
+    public function getTrimpValuesForXLastDays(int $numberOfDays): array
     {
-        return $this->trimpValues;
+        return array_values(array_slice($this->trimpValues, -$numberOfDays));
     }
 
     public function getCurrentTrimp(): ?float
@@ -175,7 +181,7 @@ final class TrainingMetrics
     }
 
     /**
-     * @param array<int, int|float> $values
+     * @param array<string, int|float> $values
      */
     private function standardDeviation(array $values): float
     {
