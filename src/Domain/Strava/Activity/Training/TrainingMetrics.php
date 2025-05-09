@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Strava\Activity;
+namespace App\Domain\Strava\Activity\Training;
 
 final class TrainingMetrics
 {

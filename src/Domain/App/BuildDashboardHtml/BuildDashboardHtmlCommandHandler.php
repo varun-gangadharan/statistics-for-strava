@@ -21,8 +21,9 @@ use App\Domain\Strava\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Strava\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Strava\Activity\Stream\BestPowerOutputs;
 use App\Domain\Strava\Activity\Stream\PowerOutputChart;
-use App\Domain\Strava\Activity\TrainingLoadChart;
-use App\Domain\Strava\Activity\TrainingMetrics;
+use App\Domain\Strava\Activity\Training\FindNumberOfRestDays\FindNumberOfRestDays;
+use App\Domain\Strava\Activity\Training\TrainingLoadChart;
+use App\Domain\Strava\Activity\Training\TrainingMetrics;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStats;
 use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
@@ -39,6 +40,7 @@ use App\Domain\Strava\Ftp\FtpHistoryChart;
 use App\Domain\Strava\Trivia;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
+use App\Infrastructure\CQRS\Query\Bus\QueryBus;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
@@ -60,6 +62,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private ActivityBestEffortRepository $activityBestEffortRepository,
         private ActivitiesEnricher $activitiesEnricher,
         private ActivityIntensity $activityIntensity,
+        private QueryBus $queryBus,
         private UnitSystem $unitSystem,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
@@ -182,6 +185,10 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $trainingMetrics = TrainingMetrics::create(array_map(function () {
             return rand(0, 120);
         }, array_fill(0, 45, null)));
+        $numberOfRestDays = $this->queryBus->ask(new FindNumberOfRestDays(DateRange::fromDates(
+            from: $now->modify('-6 days'),
+            till: $now,
+        )))->getNumberOfRestDays();
 
         $this->buildStorage->write(
             'dashboard.html',
@@ -236,7 +243,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'yearlyStatistics' => $yearlyStatistics,
                 'bestEffortsCharts' => $bestEffortsCharts,
                 'trainingMetrics' => $trainingMetrics,
-                'restDaysInLast7Days' => 3,
+                'restDaysInLast7Days' => $numberOfRestDays,
             ]),
         );
 
@@ -251,7 +258,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                     )->build()
                 ),
                 'trainingMetrics' => $trainingMetrics,
-                'restDaysInLast7Days' => 3,
+                'restDaysInLast7Days' => $numberOfRestDays,
             ])
         );
 
