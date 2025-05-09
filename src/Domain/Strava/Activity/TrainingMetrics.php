@@ -67,8 +67,16 @@ final class TrainingMetrics
                 $this->strainValues[$day] = null;
             }
 
-            $this->acRatioValues[$day] = $this->atlValues[$day] / $this->ctlValues[$day];
+            $this->acRatioValues[$day] = round($this->atlValues[$day] / $this->ctlValues[$day], 2);
         }
+
+        // Round numbers when all calculating is done.
+        $this->atlValues = array_map(fn (int|float $value) => round($value, 1), $this->atlValues);
+        $this->ctlValues = array_map(fn (int|float $value) => round($value, 1), $this->ctlValues);
+        $this->tsbValues = array_map(fn (int|float $value) => round($value, 1), $this->tsbValues);
+        $this->trimpValues = array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $this->trimpValues);
+        $this->strainValues = array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $this->strainValues);
+        $this->monotonyValues = array_map(fn (int|float|null $value) => null === $value ? null : round($value, 2), $this->monotonyValues);
     }
 
     /**
