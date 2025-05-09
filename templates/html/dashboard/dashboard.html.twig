@@ -250,7 +250,7 @@
         </div>
         <!-- ACTIVITY HEATMAP -->
         <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-xs sm:p-6">
-            <div class="mb-4 flex items-center">
+            <div class="flex items-center">
                 <h3 class="font-semibold text-lg">{{ "Activity intensity"|trans }}</h3>
                 <button class="hidden lg:block" data-popover-target="popover-description" data-popover-placement="right"
                         type="button">
@@ -308,7 +308,7 @@
                     {{ "View details"|trans }}
                 </a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {% include 'html/dashboard/training-metrics.html.twig' with {'trainingMetrics': trainingMetrics } %}
             </div>
         </div>
