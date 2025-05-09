@@ -70,7 +70,12 @@ final class TrainingMetrics
                 $strainValues[$delta] = null;
             }
 
-            $acRatioValues[$delta] = round($altValues[$delta] / $ctlValues[$delta], 2);
+            if (0 == $ctlValues[$delta]) {
+                $acRatioValues[$delta] = 0;
+            } else {
+                $acRatioValues[$delta] = round($altValues[$delta] / $ctlValues[$delta], 2);
+            }
+
             ++$delta;
         }
 

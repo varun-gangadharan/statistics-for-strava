@@ -9,7 +9,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class TrainingLoadChart
 {
-    private const int NUMBER_OF_DAYS_TO_DISPLAY = 42;
+    public const int NUMBER_OF_DAYS_TO_DISPLAY = 42;
 
     private function __construct(
         private TrainingMetrics $trainingMetrics,

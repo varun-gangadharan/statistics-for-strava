@@ -182,12 +182,13 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             );
         }
 
-        $randomIntensities = [];
-        for ($i = 50; $i >= 0; --$i) {
-            $randomIntensities[$now->modify('- '.$i.' days')->format('Y-m-d')] = rand(0, 120);
+        $intensities = [];
+        for ($i = (TrainingLoadChart::NUMBER_OF_DAYS_TO_DISPLAY + 8); $i >= 0; --$i) {
+            $calculateForDate = $now->modify('- '.$i.' days');
+            $intensities[$calculateForDate->format('Y-m-d')] = $this->activityIntensity->calculateForDate($calculateForDate);
         }
 
-        $trainingMetrics = TrainingMetrics::create($randomIntensities);
+        $trainingMetrics = TrainingMetrics::create($intensities);
         $numberOfRestDays = $this->queryBus->ask(new FindNumberOfRestDays(DateRange::fromDates(
             from: $now->modify('-6 days'),
             till: $now,
@@ -203,7 +204,6 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 'powerOutputs' => $bestAllTimePowerOutputs,
                 'activityIntensityChart' => Json::encode(
                     ActivityIntensityChart::create(
-                        activities: $allActivities,
                         activityIntensity: $this->activityIntensity,
                         translator: $this->translator,
                         now: $now,
