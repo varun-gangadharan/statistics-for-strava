@@ -13,7 +13,7 @@ final class TrainingMetrics
     /** @var array<string, int|float> */
     private array $tsbValues = [];
     /** @var array<string, int|float|null> */
-    private array $trimpValues = [];
+    private array $trimpValues = []; // Will now store daily TRIMP (intensity)
     /** @var array<string, int|float|null> */
     private array $monotonyValues = [];
     /** @var array<string, int|float|null> */
@@ -29,7 +29,7 @@ final class TrainingMetrics
     }
 
     /**
-     * @param array<string, int> $intensities
+     * @param array<string, int> $intensities // Keys should be dates/identifiers, values are daily TRIMP/intensity
      */
     public static function create(array $intensities): TrainingMetrics
     {
@@ -44,7 +44,13 @@ final class TrainingMetrics
         $altValues = $ctlValues = $tsbValues = $trimpValues = $monotonyValues = $strainValues = $acRatioValues = [];
 
         $delta = 0;
-        foreach ($this->intensities as $intensity) {
+        // Store intensities with numeric keys temporarily for easier slicing by index
+        $numericIntensities = array_values($this->intensities);
+
+        foreach ($numericIntensities as $intensity) {
+            // Assign daily intensity directly to trimpValues for this delta
+            $trimpValues[$delta] = $intensity;
+
             if (0 === $delta) {
                 $altValues[$delta] = $intensity;
                 $ctlValues[$delta] = $intensity;
@@ -55,17 +61,20 @@ final class TrainingMetrics
                 $tsbValues[$delta] = $ctlValues[$delta - 1] - $altValues[$delta - 1];
             }
 
+            // Monotony and Strain still depend on a 7-day window
             if ($delta >= 6) { // Day 6 = first full week
-                $weekLoads = array_slice($this->intensities, $delta - 6, 7);
-                $sum = array_sum($weekLoads);
+                // Use the numeric-keyed array for slicing
+                $weekLoads = array_slice($numericIntensities, $delta - 6, 7);
+                $sum = array_sum($weekLoads); // Weekly sum needed for Strain calculation
                 $avg = $sum / 7;
                 $std = $this->standardDeviation($weekLoads);
 
-                $trimpValues[$delta] = $sum;
+                // Monotony calculation remains the same
                 $monotonyValues[$delta] = $std > 0 ? $avg / $std : 0;
-                $strainValues[$delta] = $trimpValues[$delta] * $monotonyValues[$delta];
+                // Strain calculation uses the weekly sum ($sum) and monotony
+                $strainValues[$delta] = $sum * $monotonyValues[$delta];
             } else {
-                $trimpValues[$delta] = null;
+                // No monotony/strain calculation possible before a full week
                 $monotonyValues[$delta] = null;
                 $strainValues[$delta] = null;
             }
@@ -79,19 +88,20 @@ final class TrainingMetrics
             ++$delta;
         }
 
-        $intensityKeys = array_keys($this->intensities);
-        // Round numbers when all calculating is done.
+        $intensityKeys = array_keys($this->intensities); // Get original keys back
+        // Round numbers when all calculating is done and combine with original keys.
         $this->acRatioValues = array_combine($intensityKeys, $acRatioValues);
         $this->atlValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $altValues));
         $this->ctlValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $ctlValues));
         $this->tsbValues = array_combine($intensityKeys, array_map(fn (int|float $value) => round($value, 1), $tsbValues));
+        // Apply rounding/casting to the daily trimp values
         $this->trimpValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $trimpValues));
         $this->strainValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : (int) round($value), $strainValues));
         $this->monotonyValues = array_combine($intensityKeys, array_map(fn (int|float|null $value) => null === $value ? null : round($value, 2), $monotonyValues));
     }
 
     /**
-     * @return array<int, int|float>
+     * @return array<int, int|float> // Note: Changed getter return type description slightly for consistency, not functionality
      */
     public function getAtlValuesForXLastDays(int $numberOfDays): array
     {
@@ -104,11 +114,13 @@ final class TrainingMetrics
             return null;
         }
 
-        return end($this->atlValues);
+        // Use array_pop on a copy to avoid modifying the internal array state
+        $copy = $this->atlValues;
+        return array_pop($copy);
     }
 
     /**
-     * @return array<int, int|float>
+     * @return array<int, int|float> // Note: Changed getter return type description slightly for consistency, not functionality
      */
     public function getCtlValuesForXLastDays(int $numberOfDays): array
     {
@@ -121,11 +133,13 @@ final class TrainingMetrics
             return null;
         }
 
-        return end($this->ctlValues);
+        // Use array_pop on a copy
+        $copy = $this->ctlValues;
+        return array_pop($copy);
     }
 
     /**
-     * @return array<int, int|float>
+     * @return array<int, int|float> // Note: Changed getter return type description slightly for consistency, not functionality
      */
     public function getTsbValuesForXLastDays(int $numberOfDays): array
     {
@@ -138,24 +152,31 @@ final class TrainingMetrics
             return null;
         }
 
-        return end($this->tsbValues);
+        // Use array_pop on a copy
+        $copy = $this->tsbValues;
+        return array_pop($copy);
     }
 
     /**
-     * @return array<int, int|float|null>
+     * @return array<int, int|float|null> // Note: Changed getter return type description slightly for consistency, not functionality
      */
     public function getTrimpValuesForXLastDays(int $numberOfDays): array
     {
         return array_values(array_slice($this->trimpValues, -$numberOfDays));
     }
 
-    public function getCurrentTrimp(): ?float
+    // Renamed function to better reflect it returns the *last* daily TRIMP value
+    public function getLastDailyTrimp(): ?int // Return type changed to int|null based on array type
     {
         if (empty($this->trimpValues)) {
             return null;
         }
 
-        return end($this->trimpValues);
+        // Use array_pop on a copy
+        $copy = $this->trimpValues;
+        $value = array_pop($copy);
+        // Ensure it's null or int
+        return is_numeric($value) ? (int)$value : null;
     }
 
     public function getCurrentMonotony(): ?float
@@ -164,16 +185,23 @@ final class TrainingMetrics
             return null;
         }
 
-        return end($this->monotonyValues);
+        // Use array_pop on a copy
+        $copy = $this->monotonyValues;
+        $value = array_pop($copy);
+        return is_numeric($value) ? (float)$value : null; // Ensure float or null
     }
 
-    public function getCurrentStrain(): ?float
+    public function getCurrentStrain(): ?int // Return type changed to int|null based on array type
     {
         if (empty($this->strainValues)) {
             return null;
         }
 
-        return end($this->strainValues);
+        // Use array_pop on a copy
+        $copy = $this->strainValues;
+        $value = array_pop($copy);
+         // Ensure it's null or int
+        return is_numeric($value) ? (int)$value : null;
     }
 
     public function getCurrentAcRatio(): ?float
@@ -182,20 +210,27 @@ final class TrainingMetrics
             return null;
         }
 
-        return end($this->acRatioValues);
+         // Use array_pop on a copy
+        $copy = $this->acRatioValues;
+        return array_pop($copy); // Already float or 0
     }
 
     /**
-     * @param array<string, int|float> $values
+     * @param array<int, int|float> $values // Changed signature to reflect usage with numerically indexed slice
      */
     private function standardDeviation(array $values): float
     {
-        $mean = array_sum($values) / count($values);
+        $count = count($values);
+        if ($count === 0) {
+            return 0.0; // Avoid division by zero
+        }
+        $mean = array_sum($values) / $count;
         $sumSquares = 0;
         foreach ($values as $v) {
             $sumSquares += pow($v - $mean, 2);
         }
 
-        return sqrt($sumSquares / count($values));
+        // Use population standard deviation as per original logic
+        return sqrt($sumSquares / $count);
     }
 }
