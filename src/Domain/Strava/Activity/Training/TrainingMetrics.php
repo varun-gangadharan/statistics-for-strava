@@ -165,18 +165,24 @@ final class TrainingMetrics
         return array_values(array_slice($this->trimpValues, -$numberOfDays));
     }
 
-    // Renamed function to better reflect it returns the *last* daily TRIMP value
-    public function getLastDailyTrimp(): ?int // Return type changed to int|null based on array type
+    /**
+     * Calculates the sum of TRIMP for the last 7 recorded days.
+     * Returns null if fewer than 7 days of data are available.
+     *
+     * @return int|null // Sum of the last 7 daily TRIMP values
+     */
+    public function getWeeklyTrimp(): ?int
     {
-        if (empty($this->trimpValues)) {
+        // Check if we have at least 7 days of data
+        if (count($this->trimpValues) < 7) {
             return null;
         }
 
-        // Use array_pop on a copy
-        $copy = $this->trimpValues;
-        $value = array_pop($copy);
-        // Ensure it's null or int
-        return is_numeric($value) ? (int)$value : null;
+        // Get the last 7 daily trimp values
+        $lastSevenDaysTrimp = array_slice($this->trimpValues, -7);
+
+        // Sum the values and return as an integer
+        return (int) array_sum($lastSevenDaysTrimp);
     }
 
     public function getCurrentMonotony(): ?float
