@@ -170,7 +170,7 @@ final class TrainingMetrics
         return end($this->monotonyValues);
     }
 
-    public function getCurrentStrain():  ?float
+    public function getCurrentStrain(): ?float
     {
         if (empty($this->strainValues)) {
             return null;
