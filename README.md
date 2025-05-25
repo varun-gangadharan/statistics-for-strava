@@ -112,7 +112,6 @@ services:
       - ./build:/var/www/build
       - ./storage/database:/var/www/storage/database
       - ./storage/files:/var/www/storage/files
-      - ./storage/gear-maintenance:/var/www/storage/gear-maintenance
     env_file: ./.env
     ports:
       - 8080:8080
