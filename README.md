@@ -26,7 +26,8 @@
   <a href="#%EF%B8%8F-installation">Installation</a> •
   <a href="#%EF%B8%8Fimport-and-build-statistics">Import and build statistics</a> •
   <a href="#%EF%B8%8F-locales-and-translations">Locales and translations</a> •
-  <a href="https://discord.gg/p4zpZyCHNc">Discord</a>
+  <a href="https://discord.gg/p4zpZyCHNc">Discord</a> •
+  <a href="#%EF%B8%8F-sponsors">Sponsors</a>
 </p>
 
 <p align="center">
@@ -305,4 +306,10 @@ Everytime you make changes to the app, you need to build the html files again
 ```bash
 > make console arg="app:strava:build-files"
 ```
+
+## ❤️ Sponsors
+
+This project is sponsored by [Blackfire.io](https://www.blackfire.io).
+
+![Blackfire logo](public/assets/images/readme/blackfire-logo.png)
 
