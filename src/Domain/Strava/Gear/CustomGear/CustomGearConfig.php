@@ -18,7 +18,6 @@ final readonly class CustomGearConfig
 
     private function __construct(
         private bool $isFeatureEnabled,
-        private HashtagPrefix $hashtagPrefix,
     ) {
         $this->customGears = CustomGears::empty();
     }
@@ -32,7 +31,6 @@ final readonly class CustomGearConfig
         if (empty($config)) {
             return new self(
                 isFeatureEnabled: false,
-                hashtagPrefix: HashtagPrefix::fromString('dummy'),
             );
         }
 
@@ -50,7 +48,6 @@ final readonly class CustomGearConfig
         $hashtagPrefix = HashtagPrefix::fromString($config['hashtagPrefix']);
         $customGearConfig = new self(
             isFeatureEnabled: $config['enabled'],
-            hashtagPrefix: $hashtagPrefix,
         );
 
         foreach ($config['customGears'] as $customGear) {
@@ -90,7 +87,7 @@ final readonly class CustomGearConfig
         return $this->isFeatureEnabled;
     }
 
-    public function addCustomGear(CustomGear $gear): self
+    public function addCustomGear(CustomGear $gear): void
     {
         $this->customGears->add($gear);
     }
