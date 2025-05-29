@@ -16,7 +16,7 @@ use App\Infrastructure\ValueObject\String\Name;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\Domain\App\BuildAppFilesTestCase;
 use App\Tests\Domain\Strava\Activity\ActivityBuilder;
-use App\Tests\Domain\Strava\Gear\GearBuilder;
+use App\Tests\Domain\Strava\Gear\ImportedGearBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -24,7 +24,7 @@ class BuildGearMaintenanceHtmlCommandHandlerTest extends BuildAppFilesTestCase
 {
     public function testHandle(): void
     {
-        $gear = GearBuilder::fromDefaults()
+        $gear = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed('g10130856'))
             ->build();
         $this->getContainer()->get(GearRepository::class)->save($gear);

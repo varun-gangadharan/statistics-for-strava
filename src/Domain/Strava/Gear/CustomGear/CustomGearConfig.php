@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Gear\CustomGear;
 
-use App\Domain\Strava\Gear\Gear;
 use App\Domain\Strava\Gear\GearId;
+use App\Domain\Strava\Gear\ImportedGear;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\String\HashtagPrefix;
 use App\Infrastructure\ValueObject\String\Name;
@@ -63,7 +63,7 @@ final readonly class CustomGearConfig
             }
 
             $customGearConfig->addCustomGear(CustomGear::create(
-                gear: Gear::fromState(
+                gear: ImportedGear::fromState(
                     gearId: GearId::fromUnprefixed($customGear['tag']),
                     distanceInMeter: Meter::zero(),
                     createdOn: SerializableDateTime::some(),

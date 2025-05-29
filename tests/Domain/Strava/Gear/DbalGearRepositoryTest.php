@@ -16,7 +16,7 @@ class DbalGearRepositoryTest extends ContainerTestCase
 
     public function testFindAndSave(): void
     {
-        $gear = GearBuilder::fromDefaults()
+        $gear = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(1))
             ->withDistanceInMeter(Meter::from(1230))
             ->build();
@@ -36,22 +36,22 @@ class DbalGearRepositoryTest extends ContainerTestCase
 
     public function testFindAll(): void
     {
-        $gearOne = GearBuilder::fromDefaults()
+        $gearOne = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(1))
             ->withDistanceInMeter(Meter::from(1230))
             ->build();
         $this->gearRepository->save($gearOne);
-        $gearTwo = GearBuilder::fromDefaults()
+        $gearTwo = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(2))
             ->withDistanceInMeter(Meter::from(10230))
             ->build();
         $this->gearRepository->save($gearTwo);
-        $gearThree = GearBuilder::fromDefaults()
+        $gearThree = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(3))
             ->withDistanceInMeter(Meter::from(230))
             ->build();
         $this->gearRepository->save($gearThree);
-        $gearFour = GearBuilder::fromDefaults()
+        $gearFour = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(4))
             ->withDistanceInMeter(Meter::from(100230))
             ->withIsRetired(true)
@@ -66,7 +66,7 @@ class DbalGearRepositoryTest extends ContainerTestCase
 
     public function testUpdate(): void
     {
-        $gear = GearBuilder::fromDefaults()
+        $gear = ImportedGearBuilder::fromDefaults()
             ->withGearId(GearId::fromUnprefixed(1))
             ->withDistanceInMeter(Meter::from(1000))
             ->build();

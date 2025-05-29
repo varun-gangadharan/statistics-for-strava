@@ -6,10 +6,11 @@ namespace App\Tests\Domain\Strava\Gear;
 
 use App\Domain\Strava\Gear\Gear;
 use App\Domain\Strava\Gear\GearId;
+use App\Domain\Strava\Gear\ImportedGear;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final class GearBuilder
+final class ImportedGearBuilder
 {
     private GearId $gearId;
     private SerializableDateTime $createdOn;
@@ -33,7 +34,7 @@ final class GearBuilder
 
     public function build(): Gear
     {
-        return Gear::fromState(
+        return ImportedGear::fromState(
             gearId: $this->gearId,
             distanceInMeter: $this->distanceInMeter,
             createdOn: $this->createdOn,

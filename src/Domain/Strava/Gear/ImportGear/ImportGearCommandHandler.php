@@ -2,10 +2,10 @@
 
 namespace App\Domain\Strava\Gear\ImportGear;
 
-use App\Domain\Strava\Gear\Gear;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Domain\Strava\Gear\GearRepository;
+use App\Domain\Strava\Gear\ImportedGear;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaDataImportStatus;
 use App\Infrastructure\CQRS\Command\Command;
@@ -67,7 +67,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
                     ->updateDistance(Meter::from($stravaGear['distance']))
                     ->updateIsRetired($stravaGear['retired'] ?? false);
             } catch (EntityNotFound) {
-                $gear = Gear::create(
+                $gear = ImportedGear::create(
                     gearId: $gearId,
                     distanceInMeter: Meter::from($stravaGear['distance']),
                     createdOn: $this->clock->getCurrentDateTimeImmutable(),

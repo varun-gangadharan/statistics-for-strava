@@ -57,7 +57,7 @@ final readonly class DbalGearRepository extends DbalRepository implements GearRe
      */
     private function hydrate(array $result): Gear
     {
-        return Gear::fromState(
+        return ImportedGear::fromState(
             gearId: GearId::fromString($result['gearId']),
             distanceInMeter: Meter::from($result['distanceInMeter']),
             createdOn: SerializableDateTime::fromString($result['createdOn']),
