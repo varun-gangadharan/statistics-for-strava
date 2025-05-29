@@ -10,11 +10,15 @@ use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\String\Tag;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 final readonly class CustomGear implements Gear
 {
     private function __construct(
+        #[ORM\Id, ORM\Column(name: 'gearId', type: 'string', unique: true)]
         private Gear $gear,
+        #[ORM\Column(type: 'string')]
         private Tag $customGearTag,
     ) {
     }

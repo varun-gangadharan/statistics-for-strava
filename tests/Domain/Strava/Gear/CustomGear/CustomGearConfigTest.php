@@ -18,6 +18,13 @@ class CustomGearConfigTest extends TestCase
         $this->assertFalse(CustomGearConfig::fromArray([])->isFeatureEnabled());
     }
 
+    public function testFromArray(): void
+    {
+        $this->assertTrue(
+            CustomGearConfig::fromArray($this->getValidYml())->isFeatureEnabled()
+        );
+    }
+
     #[DataProvider(methodName: 'provideInvalidConfig')]
     public function testFromYmlStringItShouldThrow(array $yml, string $expectedException): void
     {
@@ -42,6 +49,27 @@ class CustomGearConfigTest extends TestCase
         $yml = self::getValidYml();
         $yml['customGears'] = 'string';
         yield 'invalid "customGears" key' => [$yml, '"customGears" property must be an array'];
+
+        $yml = self::getValidYml();
+        unset($yml['customGears'][0]['tag']);
+        yield 'missing "customGears[tag]" key' => [$yml, '"tag" property is required for each custom gear'];
+
+        $yml = self::getValidYml();
+        unset($yml['customGears'][0]['label']);
+        yield 'missing "customGears[label]" key' => [$yml, '"label" property is required for each custom gear'];
+
+        $yml = self::getValidYml();
+        unset($yml['customGears'][0]['isRetired']);
+        yield 'missing "customGears[isRetired]" key' => [$yml, '"isRetired" property is required for each custom gear'];
+
+        $yml = self::getValidYml();
+        $yml['customGears'][0]['isRetired'] = 'lol';
+        yield 'invalid "customGears[isRetired]" key' => [$yml, '"isRetired" property must be a boolean'];
+
+        $yml = self::getValidYml();
+        $yml['customGears'][0]['tag'] = 'gearr';
+        $yml['customGears'][1]['tag'] = 'gearr';
+        yield 'duplicate customGear tags' => [$yml, 'duplicate custom gear tags found: gearr'];
     }
 
     private static function getValidYml(): array
