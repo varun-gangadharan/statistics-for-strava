@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Domain\Strava\Gear;
+namespace App\Domain\Strava\Gear\ImportedGear;
 
+use App\Domain\Strava\Gear\GearId;
+use App\Domain\Strava\Gear\Gears;
+use App\Domain\Strava\Gear\GearType;
+use App\Domain\Strava\Gear\ProvideGearRepositoryHelpers;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Repository\DbalRepository;
 use Doctrine\DBAL\Connection;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Gear;
 
 use App\Domain\Strava\Gear\CustomGear\CustomGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 
 final readonly class CombiningGearRepository implements GearRepository
 {

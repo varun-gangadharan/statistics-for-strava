@@ -9,7 +9,7 @@ use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearRepository;
-use App\Domain\Strava\Gear\ImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig;
 use App\Domain\Strava\Gear\Maintenance\Task\MaintenanceTaskTagRepository;
 use App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculator;
@@ -17,7 +17,7 @@ use App\Infrastructure\ValueObject\String\Name;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\Domain\App\BuildAppFilesTestCase;
 use App\Tests\Domain\Strava\Activity\ActivityBuilder;
-use App\Tests\Domain\Strava\Gear\ImportedGearBuilder;
+use App\Tests\Domain\Strava\Gear\ImportedGear\ImportedGearBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 

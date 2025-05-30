@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Gear;
 
 use App\Domain\Strava\Gear\CustomGear\CustomGear;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGear;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Doctrine\DBAL\Connection;

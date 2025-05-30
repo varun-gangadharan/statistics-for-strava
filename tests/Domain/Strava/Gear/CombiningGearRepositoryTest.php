@@ -4,10 +4,11 @@ namespace App\Tests\Domain\Strava\Gear;
 
 use App\Domain\Strava\Gear\CustomGear\CustomGearRepository;
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\ImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Tests\ContainerTestCase;
 use App\Tests\Domain\Strava\Gear\CustomGear\CustomGearBuilder;
+use App\Tests\Domain\Strava\Gear\ImportedGear\ImportedGearBuilder;
 use Spatie\Snapshots\MatchesSnapshots;
 
 class CombiningGearRepositoryTest extends ContainerTestCase

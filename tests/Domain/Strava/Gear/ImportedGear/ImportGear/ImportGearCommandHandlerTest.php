@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Tests\Domain\Strava\Gear\ImportGear;
+namespace App\Tests\Domain\Strava\Gear\ImportedGear\ImportGear;
 
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\ImportedGearRepository;
-use App\Domain\Strava\Gear\ImportGear\ImportGear;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportGear\ImportGear;
 use App\Domain\Strava\Strava;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
 use App\Tests\ContainerTestCase;
-use App\Tests\Domain\Strava\Gear\ImportedGearBuilder;
+use App\Tests\Domain\Strava\Gear\ImportedGear\ImportedGearBuilder;
 use App\Tests\Domain\Strava\SpyStrava;
 use App\Tests\SpyOutput;
 use Spatie\Snapshots\MatchesSnapshots;

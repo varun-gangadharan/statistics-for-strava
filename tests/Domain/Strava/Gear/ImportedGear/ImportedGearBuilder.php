@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Domain\Strava\Gear;
+namespace App\Tests\Domain\Strava\Gear\ImportedGear;
 
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\ImportedGear;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGear;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 

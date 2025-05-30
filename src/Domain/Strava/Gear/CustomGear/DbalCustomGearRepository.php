@@ -6,7 +6,7 @@ namespace App\Domain\Strava\Gear\CustomGear;
 
 use App\Domain\Strava\Gear\Gears;
 use App\Domain\Strava\Gear\GearType;
-use App\Domain\Strava\Gear\ImportedGear;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGear;
 use App\Domain\Strava\Gear\ProvideGearRepositoryHelpers;
 use App\Infrastructure\Repository\DbalRepository;
 use Doctrine\DBAL\Connection;

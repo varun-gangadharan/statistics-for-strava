@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain\Strava\Gear\ImportGear;
+namespace App\Domain\Strava\Gear\ImportedGear\ImportGear;
 
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
-use App\Domain\Strava\Gear\ImportedGear;
-use App\Domain\Strava\Gear\ImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGear;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaDataImportStatus;
 use App\Infrastructure\CQRS\Command\Command;

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Domain\Strava\Gear;
+namespace App\Tests\Domain\Strava\Gear\ImportedGear;
 
-use App\Domain\Strava\Gear\DbalImportedGearRepository;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\Gears;
-use App\Domain\Strava\Gear\ImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\DbalImportedGearRepository;
+use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Tests\ContainerTestCase;
