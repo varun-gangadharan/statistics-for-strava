@@ -3,7 +3,7 @@
 namespace App\Tests\Domain\Strava\Gear\ImportGear;
 
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\GearRepository;
+use App\Domain\Strava\Gear\ImportedGearRepository;
 use App\Domain\Strava\Gear\ImportGear\ImportGear;
 use App\Domain\Strava\Strava;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
@@ -25,7 +25,7 @@ class ImportGearCommandHandlerTest extends ContainerTestCase
         $output = new SpyOutput();
         $this->strava->setMaxNumberOfCallsBeforeTriggering429(4);
 
-        $this->getContainer()->get(GearRepository::class)->save(
+        $this->getContainer()->get(ImportedGearRepository::class)->save(
             ImportedGearBuilder::fromDefaults()
                 ->withGearId(GearId::fromUnprefixed('b12659861'))
                 ->build()
@@ -45,7 +45,7 @@ class ImportGearCommandHandlerTest extends ContainerTestCase
         $output = new SpyOutput();
         $this->strava->setMaxNumberOfCallsBeforeTriggering429(10000);
 
-        $this->getContainer()->get(GearRepository::class)->save(
+        $this->getContainer()->get(ImportedGearRepository::class)->save(
             ImportedGearBuilder::fromDefaults()
                 ->withGearId(GearId::fromUnprefixed('b12659861'))
                 ->build()

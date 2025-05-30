@@ -22,7 +22,7 @@ use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Domain\Strava\Challenge\ChallengeId;
 use App\Domain\Strava\Challenge\ChallengeRepository;
 use App\Domain\Strava\Gear\GearId;
-use App\Domain\Strava\Gear\GearRepository;
+use App\Domain\Strava\Gear\ImportedGearRepository;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortId;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Domain\Strava\Segment\SegmentId;
@@ -221,8 +221,8 @@ trait ProvideTestData
             rawData: $rawData
         ));
 
-        /** @var GearRepository $gearRepository */
-        $gearRepository = $this->getContainer()->get(GearRepository::class);
+        /** @var ImportedGearRepository $gearRepository */
+        $gearRepository = $this->getContainer()->get(ImportedGearRepository::class);
         $gearRepository->save(
             ImportedGearBuilder::fromDefaults()
                 ->withGearId(GearId::fromUnprefixed('b12659861'))
@@ -536,8 +536,8 @@ trait ProvideTestData
                 ->build()
         );
 
-        /** @var GearRepository $gearRepository */
-        $gearRepository = $this->getContainer()->get(GearRepository::class);
+        /** @var ImportedGearRepository $gearRepository */
+        $gearRepository = $this->getContainer()->get(ImportedGearRepository::class);
         $gearRepository->save(
             ImportedGearBuilder::fromDefaults()
                 ->withGearId(GearId::fromUnprefixed('b12659861'))

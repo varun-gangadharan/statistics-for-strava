@@ -4,8 +4,8 @@ namespace App\Domain\Strava\Gear\ImportGear;
 
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
-use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Gear\ImportedGear;
+use App\Domain\Strava\Gear\ImportedGearRepository;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaDataImportStatus;
 use App\Infrastructure\CQRS\Command\Command;
@@ -20,7 +20,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
 {
     public function __construct(
         private Strava $strava,
-        private GearRepository $gearRepository,
+        private ImportedGearRepository $importedGearRepository,
         private StravaDataImportStatus $stravaDataImportStatus,
         private Clock $clock,
     ) {
@@ -61,7 +61,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
             }
 
             try {
-                $gear = $this->gearRepository->find($gearId);
+                $gear = $this->importedGearRepository->find($gearId);
                 $gear
                     ->updateName($stravaGear['name'])
                     ->updateDistance(Meter::from($stravaGear['distance']))
@@ -75,7 +75,7 @@ final readonly class ImportGearCommandHandler implements CommandHandler
                     isRetired: $stravaGear['retired'] ?? false
                 );
             }
-            $this->gearRepository->save($gear);
+            $this->importedGearRepository->save($gear);
             $command->getOutput()->writeln(sprintf('  => Imported/updated gear "%s"', $gear->getName()));
         }
         $this->stravaDataImportStatus->markGearImportAsCompleted();

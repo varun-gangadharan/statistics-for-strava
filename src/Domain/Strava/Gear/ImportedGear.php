@@ -9,11 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'Gear')]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string', options: ['default' => GearType::IMPORTED->value])]
 class ImportedGear implements Gear
 {
     private string $imageSrc;
 
-    private function __construct(
+    final private function __construct(
         #[ORM\Id, ORM\Column(type: 'string', unique: true)]
         private readonly GearId $gearId,
         #[ORM\Column(type: 'datetime_immutable')]
@@ -33,8 +35,8 @@ class ImportedGear implements Gear
         SerializableDateTime $createdOn,
         string $name,
         bool $isRetired,
-    ): self {
-        return new self(
+    ): static {
+        return new static(
             gearId: $gearId,
             createdOn: $createdOn,
             distanceInMeter: $distanceInMeter,
@@ -49,8 +51,8 @@ class ImportedGear implements Gear
         SerializableDateTime $createdOn,
         string $name,
         bool $isRetired,
-    ): self {
-        return new self(
+    ): static {
+        return new static(
             gearId: $gearId,
             createdOn: $createdOn,
             distanceInMeter: $distanceInMeter,
