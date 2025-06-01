@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Gear\CustomGear;
 
 use App\Domain\Strava\Gear\GearId;
+use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\String\HashtagPrefix;
 use App\Infrastructure\ValueObject\String\Name;
@@ -82,8 +83,18 @@ final readonly class CustomGearConfig
         return $this->isFeatureEnabled;
     }
 
+    public function getGearIds(): GearIds
+    {
+        return $this->customGears->getGearIds();
+    }
+
     public function addCustomGear(CustomGear $gear): void
     {
         $this->customGears->add($gear);
+    }
+
+    public function getCustomGears(): CustomGears
+    {
+        return $this->customGears;
     }
 }
