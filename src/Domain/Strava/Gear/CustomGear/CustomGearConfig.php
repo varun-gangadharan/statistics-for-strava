@@ -7,7 +7,6 @@ namespace App\Domain\Strava\Gear\CustomGear;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
-use App\Infrastructure\ValueObject\String\HashtagPrefix;
 use App\Infrastructure\ValueObject\String\Name;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
@@ -44,7 +43,6 @@ final readonly class CustomGearConfig
             throw new InvalidCustomGearConfig('"customGears" property must be an array');
         }
 
-        $hashtagPrefix = HashtagPrefix::fromString($config['hashtagPrefix']);
         $customGearConfig = new self(
             isFeatureEnabled: $config['enabled'],
         );
