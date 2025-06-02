@@ -16,7 +16,7 @@ trait ProvideGearRepositoryHelpers
 
     public function save(Gear $gear, GearType $gearType): void
     {
-        $sql = 'REPLACE INTO Gear (gearId, createdOn, distanceInMeter, name, isRetired, type)
+        $sql = 'REPLACE INTO Gear (gearId, createdOn, distanceInMeter, name, isRetired, `type`)
         VALUES (:gearId, :createdOn, :distanceInMeter, :name, :isRetired, :type)';
 
         $this->getConnection()->executeStatement($sql, [

@@ -7,7 +7,9 @@ namespace App\Domain\Strava\Gear\CustomGear;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearIds;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
+use App\Infrastructure\ValueObject\String\HashtagPrefix;
 use App\Infrastructure\ValueObject\String\Name;
+use App\Infrastructure\ValueObject\String\Tag;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
 final readonly class CustomGearConfig
@@ -16,6 +18,7 @@ final readonly class CustomGearConfig
 
     private function __construct(
         private bool $isFeatureEnabled,
+        private HashtagPrefix $hashtagPrefix,
     ) {
         $this->customGears = CustomGears::empty();
     }
@@ -29,6 +32,7 @@ final readonly class CustomGearConfig
         if (empty($config)) {
             return new self(
                 isFeatureEnabled: false,
+                hashtagPrefix: HashtagPrefix::fromString('dummy'),
             );
         }
 
@@ -45,6 +49,7 @@ final readonly class CustomGearConfig
 
         $customGearConfig = new self(
             isFeatureEnabled: $config['enabled'],
+            hashtagPrefix: HashtagPrefix::fromString($config['hashtagPrefix']),
         );
 
         foreach ($config['customGears'] as $customGear) {
@@ -59,13 +64,18 @@ final readonly class CustomGearConfig
                 throw new InvalidCustomGearConfig('"isRetired" property must be a boolean');
             }
 
-            $customGearConfig->addCustomGear(CustomGear::create(
+            $gear = CustomGear::create(
                 gearId: GearId::fromUnprefixed($customGear['tag']),
                 distanceInMeter: Meter::zero(),
                 createdOn: SerializableDateTime::some(),
                 name: (string) Name::fromString($customGear['label']),
                 isRetired: $customGear['isRetired']
-            ));
+            );
+            $gear = $gear->withFullTag(Tag::fromTags(
+                (string) HashtagPrefix::fromString($config['hashtagPrefix']),
+                $customGear['tag'])
+            );
+            $customGearConfig->addCustomGear($gear);
         }
 
         $customGearTags = array_count_values(array_column($config['customGears'], 'tag'));
@@ -81,6 +91,11 @@ final readonly class CustomGearConfig
         return $this->isFeatureEnabled;
     }
 
+    public function getHashtagPrefix(): HashtagPrefix
+    {
+        return $this->hashtagPrefix;
+    }
+
     public function getGearIds(): GearIds
     {
         return $this->customGears->getGearIds();
@@ -94,5 +109,13 @@ final readonly class CustomGearConfig
     public function getCustomGears(): CustomGears
     {
         return $this->customGears;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAllGearTags(): array
+    {
+        return $this->getCustomGears()->getAllGearTags();
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Tests\Domain\Strava\Gear\CustomGear;
 
+use App\Domain\Strava\Gear\CustomGear\CustomGearConfig;
 use App\Domain\Strava\Gear\CustomGear\CustomGearRepository;
 use App\Domain\Strava\Gear\CustomGear\DbalCustomGearRepository;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\Gears;
 use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
+use App\Infrastructure\ValueObject\String\Tag;
 use App\Tests\ContainerTestCase;
 use App\Tests\Domain\Strava\Gear\ImportedGear\ImportedGearBuilder;
 use Spatie\Snapshots\MatchesSnapshots;
@@ -56,7 +58,12 @@ class DbalCustomGearRepositoryTest extends ContainerTestCase
         $this->customGearRepository->save($gearFour);
 
         $this->assertEquals(
-            Gears::fromArray([$gearTwo, $gearOne, $gearThree, $gearFour]),
+            Gears::fromArray([
+                $gearTwo->withFullTag(Tag::fromString('#sfs-2')),
+                $gearOne->withFullTag(Tag::fromString('#sfs-1')),
+                $gearThree->withFullTag(Tag::fromString('#sfs-3')),
+                $gearFour->withFullTag(Tag::fromString('#sfs-4')),
+            ]),
             $this->customGearRepository->findAll()
         );
     }
@@ -113,7 +120,8 @@ class DbalCustomGearRepositoryTest extends ContainerTestCase
         parent::setUp();
 
         $this->customGearRepository = new DbalCustomGearRepository(
-            $this->getConnection()
+            $this->getConnection(),
+            $this->getContainer()->get(CustomGearConfig::class)
         );
     }
 }

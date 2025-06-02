@@ -19,10 +19,15 @@ final class CustomGears extends Collection
     public function getGearIds(): GearIds
     {
         return GearIds::fromArray(
-            array_map(
-                static fn (Gear $gear): GearId => $gear->getId(),
-                $this->toArray(),
-            )
+            $this->map(static fn (CustomGear $gear): GearId => $gear->getId())
         );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAllGearTags(): array
+    {
+        return $this->map(static fn (CustomGear $gear): string => $gear->getTag());
     }
 }
