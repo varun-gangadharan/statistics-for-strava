@@ -9,6 +9,7 @@ use App\Domain\Strava\Gear\ImportedGear\ImportedGearRepository;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Tests\ContainerTestCase;
+use App\Tests\Domain\Strava\Gear\CustomGear\CustomGearBuilder;
 
 class DbalImportedGearRepositoryTest extends ContainerTestCase
 {
@@ -26,6 +27,15 @@ class DbalImportedGearRepositoryTest extends ContainerTestCase
             $gear,
             $this->importedGearRepository->find($gear->getId())
         );
+    }
+
+    public function testItShouldThrowWhenNotImportedGear(): void
+    {
+        $this->expectExceptionObject(
+            new \InvalidArgumentException('Cannot save App\Domain\Strava\Gear\CustomGear\CustomGear as ImportedGear')
+        );
+
+        $this->importedGearRepository->save(CustomGearBuilder::fromDefaults()->build());
     }
 
     public function testItShouldThrowWhenNotFound(): void

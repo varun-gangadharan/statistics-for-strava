@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Gear\CustomGear\LinkCustomGearToActivities;
 
-use App\Domain\Strava\Activity\Activities;
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\Activity;
 use App\Domain\Strava\Activity\ActivityWithRawData;
@@ -41,7 +40,7 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
 
         $importedGears = $this->importedGearRepository->findAll();
         $customGears = $this->customGearRepository->findAll();
-        $allCustomGearTags = $this->customGearConfig->getAllGearTags();
+        $allCustomGearTags = $customGears->map(static fn (CustomGear $customGear) => $customGear->getTag());
         $activities = $this->activitiesEnricher->getEnrichedActivities();
 
         // Filter out activities that have a Strava gear linked,
@@ -55,7 +54,7 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
         foreach ($activitiesWithoutStravaGear as $activity) {
             $matchedCustomGearTagsForActivity = array_filter(
                 $allCustomGearTags,
-                static fn (string $customGearTag) => str_contains($activity->getOriginalName(), $customGearTag)
+                static fn (string $customGearTag) => 1 === preg_match('/(^|\s)'.preg_quote($customGearTag, '/').'(\s|$)/', $activity->getOriginalName())
             );
 
             if (count($matchedCustomGearTagsForActivity) > 1) {

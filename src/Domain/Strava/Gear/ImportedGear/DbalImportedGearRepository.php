@@ -24,6 +24,10 @@ final readonly class DbalImportedGearRepository extends DbalRepository implement
 
     public function save(ImportedGear $gear): void
     {
+        if (is_subclass_of($gear, ImportedGear::class)) {
+            throw new \InvalidArgumentException(sprintf('Cannot save %s as ImportedGear', $gear::class));
+        }
+
         $this->parentSave(
             gear: $gear,
             gearType: GearType::IMPORTED

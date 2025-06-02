@@ -52,6 +52,7 @@ class LinkCustomGearToActivitiesCommandHandlerTest extends ContainerTestCase
                 ActivityBuilder::fromDefaults()
                     ->withActivityId(ActivityId::fromUnprefixed('with-strava-gear'))
                     ->withGearId(GearId::fromUnprefixed('b12659861'))
+                    ->withName('Activity with Strava gear #sfs-custom')
                     ->build(), []
             )
         );
@@ -61,6 +62,47 @@ class LinkCustomGearToActivitiesCommandHandlerTest extends ContainerTestCase
                 ActivityBuilder::fromDefaults()
                     ->withActivityId(ActivityId::fromUnprefixed('without-gear-but-not-tagged'))
                     ->withoutGearId()
+                    ->withName('Activity without gear but not tagged')
+                    ->build(), []
+            )
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('with-gear-but-not-tagged'))
+                    ->withGearId(GearId::fromUnprefixed('some-gear-id'))
+                    ->withName('Activity with gear but not tagged')
+                    ->build(), []
+            )
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('without-gear-and-tagged'))
+                    ->withoutGearId()
+                    ->withName('Activity without gear and tagged #sfs-custom')
+                    ->build(), []
+            )
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('without-gear-and-tagged-2'))
+                    ->withoutGearId()
+                    ->withName('Activity without gear and tagged #sfs-custom-two')
+                    ->build(), []
+            )
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('without-gear-and-tagged-3'))
+                    ->withoutGearId()
+                    ->withName('Activity without gear and tagged #sfs-custom')
                     ->build(), []
             )
         );
@@ -74,6 +116,52 @@ class LinkCustomGearToActivitiesCommandHandlerTest extends ContainerTestCase
         $this->assertMatchesJsonSnapshot(
             $this->getConnection()->executeQuery('SELECT * FROM Gear')->fetchAllAssociative()
         );
+    }
+
+    public function testHandleWithMultipleTagsOnActicityTitle(): void
+    {
+        $output = new SpyOutput();
+
+        $this->getContainer()->get(ImportedGearRepository::class)->save(
+            ImportedGearBuilder::fromDefaults()
+                ->withGearId(GearId::fromUnprefixed('b12659861'))
+                ->build()
+        );
+
+        $this->getContainer()->get(CustomGearRepository::class)->save(
+            CustomGearBuilder::fromDefaults()
+                ->withGearId(GearId::fromUnprefixed('custom'))
+                ->build()
+        );
+
+        $this->getContainer()->get(CustomGearRepository::class)->save(
+            CustomGearBuilder::fromDefaults()
+                ->withGearId(GearId::fromUnprefixed('custom-two'))
+                ->build()
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('without-gear-but-not-tagged'))
+                    ->withoutGearId()
+                    ->withName('Activity without gear but not tagged')
+                    ->build(), []
+            )
+        );
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(
+            ActivityWithRawData::fromState(
+                ActivityBuilder::fromDefaults()
+                    ->withActivityId(ActivityId::fromUnprefixed('without-gear-and-tagged'))
+                    ->withoutGearId()
+                    ->withName('Activity without gear and tagged #sfs-custom #sfs-custom-two')
+                    ->build(), []
+            )
+        );
+
+        $this->commandBus->dispatch(new LinkCustomGearToActivities($output));
+        $this->assertMatchesTextSnapshot($output);
     }
 
     #[\Override]
