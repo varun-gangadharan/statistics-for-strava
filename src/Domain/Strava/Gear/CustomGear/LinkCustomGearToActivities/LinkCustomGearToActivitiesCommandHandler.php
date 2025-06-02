@@ -68,7 +68,7 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
             }
 
             if (1 === count($matchedCustomGearTagsForActivity)) {
-                $activitiesWithCustomGearTag[reset($matchedCustomGearTagsForActivity)] = $activity;
+                $activitiesWithCustomGearTag[reset($matchedCustomGearTagsForActivity)][] = $activity;
             } else {
                 $activitiesWithoutCustomGearTag[] = $activity;
             }
@@ -89,10 +89,9 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
         /** @var CustomGear $customGear */
         foreach ($customGears as $customGear) {
             $customGear->updateDistance(Meter::zero());
-
             $activitiesTaggedWithCustomGear = $activitiesWithCustomGearTag[$customGear->getTag()] ?? [];
 
-            foreach ($activitiesTaggedWithCustomGear as $activity) { // Activity has a Strava gear linked, skip it.
+            foreach ($activitiesTaggedWithCustomGear as $activity) {
                 $activityWithRawData = $this->activityWithRawDataRepository->find($activity->getId());
                 $activityRawData = $activityWithRawData->getRawData();
 
