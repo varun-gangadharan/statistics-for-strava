@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   Box,
   Button,
@@ -8,42 +9,60 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { DirectionsRun } from '@mui/icons-material';
-import stravaService from '../services/stravaService';
 
-const CLIENT_ID = '158672';
-const REDIRECT_URI = `${window.location.origin}/login`;
+const CLIENT_ID = process.env.REACT_APP_STRAVA_CLIENT_ID || '158672';
+const CLIENT_SECRET = process.env.REACT_APP_STRAVA_CLIENT_SECRET || '42144b0c71224f2530b5d8433d575e0f3775659e';
+const REDIRECT_URI = `${window.location.origin}/callback`;
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
-      const urlParams = new URLSearchParams(location.search);
+    const handleCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       
       if (code) {
         setLoading(true);
         try {
-          await stravaService.exchangeToken(code);
+          const response = await axios.post('https://www.strava.com/oauth/token', {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            code,
+            grant_type: 'authorization_code'
+          });
+
+          // Store everything in localStorage
+          localStorage.setItem('strava_access_token', response.data.access_token);
+          localStorage.setItem('strava_refresh_token', response.data.refresh_token);
+          localStorage.setItem('strava_token_expiry', response.data.expires_at);
+          localStorage.setItem('strava_athlete', JSON.stringify(response.data.athlete));
+
           navigate('/');
         } catch (err) {
           console.error('Authentication error:', err);
-          setError('Failed to authenticate with Strava. Please try again.');
+          setError('Failed to authenticate with Strava');
         } finally {
           setLoading(false);
         }
       }
     };
 
-    handleAuthCallback();
-  }, [location, navigate]);
+    handleCallback();
+  }, [navigate]);
 
   const handleLogin = () => {
     const scope = 'read,activity:read_all,profile:read_all';
-    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scope}`;
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'code',
+      scope: scope,
+      approval_prompt: 'force'
+    });
+    window.location.href = `https://www.strava.com/oauth/authorize?${params.toString()}`;
   };
 
   if (loading) {
@@ -53,7 +72,7 @@ const Login = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: '80vh',
+          minHeight: '100vh',
         }}
       >
         <CircularProgress />
@@ -65,10 +84,10 @@ const Login = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '80vh',
+        alignItems: 'center',
+        minHeight: '100vh',
+        bgcolor: '#f5f5f5',
       }}
     >
       <Paper
@@ -79,15 +98,15 @@ const Login = () => {
           flexDirection: 'column',
           alignItems: 'center',
           maxWidth: 400,
-          width: '100%',
+          width: '90%',
         }}
       >
-        <DirectionsRun sx={{ fontSize: 60, mb: 2, color: 'primary.main' }} />
+        <DirectionsRun sx={{ fontSize: 48, color: '#FC4C02', mb: 2 }} />
         <Typography variant="h4" component="h1" gutterBottom>
-          Welcome to Runman
+          Statistics for Strava
         </Typography>
-        <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>
-          Connect with Strava to track your running statistics and analyze your performance
+        <Typography variant="body1" color="textSecondary" align="center" sx={{ mb: 3 }}>
+          Connect with Strava to analyze your activities and get personalized insights
         </Typography>
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
@@ -96,13 +115,11 @@ const Login = () => {
         )}
         <Button
           variant="contained"
-          color="primary"
-          size="large"
           onClick={handleLogin}
           sx={{
-            backgroundColor: '#FC4C02',
+            bgcolor: '#FC4C02',
             '&:hover': {
-              backgroundColor: '#E34402',
+              bgcolor: '#E34902',
             },
           }}
         >
