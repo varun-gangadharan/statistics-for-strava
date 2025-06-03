@@ -2,6 +2,7 @@
 
 namespace App\Domain\Strava\Gear\ImportedGear;
 
+use App\Domain\Strava\Gear\CustomGear\CustomGear;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\Gears;
 use App\Domain\Strava\Gear\GearType;
@@ -24,7 +25,7 @@ final readonly class DbalImportedGearRepository extends DbalRepository implement
 
     public function save(ImportedGear $gear): void
     {
-        if (is_subclass_of($gear, ImportedGear::class)) {
+        if ($gear instanceof CustomGear) {
             throw new \InvalidArgumentException(sprintf('Cannot save %s as ImportedGear', $gear::class));
         }
 
