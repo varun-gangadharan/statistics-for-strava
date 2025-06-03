@@ -18,8 +18,6 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
-        exclude:
-            - '../src/Kernel.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -44,7 +42,8 @@ services:
         arguments: ['%kernel.project_dir%']
 
     App\Infrastructure\ValueObject\String\PlatformEnvironment:
-        factory: [ App\Infrastructure\ValueObject\String\PlatformEnvironment, 'fromServer' ]
+        autoconfigure: false
+        factory: [ null, 'fromServer' ]
 
     App\Infrastructure\Time\Format\DateAndTimeFormat:
         factory: [ null, 'create' ]
@@ -58,17 +57,14 @@ services:
         arguments: ['%env(string:TZ)%']
 
     App\Infrastructure\ValueObject\Measurement\UnitSystem:
-        factory: [ App\Infrastructure\ValueObject\Measurement\UnitSystem, from ]
-        arguments: ['@=app_config("appearance.unitSystem")']
+        autoconfigure: false
+        factory: [ null, 'from' ]
+        arguments: [ '@=app_config("appearance.unitSystem")' ]
 
     App\Infrastructure\Localisation\Locale:
-        factory: [ App\Infrastructure\Localisation\Locale, 'from' ]
+        autoconfigure: false
+        factory: [ null, 'from' ]
         arguments: ['@=app_config("appearance.locale")']
-
-    League\Flysystem\FilesystemOperator: '@default.storage'
-
-    GuzzleHttp\Client:
-        class: GuzzleHttp\Client
 
     app.config:
         public: true # We need to access this service from the container in expressions
@@ -108,45 +104,54 @@ services:
         arguments: ['@=app_config("general.athlete.maxHeartRateFormula")']
 
     App\Domain\Strava\Activity\ImportActivities\ActivityVisibilitiesToImport:
-        factory: [ null, from ]
+        factory: [ null, 'from' ]
         arguments: ['@=app_config("import.activityVisibilitiesToImport")']
 
     App\Domain\Strava\Activity\ImportActivities\NumberOfNewActivitiesToProcessPerImport:
-        factory: [ null, fromInt ]
+        factory: [ null, 'fromInt' ]
         arguments: ['@=app_config("import.numberOfNewActivitiesToProcessPerImport")']
 
     App\Domain\Strava\Activity\ImportActivities\ActivitiesToSkipDuringImport:
-        factory: [ null, from ]
+        factory: [ null, 'from' ]
         arguments: ['@=app_config("import.activitiesToSkipDuringImport")']
 
     App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore:
         class: App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore
-        factory: [ null, fromOptionalString ]
+        factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("import.skipActivitiesRecordedBefore")']
 
     App\Domain\Strava\Activity\SportType\SportTypesToImport:
-        factory: [ null, from ]
+        factory: [ null, 'from' ]
         arguments: ['@=app_config("import.sportTypesToImport")']
 
     App\Domain\Strava\Athlete\Weight\AthleteWeightHistory:
-        factory: [ null, fromArray ]
+        factory: [ null, 'fromArray' ]
         arguments: [
             '@=app_config("general.athlete.weightHistory")',
             '@App\Infrastructure\ValueObject\Measurement\UnitSystem'
         ]
 
     App\Domain\Strava\Ftp\FtpHistory:
-        factory: [ null, fromArray ]
+        factory: [ null, 'fromArray' ]
         arguments: ['@=app_config("general.athlete.ftpHistory")']
 
+    App\Domain\Strava\Gear\CustomGear\CustomGearConfig:
+        factory: [ null, 'fromArray' ]
+        arguments: ['@=app_config("custom_gear", [])']
+
     App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig:
-        factory: [ null, fromArray ]
+        factory: [ null, 'fromArray' ]
         arguments: ['@=app_config("gearMaintenance", [])']
 
     App\Domain\Zwift\ZwiftLevel:
-        factory: [ null, fromOptionalString ]
+        factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("zwift.level")']
 
     App\Domain\Zwift\ZwiftRacingScore:
-        factory: [ null, fromOptionalString ]
+        factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("zwift.racingScore")']
+
+    League\Flysystem\FilesystemOperator: '@default.storage'
+
+    GuzzleHttp\Client:
+        class: GuzzleHttp\Client
