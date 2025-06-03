@@ -1,4 +1,4 @@
-# Statistics for Strava
+# Runman
 
 A data-driven training platform that leverages Strava's API to provide advanced analytics and generate personalized training plans using statistical modeling and exercise science principles.
 
